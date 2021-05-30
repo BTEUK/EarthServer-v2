@@ -6,7 +6,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import me.elgamer.earthserver.utils.LocationSQL;
+import me.elgamer.earthserver.sql.LocationSQL;
 
 public class GotoRequest implements CommandExecutor {
 	

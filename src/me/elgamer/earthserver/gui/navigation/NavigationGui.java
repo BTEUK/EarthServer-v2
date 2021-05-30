@@ -1,4 +1,4 @@
-package me.elgamer.earthserver.gui;
+package me.elgamer.earthserver.gui.navigation;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;

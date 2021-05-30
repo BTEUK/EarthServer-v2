@@ -8,8 +8,9 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 
 import me.elgamer.earthserver.Main;
-import me.elgamer.earthserver.utils.LocationSQL;
-import me.elgamer.earthserver.utils.MySQL;
+import me.elgamer.earthserver.sql.LocationSQL;
+import me.elgamer.earthserver.sql.PlayerData;
+import me.elgamer.earthserver.utils.User;
 
 public class JoinEvent implements Listener {
 
@@ -22,18 +23,12 @@ public class JoinEvent implements Listener {
 	public void onPlayerJoin(PlayerJoinEvent e) {
 
 		Player p = e.getPlayer();
-		MySQL mysql = new MySQL();
-
-		String region = mysql.getRegions(p.getUniqueId().toString()); 
-
-		if (region == null) {
-			return;
-		}
-
-		String[] regions = region.split(";");
-
-		for (int i = 0; i<regions.length; i++) {
-			mysql.updateTime(regions[i]);
+		User u = Main.addUser(p);
+		
+		if (PlayerData.hasPlayer(u)) {
+			PlayerData.updatePlayer(u);
+		} else {
+			PlayerData.addPlayer(u);
 		}
 		
 		if (p.hasPermission("earthserver.location.add")) {

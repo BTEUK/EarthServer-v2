@@ -1,4 +1,4 @@
-package me.elgamer.earthserver.gui;
+package me.elgamer.earthserver.gui.claim;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -7,8 +7,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import me.elgamer.earthserver.utils.ClaimRegion;
-import me.elgamer.earthserver.utils.Permissions;
 import me.elgamer.earthserver.utils.Utils;
 
 public class ClaimGui {
@@ -43,39 +41,9 @@ public class ClaimGui {
 		return toReturn;
 	}
 	
-	@SuppressWarnings("deprecation")
 	public static void clicked(Player p, int slot, ItemStack clicked, Inventory inv) {
 		
-		ClaimRegion claim = new ClaimRegion();
 		
-		if (clicked.getType().getId() == 0) {
-		} else if (!(inv.getName().equalsIgnoreCase("Claim"))) {					
-	    } else if (clicked.getItemMeta().getDisplayName().equalsIgnoreCase(Utils.chat("&cClaim"))) {
-			claim.createRegion(p, getRegion(p));
-			Permissions.updatePermissions();
-		} else if (clicked.getItemMeta().getDisplayName().equalsIgnoreCase(Utils.chat("&cTeam Claim"))) {
-			if (claim.createRegion(p, getRegion(p))) {
-				claim.setPublic(p, getRegion(p));
-			}
-			Permissions.updatePermissions();
-		} else if (clicked.getItemMeta().getDisplayName().equalsIgnoreCase(Utils.chat("&cPublic"))) {
-			claim.setPublic(p, getRegion(p));
-			Permissions.updatePermissions();
-		} else if (clicked.getItemMeta().getDisplayName().equalsIgnoreCase(Utils.chat("&cPrivate"))) {
-			claim.setPrivate(p, getRegion(p));
-			Permissions.updatePermissions();
-		} else if (clicked.getItemMeta().getDisplayName().equalsIgnoreCase(Utils.chat("&cAdd"))) {
-			claim.addMember(p, getRegion(p));
-			Permissions.updatePermissions();
-		} else if (clicked.getItemMeta().getDisplayName().equalsIgnoreCase(Utils.chat("&cRemove"))) {
-			claim.removeMember(p, getRegion(p));
-			Permissions.updatePermissions();
-		} else if (clicked.getItemMeta().getDisplayName().equalsIgnoreCase(Utils.chat("&cUnclaim"))) {
-			claim.removeRegion(p, getRegion(p));
-			Permissions.updatePermissions();
-		} else if (clicked.getItemMeta().getDisplayName().equalsIgnoreCase(Utils.chat("&cHelp"))) {
-			claim.help(p);
-		}
 	}
 	
 	public static String getRegion(Player p) {

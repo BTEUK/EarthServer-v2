@@ -7,17 +7,16 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 
 import me.elgamer.earthserver.Main;
-import me.elgamer.earthserver.gui.ClaimGui;
-//import me.elgamer.earthserver.gui.CustomGui;
-import me.elgamer.earthserver.gui.EnglandGui;
-import me.elgamer.earthserver.gui.LocationGui;
-import me.elgamer.earthserver.gui.LondonGui;
-import me.elgamer.earthserver.gui.NavigationGui;
-import me.elgamer.earthserver.gui.NorthernIrelandGui;
-import me.elgamer.earthserver.gui.OtherGui;
-import me.elgamer.earthserver.gui.ScotlandGui;
-import me.elgamer.earthserver.gui.SwitchServerGui;
-import me.elgamer.earthserver.gui.WalesGui;
+import me.elgamer.earthserver.gui.claim.ClaimGui;
+import me.elgamer.earthserver.gui.navigation.EnglandGui;
+import me.elgamer.earthserver.gui.navigation.LocationGui;
+import me.elgamer.earthserver.gui.navigation.LondonGui;
+import me.elgamer.earthserver.gui.navigation.NavigationGui;
+import me.elgamer.earthserver.gui.navigation.NorthernIrelandGui;
+import me.elgamer.earthserver.gui.navigation.OtherGui;
+import me.elgamer.earthserver.gui.navigation.ScotlandGui;
+import me.elgamer.earthserver.gui.navigation.SwitchServerGui;
+import me.elgamer.earthserver.gui.navigation.WalesGui;
 
 public class InventoryClicked implements Listener {
 	

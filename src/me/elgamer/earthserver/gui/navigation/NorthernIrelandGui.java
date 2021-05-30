@@ -1,4 +1,4 @@
-package me.elgamer.earthserver.gui;
+package me.elgamer.earthserver.gui.navigation;
 
 import java.util.ArrayList;
 
@@ -9,17 +9,17 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import me.elgamer.earthserver.utils.LocationSQL;
+import me.elgamer.earthserver.sql.LocationSQL;
 import me.elgamer.earthserver.utils.Utils;
 
-public class WalesGui {
+public class NorthernIrelandGui {
 	
 	public static Inventory inv;
 	public static String inventory_name;
 	public static int inv_rows = 5 * 9;
 
 	public static void initialize() {
-		inventory_name = ChatColor.AQUA + "" + ChatColor.BOLD + "Wales";
+		inventory_name = ChatColor.AQUA + "" + ChatColor.BOLD + "Northern Ireland";
 
 		inv = Bukkit.createInventory(null, inv_rows);
 
@@ -32,7 +32,7 @@ public class WalesGui {
 		inv.clear();
 
 
-		ArrayList<String[]> locations = LocationSQL.getLocations("wales");
+		ArrayList<String[]> locations = LocationSQL.getLocations("northern-ireland");
 
 		int i = 11;
 

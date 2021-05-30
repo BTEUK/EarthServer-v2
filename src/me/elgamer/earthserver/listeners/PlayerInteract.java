@@ -7,7 +7,7 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEvent;
 
 import me.elgamer.earthserver.Main;
-import me.elgamer.earthserver.gui.NavigationGui;
+import me.elgamer.earthserver.gui.navigation.NavigationGui;
 
 public class PlayerInteract implements Listener {
 	

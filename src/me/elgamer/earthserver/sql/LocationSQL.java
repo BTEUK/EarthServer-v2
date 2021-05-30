@@ -1,4 +1,4 @@
-package me.elgamer.earthserver.utils;
+package me.elgamer.earthserver.sql;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

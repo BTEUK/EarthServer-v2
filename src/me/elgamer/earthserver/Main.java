@@ -2,8 +2,8 @@ package me.elgamer.earthserver;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -13,40 +13,32 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import me.elgamer.earthserver.commands.Add;
 import me.elgamer.earthserver.commands.AddLocation;
-import me.elgamer.earthserver.commands.AddToDatabase;
-import me.elgamer.earthserver.commands.Adminclaim;
-import me.elgamer.earthserver.commands.Claim;
 import me.elgamer.earthserver.commands.DenyLocation;
 import me.elgamer.earthserver.commands.GotoRequest;
 import me.elgamer.earthserver.commands.OpenGui;
-import me.elgamer.earthserver.commands.Private;
-import me.elgamer.earthserver.commands.Public;
-import me.elgamer.earthserver.commands.Remove;
 import me.elgamer.earthserver.commands.RemoveLocation;
 import me.elgamer.earthserver.commands.RequestLocation;
 import me.elgamer.earthserver.commands.Requests;
 import me.elgamer.earthserver.commands.TPBlock;
-import me.elgamer.earthserver.commands.Teamclaim;
-import me.elgamer.earthserver.commands.Unclaim;
-import me.elgamer.earthserver.gui.ClaimGui;
-import me.elgamer.earthserver.gui.EnglandGui;
-import me.elgamer.earthserver.gui.LocationGui;
-import me.elgamer.earthserver.gui.LondonGui;
-import me.elgamer.earthserver.gui.NavigationGui;
-import me.elgamer.earthserver.gui.NorthernIrelandGui;
-import me.elgamer.earthserver.gui.OtherGui;
-import me.elgamer.earthserver.gui.ScotlandGui;
-import me.elgamer.earthserver.gui.SwitchServerGui;
-import me.elgamer.earthserver.gui.WalesGui;
+import me.elgamer.earthserver.gui.claim.ClaimGui;
+import me.elgamer.earthserver.gui.navigation.EnglandGui;
+import me.elgamer.earthserver.gui.navigation.LocationGui;
+import me.elgamer.earthserver.gui.navigation.LondonGui;
+import me.elgamer.earthserver.gui.navigation.NavigationGui;
+import me.elgamer.earthserver.gui.navigation.NorthernIrelandGui;
+import me.elgamer.earthserver.gui.navigation.OtherGui;
+import me.elgamer.earthserver.gui.navigation.ScotlandGui;
+import me.elgamer.earthserver.gui.navigation.SwitchServerGui;
+import me.elgamer.earthserver.gui.navigation.WalesGui;
 import me.elgamer.earthserver.listeners.InventoryClicked;
 import me.elgamer.earthserver.listeners.JoinEvent;
 import me.elgamer.earthserver.listeners.LeaveEvent;
 import me.elgamer.earthserver.listeners.PlayerInteract;
+import me.elgamer.earthserver.sql.SQLTables;
+import me.elgamer.earthserver.utils.User;
 import net.luckperms.api.LuckPerms;
 import net.milkbowl.vault.permission.Permission;
 
@@ -55,6 +47,9 @@ public class Main extends JavaPlugin {
 	//MySQL
 	private Connection connection;
 	public String host, database, username, password, claimData, permissionData, locationData, locationRequestData;
+
+	public String regionData, ownerData, memberData, playerData;
+
 	public int port;
 
 	//Other
@@ -68,6 +63,8 @@ public class Main extends JavaPlugin {
 
 	public ItemStack slot5;
 	public static ItemStack gui;
+	
+	public static ArrayList<User> users;
 
 	@Override
 	public void onEnable() {
@@ -80,15 +77,20 @@ public class Main extends JavaPlugin {
 
 		//MySQL		
 		mysqlSetup();
+		
+		users = new ArrayList<User>();
 
 		//Spawn
 		spawn = new Location(Bukkit.getWorld(config.getString("World_Name")),config.getDouble("Spawn.x"), config.getDouble("Spawn.y"), config.getDouble("Spawn.z"), config.getLong("Spawn.yaw"), config.getLong("Spawn.pitch"));
 
 		//Creates the mysql table if not existing
-		createClaimTable();
-		createUserTable();
-		createLocationTable();
-		createLocationRequestTable();
+		SQLTables.location(this, locationData);
+		SQLTables.locationRequest(this, locationRequestData);
+
+		SQLTables.region(instance, regionData);
+		SQLTables.owner(instance, ownerData);
+		SQLTables.member(instance, memberData);
+		SQLTables.player(instance, playerData);
 
 		//Listeners
 		new InventoryClicked(this);
@@ -99,18 +101,12 @@ public class Main extends JavaPlugin {
 		//Bungeecord
 		this.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
 
-		//Commands
-		getCommand("claim").setExecutor(new Claim());
-		getCommand("unclaim").setExecutor(new Unclaim());
-		getCommand("teamclaim").setExecutor(new Teamclaim());
-		getCommand("addmember").setExecutor(new Add());
-		getCommand("removemember").setExecutor(new Remove());
-		getCommand("public").setExecutor(new Public());
-		getCommand("private").setExecutor(new Private());
-		getCommand("adminclaim").setExecutor(new Adminclaim());
-		getCommand("addtodatabase").setExecutor(new AddToDatabase());
+		//Commands for claiming
+
+		//Utility command
 		getCommand("tpblock").setExecutor(new TPBlock());
 
+		//Commands for the navigation menu
 		getCommand("locationrequest").setExecutor(new RequestLocation());
 		getCommand("addlocation").setExecutor(new AddLocation());
 		getCommand("removelocation").setExecutor(new RemoveLocation());
@@ -121,6 +117,8 @@ public class Main extends JavaPlugin {
 
 		//GUI
 		ClaimGui.initialize();
+
+		//GUI's for the navigation menu
 		EnglandGui.initialize();
 		LocationGui.initialize();
 		LondonGui.initialize();
@@ -131,19 +129,17 @@ public class Main extends JavaPlugin {
 		SwitchServerGui.initialize();
 		WalesGui.initialize();
 
-		//Vault
-		setupPermissions();
-
-		//LuckPerms
-		setupLuckPerms();
-
 		//Create gui item				
 		gui = new ItemStack(Material.NETHER_STAR);
 		ItemMeta meta = gui.getItemMeta();
 		meta.setDisplayName(ChatColor.AQUA + "" + ChatColor.BOLD + "Navigation Menu");
 		gui.setItemMeta(meta);
 
-		//1 second timer.
+		/*
+		1 second timer.
+		If the player is below Jr.Build in role,
+		then give them the navigation menu in slot 5 of their hotbar at all times.
+		 */
 		this.getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
 			public void run() {
 
@@ -167,6 +163,15 @@ public class Main extends JavaPlugin {
 
 			}
 		}, 0L, 20L);
+
+		//1 minute timer.
+		this.getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
+			public void run() {
+
+				getConnection();
+
+			}
+		}, 0L, 1200L);
 	}
 
 	public void onDisable() {
@@ -183,13 +188,28 @@ public class Main extends JavaPlugin {
 
 	public void mysqlSetup() {
 
+		//Login info
 		host = config.getString("MySQL_host");
 		port = config.getInt("MySQL_port");
-		database = config.getString("MySQL_database");
 		username = config.getString("MySQL_username");
 		password = config.getString("MySQL_password");
+
+		//Database name
+		database = config.getString("MySQL_database");
+
+		//Table names
+		//Old claim data
 		claimData = config.getString("MySQL_claimData");
 		permissionData = config.getString("MySQL_permissionData");
+
+		//New claim data
+		regionData = config.getString("region_data");
+		ownerData = config.getString("owner_data");
+		memberData = config.getString("member_data");
+		playerData = config.getString("player_data");
+
+
+		//Navigation menu
 		locationData = config.getString("MySQL_locationData");
 		locationRequestData = config.getString("MySQL_locationRequestData");
 
@@ -233,75 +253,27 @@ public class Main extends JavaPlugin {
 		this.connection = connection;
 	}
 
-	private boolean setupPermissions() {
-		RegisteredServiceProvider<Permission> rsp = getServer().getServicesManager().getRegistration(Permission.class);
-		perms = rsp.getProvider();
-		return perms != null;
-	}
-
-	public static Permission getPermissions() {
-		return perms;		
-	}
-
 	public static Main getInstance() {
 		return instance;
 	}
-
-	private boolean setupLuckPerms() {
-		RegisteredServiceProvider<LuckPerms> provider = getServer().getServicesManager().getRegistration(LuckPerms.class);
-		lp = provider.getProvider();
-		return lp != null;
+	
+	public static User addUser(Player p) {
+		User u = new User(p);
+		users.add(u);
+		return u;
 	}
-
-	public static LuckPerms getLuckPerms() {
-		return lp;
-	}
-
-	public void createClaimTable() {
-		try {
-			PreparedStatement statement = instance.getConnection().prepareStatement
-					("CREATE TABLE IF NOT EXISTS " + claimData
-							+ " ( REGION_ID VARCHAR(36) NOT NULL , REGION_OWNER TEXT NOT NULL , MEMBERS TEXT NULL DEFAULT NULL , IS_PUBLIC TEXT NOT NULL , LAST_ONLINE TEXT NOT NULL , UNIQUE (REGION_ID))");
-			statement.executeUpdate();
-
-		} catch (SQLException e) {
-			e.printStackTrace();
+	
+	public static User getUser(Player p) {
+		for (User u : users) {
+			if (u.p.equals(p)) {
+				return (u);
+			}
 		}
+		
+		return null;
 	}
-
-	public void createUserTable() {
-		try {
-			PreparedStatement statement = instance.getConnection().prepareStatement
-					("CREATE TABLE IF NOT EXISTS " + permissionData
-							+ " ( UUID VARCHAR(36) NOT NULL , ADD_PERM TEXT NULL DEFAULT NULL , REMOVE_PERM TEXT NULL DEFAULT NULL , UNIQUE (UUID))");
-			statement.executeUpdate();
-
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-	}
-
-	public void createLocationTable() {
-		try {
-			PreparedStatement statement = instance.getConnection().prepareStatement
-					("CREATE TABLE IF NOT EXISTS " + locationData
-							+ " (LOCATION VARCHAR(128) NOT NULL , CATEGORY VARCHAR(128) NOT NULL , SUBCATEGORY VARCHAR(128) NOT NULL , X DOUBLE NOT NULL , Y DOUBLE NOT NULL , Z DOUBLE NOT NULL , PITCH FLOAT NOT NULL , YAW FLOAT NOT NULL , UNIQUE (LOCATION))");
-			statement.executeUpdate();
-
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-	}
-
-	public void createLocationRequestTable() {
-		try {
-			PreparedStatement statement = instance.getConnection().prepareStatement
-					("CREATE TABLE IF NOT EXISTS " + locationRequestData
-							+ " (LOCATION VARCHAR(128) NOT NULL , X DOUBLE NOT NULL , Y DOUBLE NOT NULL , Z DOUBLE NOT NULL , PITCH FLOAT NOT NULL , YAW FLOAT NOT NULL , UNIQUE (LOCATION))");
-			statement.executeUpdate();
-
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+	
+	public static void removeUser(User u) {
+		users.remove(u);
 	}
 }

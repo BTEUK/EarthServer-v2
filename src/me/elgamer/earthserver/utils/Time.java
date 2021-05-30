@@ -1,14 +1,22 @@
 package me.elgamer.earthserver.utils;
 
+import java.sql.Date;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
+import java.util.Locale;
+
 
 public class Time {
-	
-	public static String getTime(){
-	    Calendar cal = Calendar.getInstance();
-	    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-	    return sdf.format(cal.getTime());
+
+	public static long currentTime() {	
+
+		return System.currentTimeMillis();
+	}
+
+	public static String getDate(long time) {
+
+		SimpleDateFormat formatter = new SimpleDateFormat("dd:HH:mm", Locale.UK);
+		Date date = new Date(time);
+		return formatter.format(date);
 	}
 
 }
