@@ -36,6 +36,7 @@ import me.elgamer.earthserver.gui.navigation.WalesGui;
 import me.elgamer.earthserver.listeners.InventoryClicked;
 import me.elgamer.earthserver.listeners.JoinEvent;
 import me.elgamer.earthserver.listeners.LeaveEvent;
+import me.elgamer.earthserver.listeners.MoveEvent;
 import me.elgamer.earthserver.listeners.PlayerInteract;
 import me.elgamer.earthserver.sql.SQLTables;
 import me.elgamer.earthserver.utils.User;
@@ -97,6 +98,7 @@ public class Main extends JavaPlugin {
 		new JoinEvent(this);
 		new LeaveEvent(this);
 		new PlayerInteract(this);
+		new MoveEvent(this);
 
 		//Bungeecord
 		this.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");

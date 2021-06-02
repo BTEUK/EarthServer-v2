@@ -25,3 +25,7 @@ Spawn:
     z:
     yaw:
     pitch:
+    
+#Inactivity demotion in days
+owner_inactive: 56
+member_inactive: 42

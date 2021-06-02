@@ -42,7 +42,7 @@ public class SQLTables {
 		try {
 			PreparedStatement statement = instance.getConnection().prepareStatement
 					("CREATE TABLE IF NOT EXISTS " + table
-							+ " (REGION_ID VARCHAR(15) NOT NULL , REGION_X INT NOT NULL , REGION_Z INT NOT NULL , PUBLIC TINYINT(1) NOT NULL , LOCKED TINYINT(1) NOT NULL , UNIQUE (REGION_ID))");
+							+ " (REGION_ID VARCHAR(15) NOT NULL , REGION_X INT NOT NULL , REGION_Z INT NOT NULL , PUBLIC TINYINT(1) NOT NULL , LOCKED TINYINT(1) NOT NULL , OPEN TINYINT(1) NOT NULL , UNIQUE (REGION_ID))");
 			statement.executeUpdate();
 
 		} catch (SQLException e) {
