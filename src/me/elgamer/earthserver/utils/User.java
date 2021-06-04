@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 import me.elgamer.earthserver.Main;
 import me.elgamer.earthserver.sql.MemberData;
 import me.elgamer.earthserver.sql.OwnerData;
+import me.elgamer.earthserver.sql.PlayerData;
 import me.elgamer.earthserver.sql.RegionData;
 
 public class User {
@@ -20,11 +21,15 @@ public class User {
 	public boolean hasWorldEdit;
 	
 	public World current_world;
+	
+	public int buildingTime;
 
 	public User(Player p) {
 		this.p = p;
 		uuid = p.getUniqueId().toString();
 		name = p.getName();
+		
+		this.buildingTime = PlayerData.getBuildingTime(uuid);
 
 		current_world = p.getWorld();
 		

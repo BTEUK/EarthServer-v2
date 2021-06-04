@@ -8,5 +8,7 @@
 	<classpathentry kind="lib" path="C:/Users/Laurens/Downloads/worldedit-bukkit-6.1.9.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Laurens/Downloads/ExtraContexts.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Laurens/Downloads/api-5.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Laurens/Downloads/EssentialsX-2.18.2.0 (1)/EssentialsX-2.18.2.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Laurens/Downloads/BTEPoints.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

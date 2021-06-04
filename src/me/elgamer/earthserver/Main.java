@@ -9,11 +9,14 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import com.earth2me.essentials.Essentials;
 
 import me.elgamer.earthserver.commands.AddLocation;
 import me.elgamer.earthserver.commands.DenyLocation;
@@ -66,6 +69,10 @@ public class Main extends JavaPlugin {
 	public static ItemStack gui;
 	
 	public static ArrayList<User> users;
+	
+	static Essentials ess;	
+	static int interval;
+	ConsoleCommandSender console;
 
 	@Override
 	public void onEnable() {
@@ -80,6 +87,11 @@ public class Main extends JavaPlugin {
 		mysqlSetup();
 		
 		users = new ArrayList<User>();
+		
+		//Points setup
+		ess = (Essentials) Bukkit.getServer().getPluginManager().getPlugin("Essentials");
+		interval = me.elgamer.btepoints.Main.getInterval();
+		console = Bukkit.getServer().getConsoleSender();
 
 		//Spawn
 		spawn = new Location(Bukkit.getWorld(config.getString("World_Name")),config.getDouble("Spawn.x"), config.getDouble("Spawn.y"), config.getDouble("Spawn.z"), config.getLong("Spawn.yaw"), config.getLong("Spawn.pitch"));
@@ -161,6 +173,24 @@ public class Main extends JavaPlugin {
 						}
 					}
 
+				}
+				
+				//Increase buildingTime for each second the player is in a buildable claim and is not AFK
+				for (User u : users) {
+					
+					if (ess.getUser(u.p).isAfk() == false && u.hasWorldEdit) {
+						
+						u.buildingTime += 1;
+						
+						if (u.buildingTime >= interval) {
+							u.buildingTime -= interval;
+							
+							Bukkit.dispatchCommand(console, "addpoints " + u.name + " 1");
+						}
+						
+						
+					}
+					
 				}
 
 			}
