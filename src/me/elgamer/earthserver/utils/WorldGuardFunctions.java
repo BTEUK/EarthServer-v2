@@ -62,9 +62,9 @@ public class WorldGuardFunctions {
 
 		return (WorldGuardPlugin) plugin;
 	}
-	
+
 	public static void removePublic(ArrayList<OldClaim> claims) {
-		
+
 		Main instance = Main.getInstance();
 		FileConfiguration config = instance.getConfig();
 
@@ -74,30 +74,38 @@ public class WorldGuardFunctions {
 
 		RegionContainer container = wg.getRegionContainer();
 		RegionManager regions = container.get(world);
-		
+
 		ProtectedRegion region;
 		DefaultDomain regionMembers;
 
 		for (OldClaim claim : claims) {
-			
+
 			if (claim.public_private) {
-				
+
 				region = regions.getRegion(claim.region);
 				regionMembers = region.getMembers();
-				
+
 				regionMembers.removeAll();
 				region.setMembers(regionMembers);
-				
+
 				try {
 					regions.save();
 				} catch (StorageException e1) {
 					e1.printStackTrace();
 				}
 			}
-			
+
 		}
-		
-		
+
+
+	}
+
+	public static void addMember(String region, String uuid) {
+
+	}
+
+	public static void addOwner(String region, String uuid) {
+
 	}
 
 

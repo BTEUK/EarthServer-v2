@@ -17,6 +17,7 @@ import me.elgamer.earthserver.gui.navigation.OtherGui;
 import me.elgamer.earthserver.gui.navigation.ScotlandGui;
 import me.elgamer.earthserver.gui.navigation.SwitchServerGui;
 import me.elgamer.earthserver.gui.navigation.WalesGui;
+import me.elgamer.earthserver.utils.User;
 
 public class InventoryClicked implements Listener {
 	
@@ -41,14 +42,15 @@ public class InventoryClicked implements Listener {
 		}
 		
 		String title = e.getView().getTitle();
-				
+		User u = Main.getUser((Player) e.getWhoClicked());		
+		
 		if (title.equals(ClaimGui.inventory_name)) {
 			e.setCancelled(true);
 			if (e.getCurrentItem() == null){
 				return;
 			}
 			if (title.equals(ClaimGui.inventory_name)) {
-				ClaimGui.clicked((Player) e.getWhoClicked(), e.getSlot(), e.getCurrentItem(), e.getInventory());
+				ClaimGui.clicked(u, e.getSlot(), e.getCurrentItem(), e.getInventory());
 			}
 		} else if (title.equals(NavigationGui.inventory_name)) {
 			e.setCancelled(true);

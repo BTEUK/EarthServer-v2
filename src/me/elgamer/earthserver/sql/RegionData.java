@@ -38,7 +38,7 @@ public class RegionData {
 		int z;
 
 		try {
-			
+
 			for (OldClaim claim : claims) {
 
 				statement = instance.getConnection().prepareStatement
@@ -51,7 +51,7 @@ public class RegionData {
 
 				statement.setInt(2, x);
 				statement.setInt(3, z);
-				
+
 				statement.setBoolean(4, claim.public_private);
 				statement.setBoolean(5, false);
 				statement.setBoolean(6, false);
@@ -64,9 +64,9 @@ public class RegionData {
 		}	
 
 	}
-	
+
 	public static boolean isOpen(String region) {
-		
+
 		Main instance = Main.getInstance();
 
 		try {
@@ -74,7 +74,7 @@ public class RegionData {
 					("SELECT * FROM " + instance.regionData + " WHERE REGION_ID=?,OPEN=?");
 			statement.setString(1, region);
 			statement.setBoolean(2, true);
-			
+
 			ResultSet results = statement.executeQuery();
 
 			return (results.next());
@@ -83,9 +83,28 @@ public class RegionData {
 			e.printStackTrace();
 			return false;
 		}	
-		
+
 	}
 
+	public static boolean isPublic(String region) {
 
+		Main instance = Main.getInstance();
+
+		try {
+			PreparedStatement statement = instance.getConnection().prepareStatement
+					("SELECT * FROM " + instance.regionData + " WHERE REGION_ID=?,PUBLIC=?");
+			statement.setString(1, region);
+			statement.setBoolean(2, true);
+
+			ResultSet results = statement.executeQuery();
+
+			return (results.next());
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}	
+
+	}
 
 }

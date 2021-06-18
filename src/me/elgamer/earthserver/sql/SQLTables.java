@@ -94,7 +94,7 @@ public class SQLTables {
 		try {
 			PreparedStatement statement = instance.getConnection().prepareStatement
 					("CREATE TABLE IF NOT EXISTS " + table
-							+ " (REGION_ID VARCHAR(15) NOT NULL , UUID VARCHAR(36) NOT NULL , STAFF_ACCEPT TINYINT(1) NOT NULL , OWNER_ACCEPT TINYINT(1) NOT NULL , UNIQUE (UUID))");
+							+ " (ID INT NOT NULL , REGION_ID VARCHAR(15) NOT NULL , OWNER VARCHAR(36) NOT NULL , UUID VARCHAR(36) NOT NULL , STAFF_ACCEPT TINYINT(1) NOT NULL , OWNER_ACCEPT TINYINT(1) NOT NULL , UNIQUE (ID))");
 			statement.executeUpdate();
 
 		} catch (SQLException e) {
@@ -102,12 +102,25 @@ public class SQLTables {
 		}
 	}
 
-	public static void meesages(Main instance, String table) {
+	public static void messages(Main instance, String table) {
 
 		try {
 			PreparedStatement statement = instance.getConnection().prepareStatement
 					("CREATE TABLE IF NOT EXISTS " + table
 							+ " (ID INT NOT NULL , UUID VARCHAR(36) NOT NULL , MESSAGE TEXT NOT NULL , COLOUR TEXT NOT NULL , UNIQUE (UUID))");
+			statement.executeUpdate();
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static void logs(Main instance, String table) {
+		
+		try {
+			PreparedStatement statement = instance.getConnection().prepareStatement
+					("CREATE TABLE IF NOT EXISTS " + table
+							+ " (ID INT NOT NULL , REGION_ID VARCHAR(15) NOT NULL , UUID VARCHAR(36) NOT NULL , ROLE VARCHAR(16) NOT NULL , START_TIME BIGINT NOT NULL , END_TIME BIGINT NOT NULL , UNIQUE (ID))");
 			statement.executeUpdate();
 
 		} catch (SQLException e) {

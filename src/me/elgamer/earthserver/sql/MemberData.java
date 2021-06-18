@@ -71,9 +71,25 @@ public class MemberData {
 	public static void removeInactiveMembers(long inactive) {
 
 		Main instance = Main.getInstance();
-
+		PreparedStatement statement;
 		try {
-			PreparedStatement statement = instance.getConnection().prepareStatement
+			
+			//Get all inactive member
+			statement = instance.getConnection().prepareStatement
+					("SELECT * FROM " + instance.memberData + " WHERE LAST_ENTER<=?");
+			statement.setLong(1, inactive); 
+			
+			ResultSet results = statement.executeQuery();
+			
+			//Close all logs for inactive member
+			while (results.next()) {
+				
+				RegionLogs.closeLog(results.getString("REGION_ID"), results.getString("UUID"));
+				
+			}
+			
+			//Delete all inactive members from member table
+			statement = instance.getConnection().prepareStatement
 					("DELETE FROM " + instance.memberData + " WHERE LAST_ENTER<=?");
 			statement.setLong(1, inactive);
 			statement.executeUpdate();
@@ -141,5 +157,50 @@ public class MemberData {
 			return false;
 		}
 	}
+
+	public static int count(String uuid) {
+
+		Main instance = Main.getInstance();
+
+		try {
+			PreparedStatement statement = instance.getConnection().prepareStatement
+					("SELECT COUNT(*) FROM " + instance.memberData + " WHERE UUID=?");
+			statement.setString(1, uuid);
+
+			ResultSet results = statement.executeQuery();
+
+			if (results.next()) {
+				return (results.getInt("1"));
+			} else {
+				return 0;
+			}
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return 0;
+		}	
+
+	}
+
+	public static void addMember(String region, String uuid) {
+
+		Main instance = Main.getInstance();
+
+		PreparedStatement statement;
+		try {
+			statement = instance.getConnection().prepareStatement
+					("INSERT INTO " + instance.memberData + " (REGION_ID,UUID,LAST_ENTER) VALUE (?,?,?)");
+			statement.setString(1, region);
+			statement.setString(2, uuid);
+			statement.setLong(3, Time.currentTime());
+
+			statement.executeUpdate();
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+	}
+
 
 }

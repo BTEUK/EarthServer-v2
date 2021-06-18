@@ -43,7 +43,6 @@ import me.elgamer.earthserver.listeners.MoveEvent;
 import me.elgamer.earthserver.listeners.PlayerInteract;
 import me.elgamer.earthserver.sql.SQLTables;
 import me.elgamer.earthserver.utils.User;
-import net.luckperms.api.LuckPerms;
 import net.milkbowl.vault.permission.Permission;
 
 public class Main extends JavaPlugin {
@@ -52,13 +51,12 @@ public class Main extends JavaPlugin {
 	private Connection connection;
 	public String host, database, username, password, claimData, permissionData, locationData, locationRequestData;
 
-	public String regionData, ownerData, memberData, playerData;
+	public String regionData, ownerData, memberData, playerData, requestData, regionLogs;
 
 	public int port;
 
 	//Other
 	public static Permission perms = null;
-	public static LuckPerms lp = null;
 
 	static Main instance;
 	static FileConfiguration config;
@@ -90,7 +88,7 @@ public class Main extends JavaPlugin {
 		
 		//Points setup
 		ess = (Essentials) Bukkit.getServer().getPluginManager().getPlugin("Essentials");
-		interval = me.elgamer.btepoints.Main.getInterval();
+		interval = 10*60;
 		console = Bukkit.getServer().getConsoleSender();
 
 		//Spawn
@@ -104,6 +102,8 @@ public class Main extends JavaPlugin {
 		SQLTables.owner(instance, ownerData);
 		SQLTables.member(instance, memberData);
 		SQLTables.player(instance, playerData);
+		SQLTables.request(instance, requestData);
+		SQLTables.logs(instance, regionLogs);
 
 		//Listeners
 		new InventoryClicked(this);
@@ -239,6 +239,7 @@ public class Main extends JavaPlugin {
 		ownerData = config.getString("owner_data");
 		memberData = config.getString("member_data");
 		playerData = config.getString("player_data");
+		requestData = config.getString("request_data");
 
 
 		//Navigation menu

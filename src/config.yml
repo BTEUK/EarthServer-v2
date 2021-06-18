@@ -14,6 +14,7 @@ region_data: regionData
 owner_data: ownerData
 member_data: memberData
 player_data: playerData
+request_data: requestData
 
 #Other
 
