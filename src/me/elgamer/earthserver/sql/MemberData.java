@@ -73,21 +73,21 @@ public class MemberData {
 		Main instance = Main.getInstance();
 		PreparedStatement statement;
 		try {
-			
+
 			//Get all inactive member
 			statement = instance.getConnection().prepareStatement
 					("SELECT * FROM " + instance.memberData + " WHERE LAST_ENTER<=?");
 			statement.setLong(1, inactive); 
-			
+
 			ResultSet results = statement.executeQuery();
-			
+
 			//Close all logs for inactive member
 			while (results.next()) {
-				
+
 				RegionLogs.closeLog(results.getString("REGION_ID"), results.getString("UUID"));
-				
+
 			}
-			
+
 			//Delete all inactive members from member table
 			statement = instance.getConnection().prepareStatement
 					("DELETE FROM " + instance.memberData + " WHERE LAST_ENTER<=?");
@@ -144,7 +144,7 @@ public class MemberData {
 
 		try {
 			PreparedStatement statement = instance.getConnection().prepareStatement
-					("SELECT * FROM " + instance.memberData + " WHERE REGION_ID=?,UUID=?");
+					("SELECT * FROM " + instance.memberData + " WHERE REGION_ID=? AND UUID=?");
 			statement.setString(1, region);
 			statement.setString(2, uuid);
 
@@ -199,6 +199,25 @@ public class MemberData {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+
+	}
+
+	public static void updateTime(String uuid, String region) {
+
+		Main instance = Main.getInstance();
+
+		try {
+			PreparedStatement statement = instance.getConnection().prepareStatement
+					("UPDATE " + instance.memberData + " SET LAST_ENTER=? WHERE REGION_ID=? AND UUID=?");
+			statement.setLong(1, Time.currentTime());
+			statement.setString(2, region);
+			statement.setString(3, uuid);
+
+			statement.executeUpdate();
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}	
 
 	}
 

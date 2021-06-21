@@ -4,6 +4,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import org.bukkit.Location;
+
 import me.elgamer.earthserver.Main;
 
 public class RequestData {
@@ -32,13 +34,13 @@ public class RequestData {
 
 	}
 
-	public static void newRequest(String region, String uuid, boolean staff_accept, boolean owner_accept) {
+	public static void newRequest(String region, String uuid, boolean staff_accept, boolean owner_accept, Location l) {
 
 		Main instance = Main.getInstance();
 
 		try {
 			PreparedStatement statement = instance.getConnection().prepareStatement
-					("INSERT INTO " + instance.requestData + " (ID,REGION_ID,OWNER,UUID,STAFF_ACCEPT,OWNER_ACCEPT) VALUE (?,?,?,?,?,?)");
+					("INSERT INTO " + instance.requestData + " (ID,REGION_ID,OWNER,UUID,STAFF_ACCEPT,OWNER_ACCEPT,X,Y,Z) VALUE (?,?,?,?,?,?,?,?,?)");
 			
 			statement.setInt(1, getNewID());
 			
@@ -49,6 +51,10 @@ public class RequestData {
 			
 			statement.setBoolean(5, staff_accept);
 			statement.setBoolean(6, owner_accept);
+			
+			statement.setDouble(7, l.getX());
+			statement.setDouble(8, l.getY());
+			statement.setDouble(9, l.getZ());
 			
 			statement.executeUpdate();
 			
@@ -81,6 +87,25 @@ public class RequestData {
 			e.printStackTrace();
 			return 1;
 		}		
+	}
+	
+	public static ResultSet getRequests(String uuid) {
+		
+		Main instance = Main.getInstance();
+
+		PreparedStatement statement;
+		try {
+			statement = instance.getConnection().prepareStatement
+					("SELECT * FROM " + instance.requestData + " WHERE OWNER=?");
+			statement.setString(1, uuid);
+
+			return (statement.executeQuery());
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+		
 	}
 
 

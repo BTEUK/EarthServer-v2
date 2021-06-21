@@ -6,6 +6,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 import me.elgamer.earthserver.Main;
+import me.elgamer.earthserver.sql.MemberData;
+import me.elgamer.earthserver.sql.OwnerData;
 import me.elgamer.earthserver.sql.PlayerData;
 import me.elgamer.earthserver.utils.Permissions;
 import me.elgamer.earthserver.utils.User;
@@ -24,6 +26,12 @@ public class LeaveEvent implements Listener {
 		Permissions.removeWorldedit(u.uuid);
 		
 		PlayerData.updatePlayer(u);		
+		
+		if (OwnerData.isOwner(u.uuid, u.current_region)) {
+			OwnerData.updateTime(u.uuid, u.current_region);
+		} else if (MemberData.isMember(u.uuid, u.current_region)) {
+			MemberData.updateTime(u.uuid, u.current_region);
+		}
 		
 	}
 

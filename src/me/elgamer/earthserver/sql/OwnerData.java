@@ -103,7 +103,7 @@ public class OwnerData {
 
 		try {
 			PreparedStatement statement = instance.getConnection().prepareStatement
-					("SELECT * FROM " + instance.ownerData + " WHERE REGION_ID=?,UUID=?");
+					("SELECT * FROM " + instance.ownerData + " WHERE REGION_ID=? AND UUID=?");
 			statement.setString(1, region);
 			statement.setString(2, uuid);
 
@@ -205,6 +205,25 @@ public class OwnerData {
 			return "false";
 		}	
 
+	}
+	
+	public static void updateTime(String uuid, String region) {
+		
+		Main instance = Main.getInstance();
+
+		try {
+			PreparedStatement statement = instance.getConnection().prepareStatement
+					("UPDATE " + instance.ownerData + " SET LAST_ENTER=? WHERE REGION_ID=? AND UUID=?");
+			statement.setLong(1, Time.currentTime());
+			statement.setString(2, region);
+			statement.setString(3, uuid);
+
+			statement.executeUpdate();
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}	
+		
 	}
 
 }

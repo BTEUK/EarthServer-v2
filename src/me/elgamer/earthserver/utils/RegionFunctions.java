@@ -32,7 +32,7 @@ public class RegionFunctions {
 
 			} else if (OwnerData.hasOwner(u.current_region)) {
 
-				RequestData.newRequest(u.current_region, u.uuid, true, false);
+				RequestData.newRequest(u.current_region, u.uuid, true, false, u.p.getLocation());
 				return (ChatColor.GREEN + "You have requested to join the region " + u.current_region + ", the region owner will need to accept the request.");				
 
 			} else {
@@ -50,17 +50,17 @@ public class RegionFunctions {
 
 			if (RegionData.isPublic(u.current_region)) {
 
-				RequestData.newRequest(u.current_region, u.uuid, false, true);
+				RequestData.newRequest(u.current_region, u.uuid, false, true, u.p.getLocation());
 				return (ChatColor.GREEN + "You have requested to join the region " + u.current_region + ", a staff member will need to accept thed request.");
 
 			} else if (OwnerData.hasOwner(u.current_region)) {
 
-				RequestData.newRequest(u.current_region, u.uuid, false, false);
+				RequestData.newRequest(u.current_region, u.uuid, false, false, u.p.getLocation());
 				return (ChatColor.GREEN + "You have requested to join the region " + u.current_region + ", the region owner and a staff member will need to accept the request.");				
 
 			} else {
 
-				RequestData.newRequest(u.current_region, u.uuid, false, true);
+				RequestData.newRequest(u.current_region, u.uuid, false, true, u.p.getLocation());
 				return (ChatColor.GREEN + "You have requested to join the region " + u.current_region + ", a staff member will need to accept thed request.");
 
 			}

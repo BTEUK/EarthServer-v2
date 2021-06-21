@@ -23,6 +23,11 @@ public class User {
 	public World current_world;
 	
 	public int buildingTime;
+	
+	public String request_name;
+	public String request_region;
+	public int request_slot;
+	public int request_page;
 
 	public User(Player p) {
 		this.p = p;
@@ -73,9 +78,11 @@ public class User {
 			return true;
 		} else if (OwnerData.isOwner(u.uuid, region)) {
 			Permissions.giveWorldedit(u.uuid);
+			OwnerData.updateTime(u.uuid, region);
 			return true;
 		} else if (MemberData.isMember(u.uuid, region)) {
 			Permissions.giveWorldedit(u.uuid);
+			MemberData.updateTime(u.uuid, region);
 			return true;
 		} else {
 			Permissions.removeWorldedit(u.uuid);
