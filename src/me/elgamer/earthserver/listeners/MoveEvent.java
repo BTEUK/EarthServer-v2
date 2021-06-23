@@ -45,7 +45,7 @@ public class MoveEvent implements Listener {
 		if (!(u.current_region.equals(User.getRegion(p)))) {
 
 			if (u.builder_role.equals("builder") || u.builder_role.equals("jrbuilder")) {
-				User.updatePerms(u, User.getRegion(p));	
+				u.hasWorldEdit = User.updatePerms(u, User.getRegion(p));	
 			}
 			p.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.GREEN + "You have entered " + User.getRegion(p) + " and left " + u.current_region));
 			u.current_region = User.getRegion(p);

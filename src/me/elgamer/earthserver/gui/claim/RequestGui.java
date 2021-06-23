@@ -35,13 +35,13 @@ public class RequestGui {
 
 		ResultSet results = RequestData.getRequests(u.uuid);
 
-		u.request_slot = (u.request_page-1)*45 + 11;
+		u.gui_slot = (u.gui_page-1)*45 + 11;
 
 		try {
 	
-			if (u.request_page > 1) {
+			if (u.gui_page > 1) {
 				
-				for (int i = 0; i < (u.request_page-1)*21; i++) {
+				for (int i = 0; i < (u.gui_page-1)*21; i++) {
 					results.next();
 				}
 				
@@ -49,21 +49,21 @@ public class RequestGui {
 			
 			while (results.next()) {
 
-				Utils.createItemByte(inv, Material.CONCRETE, 5, 1, u.request_slot, ChatColor.AQUA + "" + ChatColor.BOLD + PlayerData.getName(results.getString("UUID") + ", " + results.getString("REGION_ID")), 
+				Utils.createItemByte(inv, Material.CONCRETE, 5, 1, u.gui_slot, ChatColor.AQUA + "" + ChatColor.BOLD + PlayerData.getName(results.getString("UUID") + ", " + results.getString("REGION_ID")), 
 						Utils.chat("&fClick to review the request."));
 
-				if ((u.request_slot & 45) == 17 ) {
-					u.request_slot += 3;
-				} else if ((u.request_slot & 45) == 26) {
-					u.request_slot += 3;
-				} else if ((u.request_slot & 45) == 35) {
+				if ((u.gui_slot & 45) == 17 ) {
+					u.gui_slot += 3;
+				} else if ((u.gui_slot & 45) == 26) {
+					u.gui_slot += 3;
+				} else if ((u.gui_slot & 45) == 35) {
 					
 					Utils.createItem(inv, Material.ARROW, 1, 27, ChatColor.AQUA + "" + ChatColor.BOLD + "Next Page",
 							Utils.chat("&fClick to go to the next page of requests."));
 					
 					break;
 				} else {
-					u.request_slot += 1;
+					u.gui_slot += 1;
 				}
 
 			}
@@ -71,7 +71,7 @@ public class RequestGui {
 			e.printStackTrace();
 		}
 		
-		if (u.request_page > 1) {
+		if (u.gui_page > 1) {
 			
 			Utils.createItem(inv, Material.ARROW, 1, 19, ChatColor.AQUA + "" + ChatColor.BOLD + "Previous Page",
 					Utils.chat("&fClick to return to the previous page of requests."));
@@ -101,25 +101,29 @@ public class RequestGui {
 
 		} else if (clicked.getItemMeta().getDisplayName().equals(ChatColor.AQUA + "" + ChatColor.BOLD + "Next Page")) {
 		
-			u.request_page += 1;
+			u.gui_page += 1;
 			u.p.closeInventory();
 			u.p.openInventory(RequestGui.GUI(u));
 			
 		} else if (clicked.getItemMeta().getDisplayName().equals(ChatColor.AQUA + "" + ChatColor.BOLD + "Previous Page")) {
 			
-			u.request_page -= 1;
+			u.gui_page -= 1;
 			u.p.closeInventory();
 			u.p.openInventory(RequestGui.GUI(u));
 			
 		} else {
 
 			String[] info = ChatColor.stripColor(clicked.getItemMeta().getDisplayName()).replace(" ","").split(",");
-			u.request_name = info[0];
-			u.request_region = info[1];
+			u.region_requester = info[0];
+			u.region_name = info[1];
 
 			u.p.closeInventory();
-			u.p.openInventory(RequestReview.GUI(u));
-
+			
+			if (RequestData.requestExists(u.region_name, u.region_requester)) {
+				u.p.openInventory(RequestReview.GUI(u));
+			} else {
+				u.p.sendMessage(ChatColor.RED + "This request does no longer exist!");
+			}
 		}
 
 	}

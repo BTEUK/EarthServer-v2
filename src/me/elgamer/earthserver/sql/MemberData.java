@@ -220,6 +220,64 @@ public class MemberData {
 		}	
 
 	}
+	
+	public static boolean hasMember(String region) {
 
+		Main instance = Main.getInstance();
+
+		try {
+			PreparedStatement statement = instance.getConnection().prepareStatement
+					("SELECT * FROM " + instance.memberData + " WHERE REGION_ID=?");
+			statement.setString(1, region);
+
+			ResultSet results = statement.executeQuery();
+
+			return (results.next());
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+	
+	public static String latestMember(String region) {
+		
+		Main instance = Main.getInstance();
+
+		try {
+			PreparedStatement statement = instance.getConnection().prepareStatement
+					("SELECT * FROM " + instance.memberData + " WHERE REGION_ID=? ORDER BY LAST_ENTER DESC");
+			statement.setString(1, region);
+
+			ResultSet results = statement.executeQuery();
+			results.next();
+			
+			return (results.getString("UUID"));
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+		
+	}
+
+	public static void removeMember(String region, String uuid) {
+
+		Main instance = Main.getInstance();
+		PreparedStatement statement;
+		try {
+
+			//Delete all inactive members from member table
+			statement = instance.getConnection().prepareStatement
+					("DELETE FROM " + instance.memberData + " WHERE REGION_ID=? AND UUID=?");
+			statement.setString(1, region);
+			statement.setString(2, uuid);
+			statement.executeUpdate();
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+	}
 
 }

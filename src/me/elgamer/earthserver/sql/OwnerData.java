@@ -225,5 +225,29 @@ public class OwnerData {
 		}	
 		
 	}
+	
+	public static void addNewOwners(HashMap<String, String> regions) {
+		
+		String uuid;
+		
+		for (String s : regions.keySet()) {
+			
+			if (MemberData.hasMember(s)) {
+				
+				uuid = MemberData.latestMember(s);
+				
+				OwnerData.addOwner(s, uuid);
+				MemberData.removeMember(s, uuid);
+				RegionLogs.closeLog(s, uuid);
+				RegionLogs.newLog(s, uuid, "owner");
+				RequestData.updateRegionOwner(s, uuid);
+				
+			}
+			
+		}
+		
+		
+	}
+
 
 }

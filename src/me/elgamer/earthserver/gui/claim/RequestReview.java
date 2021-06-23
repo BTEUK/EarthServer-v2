@@ -2,12 +2,18 @@ package me.elgamer.earthserver.gui.claim;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import me.elgamer.earthserver.sql.MemberData;
+import me.elgamer.earthserver.sql.MessageData;
+import me.elgamer.earthserver.sql.RegionLogs;
+import me.elgamer.earthserver.sql.RequestData;
 import me.elgamer.earthserver.utils.User;
 import me.elgamer.earthserver.utils.Utils;
+import me.elgamer.earthserver.utils.WorldGuardFunctions;
 
 public class RequestReview {
 	
@@ -29,8 +35,8 @@ public class RequestReview {
 		inv.clear();
 			
 		Utils.createItem(inv, Material.BOOK, 1, 5, ChatColor.AQUA + "" + ChatColor.BOLD + "Request Info",
-				Utils.chat("&fRegion: " + u.request_region),
-				Utils.chat("&fRequested by: " + u.request_name));		
+				Utils.chat("&fRegion: " + u.region_name),
+				Utils.chat("&fRequested by: " + u.region_requester));		
 		
 		Utils.createItem(inv, Material.SPRUCE_DOOR, 1, 27, ChatColor.AQUA + "" + ChatColor.BOLD + "Return",
 				Utils.chat("&fClick to go back to the review menu."));
@@ -55,24 +61,47 @@ public class RequestReview {
 		
 		if (clicked.getType().equals(Material.SPRUCE_DOOR)) {
 
-			u.request_page = 1;
+			u.gui_page = 1;
 			
 			u.p.closeInventory();
 			u.p.openInventory(RequestGui.GUI(u));
 
-		} else if (clicked.getType().equals(Material.BOOK_AND_QUILL)) {
-			u.p.closeInventory();
+		} else if (clicked.getType().equals(Material.EYE_OF_ENDER)) {
 			
-		} else if (clicked.getType().equals(Material.CHEST)) {
+			Location l = RequestData.getRequestLocation(u.region_name, u.region_requester);
+			
+			u.p.closeInventory();
+			if (l == null) {
+				u.p.sendMessage(ChatColor.RED + "An error occured, please try again!");
+			} else {
+				u.p.teleport(l);
+			}
+			
+		} else if (clicked.getItemMeta().getDisplayName().equals(ChatColor.AQUA + "" + ChatColor.BOLD + "Accept Request")) {
+			
+			if (RequestData.staffAccept(u.region_name, u.region_requester)) {
+				
+				MemberData.addMember(u.region_name, u.region_requester);
+				WorldGuardFunctions.addMember(u.region_name, u.region_requester);
+				RegionLogs.newLog(u.region_name, u.region_requester, "member");
+				RequestData.closeRequest(u.region_name, u.region_requester);
+				
+				MessageData.newMessage(u.region_requester, "Your region join request for " + u.region_name + " has been accepted!", "green");
+				
+			} else {
+				
+				RequestData.setOwnerAccept(u.region_name, u.region_requester, true);
+				u.p.closeInventory();
+				u.p.sendMessage(ChatColor.GREEN + "You have accepted the request, now staff has to review it.");
+				
+			}
+							
+		} else if (clicked.getItemMeta().getDisplayName().equals(ChatColor.AQUA + "" + ChatColor.BOLD + "Deny Request")) {
+			
+			RequestData.closeRequest(u.region_name, u.region_requester);
+			MessageData.newMessage(u.region_requester, "Your region join request for " + u.region_name + " has been denied by the owner.", "red");
+			
 		} else {
-			
-			String[] info = ChatColor.stripColor(clicked.getItemMeta().getDisplayName()).replace(" ","").split(",");
-			u.request_name = info[0];
-			u.request_region = info[1];
-			
-			u.p.closeInventory();
-			u.p.openInventory(RequestReview.GUI(u));
-			
 		}
 		
 	}

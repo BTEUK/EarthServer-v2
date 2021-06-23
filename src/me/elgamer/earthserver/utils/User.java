@@ -9,6 +9,8 @@ import me.elgamer.earthserver.sql.MemberData;
 import me.elgamer.earthserver.sql.OwnerData;
 import me.elgamer.earthserver.sql.PlayerData;
 import me.elgamer.earthserver.sql.RegionData;
+import me.elgamer.earthserver.sql.RegionLogs;
+import me.elgamer.earthserver.sql.RequestData;
 
 public class User {
 
@@ -24,10 +26,10 @@ public class User {
 	
 	public int buildingTime;
 	
-	public String request_name;
-	public String request_region;
-	public int request_slot;
-	public int request_page;
+	public String region_requester;
+	public String region_name;
+	public int gui_slot;
+	public int gui_page;
 
 	public User(Player p) {
 		this.p = p;
@@ -83,6 +85,15 @@ public class User {
 		} else if (MemberData.isMember(u.uuid, region)) {
 			Permissions.giveWorldedit(u.uuid);
 			MemberData.updateTime(u.uuid, region);
+			
+			if (!(OwnerData.hasOwner(region))) {
+				OwnerData.addOwner(region, u.uuid);
+				MemberData.removeMember(region, u.uuid);
+				RegionLogs.closeLog(region, u.uuid);
+				RegionLogs.newLog(region, u.uuid, "owner");
+				RequestData.updateRegionOwner(region, u.uuid);
+			}
+			
 			return true;
 		} else {
 			Permissions.removeWorldedit(u.uuid);

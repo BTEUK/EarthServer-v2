@@ -10,11 +10,13 @@ MySQL_permissionData: permission_data
 MySQL_locationData: location_data
 MySQL_locationRequestData: location_request_data
 
-region_data: regionData
-owner_data: ownerData
-member_data: memberData
-player_data: playerData
-request_data: requestData
+region_data: regions
+owner_data: region_owners
+member_data: region_members
+player_data: players
+request_data: requests
+region_logs: logs
+message_data: messages
 
 #Other
 

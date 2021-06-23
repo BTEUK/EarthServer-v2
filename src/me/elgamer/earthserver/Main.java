@@ -9,6 +9,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -51,7 +52,7 @@ public class Main extends JavaPlugin {
 	private Connection connection;
 	public String host, database, username, password, claimData, permissionData, locationData, locationRequestData;
 
-	public String regionData, ownerData, memberData, playerData, requestData, regionLogs;
+	public String regionData, ownerData, memberData, playerData, requestData, regionLogs, messageData;
 
 	public int port;
 
@@ -71,6 +72,8 @@ public class Main extends JavaPlugin {
 	static Essentials ess;	
 	static int interval;
 	ConsoleCommandSender console;
+	
+	public static World buildWorld;
 
 	@Override
 	public void onEnable() {
@@ -94,6 +97,9 @@ public class Main extends JavaPlugin {
 		//Spawn
 		spawn = new Location(Bukkit.getWorld(config.getString("World_Name")),config.getDouble("Spawn.x"), config.getDouble("Spawn.y"), config.getDouble("Spawn.z"), config.getLong("Spawn.yaw"), config.getLong("Spawn.pitch"));
 
+		//World
+		buildWorld = Bukkit.getWorld(config.getString("World_Name"));
+		
 		//Creates the mysql table if not existing
 		SQLTables.location(this, locationData);
 		SQLTables.locationRequest(this, locationRequestData);
@@ -104,6 +110,7 @@ public class Main extends JavaPlugin {
 		SQLTables.player(instance, playerData);
 		SQLTables.request(instance, requestData);
 		SQLTables.logs(instance, regionLogs);
+		SQLTables.messages(instance, messageData);
 
 		//Listeners
 		new InventoryClicked(this);
@@ -240,6 +247,8 @@ public class Main extends JavaPlugin {
 		memberData = config.getString("member_data");
 		playerData = config.getString("player_data");
 		requestData = config.getString("request_data");
+		regionLogs = config.getString("region_logs");
+		messageData = config.getString("message_data");
 
 
 		//Navigation menu

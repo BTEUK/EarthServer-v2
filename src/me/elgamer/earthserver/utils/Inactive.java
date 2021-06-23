@@ -7,6 +7,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import me.elgamer.earthserver.Main;
 import me.elgamer.earthserver.sql.MemberData;
 import me.elgamer.earthserver.sql.OwnerData;
+import me.elgamer.earthserver.sql.RegionLogs;
 
 public class Inactive {
 
@@ -28,7 +29,10 @@ public class Inactive {
 			return;
 		} else {
 			if (MemberData.addMembers(inactiveOwners)) {
+				RegionLogs.closeLogs(inactiveOwners);
+				RegionLogs.newLogs(inactiveOwners, "member");
 				OwnerData.removeInactiveOwners(inactivity);
+				OwnerData.addNewOwners(inactiveOwners);
 			}
 		}
 
@@ -51,6 +55,7 @@ public class Inactive {
 		if (inactiveMembers == null) {
 			return;
 		} else {
+			RegionLogs.closeLogs(inactiveMembers);
 			WorldGuardFunctions.removeMembers(inactiveMembers);
 			MemberData.removeInactiveMembers(inactivity);
 		}

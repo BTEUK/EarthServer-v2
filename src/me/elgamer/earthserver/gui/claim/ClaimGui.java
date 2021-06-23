@@ -57,12 +57,14 @@ public class ClaimGui {
 					Utils.chat("&fThis region is does not have an owner, click to claim the region."));
 		}
 
+		if ((OwnerData.count(u.uuid) + MemberData.count(u.uuid)) > 0) {
 		Utils.createItem(inv, Material.CHEST, 1, 22, ChatColor.AQUA + "" + ChatColor.BOLD + "Region List", 
 				Utils.chat("&fClick to view all regions you are owner or member of."),
 				Utils.chat("&fYou are the owner of " + OwnerData.count(u.uuid) + " regions"),
 				Utils.chat("&fand a member of " + MemberData.count(u.uuid) + " regions."));
-
-		if (RequestData.count(u.uuid) != 0) {
+		}
+		
+		if (RequestData.count(u.uuid) > 0) {
 			Utils.createItem(inv, Material.CHEST, 1, 22, ChatColor.AQUA + "" + ChatColor.BOLD + "Join Requests", 
 					Utils.chat("&fClick to view all the join requests for regions you own."),
 					Utils.chat("&fThere are currently " + RequestData.count(u.uuid) + " requests"));
@@ -83,6 +85,16 @@ public class ClaimGui {
 			u.p.closeInventory();
 
 		} else if (clicked.getType().equals(Material.CHEST)) {
+			
+			if (clicked.getItemMeta().getDisplayName().equals(ChatColor.AQUA + "" + ChatColor.BOLD + "Region List")) {
+				u.gui_page = 1;
+				u.p.openInventory(RequestGui.GUI(u));
+			} else if (clicked.getItemMeta().getDisplayName().equals(ChatColor.AQUA + "" + ChatColor.BOLD + "Join Requests")) {
+				u.gui_page = 1;
+				u.p.openInventory(RequestGui.GUI(u));
+			}
+			
+			
 		}
 
 	}
