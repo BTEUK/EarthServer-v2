@@ -30,6 +30,7 @@ public class User {
 	public String region_name;
 	public int gui_slot;
 	public int gui_page;
+	public boolean staff_request;
 
 	public User(Player p) {
 		this.p = p;

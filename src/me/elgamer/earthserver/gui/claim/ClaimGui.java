@@ -91,6 +91,7 @@ public class ClaimGui {
 				u.p.openInventory(RequestGui.GUI(u));
 			} else if (clicked.getItemMeta().getDisplayName().equals(ChatColor.AQUA + "" + ChatColor.BOLD + "Join Requests")) {
 				u.gui_page = 1;
+				u.staff_request = false;
 				u.p.openInventory(RequestGui.GUI(u));
 			}
 			
