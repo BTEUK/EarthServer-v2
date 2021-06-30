@@ -6,6 +6,9 @@ import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import me.elgamer.earthserver.sql.MemberData;
+import me.elgamer.earthserver.sql.OwnerData;
+import me.elgamer.earthserver.sql.PlayerData;
 import me.elgamer.earthserver.sql.RequestData;
 import me.elgamer.earthserver.utils.User;
 import me.elgamer.earthserver.utils.Utils;
@@ -30,10 +33,28 @@ public class StaffGui {
 		inv.clear();
 
 		if (RequestData.count() > 0) {
-			Utils.createItem(inv, Material.CHEST, 1, 22, ChatColor.AQUA + "" + ChatColor.BOLD + "Jr.Builder Requests", 
+			Utils.createItem(inv, Material.CHEST, 1, 14, ChatColor.AQUA + "" + ChatColor.BOLD + "Jr.Builder Requests", 
 					Utils.chat("&fClick to view all the join requests by Jr.Builders."),
 					Utils.chat("&fThere are currently " + RequestData.count() + " requests"));
 		}
+		
+		Utils.createItem(inv, Material.WORKBENCH, 1, 12, ChatColor.AQUA + "" + ChatColor.BOLD + "Edit Region",
+					Utils.chat("&fClick to open the region edit menu."),
+					Utils.chat("&fYou can edit accessiblity and members of the claim."));
+		
+		String owner;
+		if (OwnerData.hasOwner(u.current_region)) {
+			owner = PlayerData.getName(OwnerData.getOwner(u.current_region));
+		} else {
+			owner = "No Owner";
+		}
+		
+		int members = MemberData.countMembers(u.current_region);
+		
+		Utils.createItem(inv, Material.BOOK, 1, 5, ChatColor.AQUA + "" + ChatColor.BOLD + "Region Info",
+				Utils.chat("&fRegion: " + u.current_region),
+				Utils.chat("&fOwner: " + owner),
+				Utils.chat("&fNumber of Members: " + members));
 		
 		Utils.createItem(inv, Material.SPRUCE_DOOR, 1, 27, ChatColor.AQUA + "" + ChatColor.BOLD + "Return",
 				Utils.chat("&fClick to go back to the claim menu."));

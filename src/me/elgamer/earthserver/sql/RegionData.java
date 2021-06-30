@@ -71,7 +71,7 @@ public class RegionData {
 
 		try {
 			PreparedStatement statement = instance.getConnection().prepareStatement
-					("SELECT * FROM " + instance.regionData + " WHERE REGION_ID=?,OPEN=?");
+					("SELECT * FROM " + instance.regionData + " WHERE REGION_ID=? AND OPEN=?");
 			statement.setString(1, region);
 			statement.setBoolean(2, true);
 
@@ -92,7 +92,7 @@ public class RegionData {
 
 		try {
 			PreparedStatement statement = instance.getConnection().prepareStatement
-					("SELECT * FROM " + instance.regionData + " WHERE REGION_ID=?,PUBLIC=?");
+					("SELECT * FROM " + instance.regionData + " WHERE REGION_ID=? AND PUBLIC=?");
 			statement.setString(1, region);
 			statement.setBoolean(2, true);
 
@@ -103,6 +103,103 @@ public class RegionData {
 		} catch (SQLException e) {
 			e.printStackTrace();
 			return false;
+		}	
+
+	}
+	
+	public static boolean isLocked(String region) {
+
+		Main instance = Main.getInstance();
+
+		try {
+			PreparedStatement statement = instance.getConnection().prepareStatement
+					("SELECT * FROM " + instance.regionData + " WHERE REGION_ID=? AND LOCKED=?");
+			statement.setString(1, region);
+			statement.setBoolean(2, true);
+
+			ResultSet results = statement.executeQuery();
+
+			return (results.next());
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}	
+
+	}
+	
+	public static void setOpen(String region) {
+
+		Main instance = Main.getInstance();
+
+		try {
+			PreparedStatement statement = instance.getConnection().prepareStatement
+					("UPDATE " + instance.regionData + " SET OPEN=? WHERE REGION_ID=?");
+			statement.setBoolean(1, true);
+			
+			statement.setString(2, region);
+
+			statement.executeUpdate();
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}	
+
+	}
+	
+	public static void setClosed(String region) {
+
+		Main instance = Main.getInstance();
+
+		try {
+			PreparedStatement statement = instance.getConnection().prepareStatement
+					("UPDATE " + instance.regionData + " SET OPEN=? WHERE REGION_ID=?");
+			statement.setBoolean(1, false);
+			
+			statement.setString(2, region);
+
+			statement.executeUpdate();
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}	
+
+	}
+	
+	public static void setLocked(String region) {
+
+		Main instance = Main.getInstance();
+
+		try {
+			PreparedStatement statement = instance.getConnection().prepareStatement
+					("UPDATE " + instance.regionData + " SET LOCKED=? WHERE REGION_ID=?");
+			statement.setBoolean(1, true);
+			
+			statement.setString(2, region);
+
+			statement.executeUpdate();
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}	
+
+	}
+	
+	public static void setUnlocked(String region) {
+
+		Main instance = Main.getInstance();
+
+		try {
+			PreparedStatement statement = instance.getConnection().prepareStatement
+					("UPDATE " + instance.regionData + " SET LOCKED=? WHERE REGION_ID=?");
+			statement.setBoolean(1, false);
+			
+			statement.setString(2, region);
+
+			statement.executeUpdate();
+
+		} catch (SQLException e) {
+			e.printStackTrace();
 		}	
 
 	}

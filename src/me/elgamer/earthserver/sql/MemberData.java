@@ -279,5 +279,49 @@ public class MemberData {
 		}
 
 	}
+	
+	public static int countMembers(String region) {
+
+		Main instance = Main.getInstance();
+
+		try {
+			PreparedStatement statement = instance.getConnection().prepareStatement
+					("SELECT COUNT(*) FROM " + instance.memberData + " WHERE REGION_ID=?");
+			statement.setString(1, region);
+
+			ResultSet results = statement.executeQuery();
+
+			if (results.next()) {
+				return (results.getInt("1"));
+			} else {
+				return 0;
+			}
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return 0;
+		}	
+
+	}
+	
+	public static ResultSet getMembers(String region) {
+
+		Main instance = Main.getInstance();
+
+		try {
+			PreparedStatement statement = instance.getConnection().prepareStatement
+					("SELECT * FROM " + instance.memberData + " WHERE REGION_ID=?");
+			statement.setString(1, region);
+
+			ResultSet results = statement.executeQuery();
+
+			return results;
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}	
+
+	}
 
 }

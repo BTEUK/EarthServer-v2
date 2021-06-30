@@ -22,7 +22,7 @@ public class RegionFunctions {
 
 					return (ChatColor.GREEN + "Joined region " + u.current_region + " as a member.");					
 				} else {
-					WorldGuardFunctions.addOwner(u.current_region, u.uuid);
+					WorldGuardFunctions.addMember(u.current_region, u.uuid);
 					OwnerData.addOwner(u.current_region, u.uuid);
 					RegionLogs.newLog(u.current_region, u.uuid, "owner");
 
@@ -37,7 +37,7 @@ public class RegionFunctions {
 
 			} else {
 
-				WorldGuardFunctions.addOwner(u.current_region, u.uuid);
+				WorldGuardFunctions.addMember(u.current_region, u.uuid);
 				OwnerData.addOwner(u.current_region, u.uuid);
 				RegionLogs.newLog(u.current_region, u.uuid, "owner");
 

@@ -21,11 +21,11 @@ public class User {
 
 	public String current_region;
 	public boolean hasWorldEdit;
-	
+
 	public World current_world;
-	
+
 	public int buildingTime;
-	
+
 	public String region_requester;
 	public String region_name;
 	public int gui_slot;
@@ -36,11 +36,11 @@ public class User {
 		this.p = p;
 		uuid = p.getUniqueId().toString();
 		name = p.getName();
-		
+
 		this.buildingTime = PlayerData.getBuildingTime(uuid);
 
 		current_world = p.getWorld();
-		
+
 		if (current_world.getName().equals(Main.getInstance().getConfig().getString("World_Name"))) {
 			current_region = getRegion(p);
 		} else {
@@ -76,17 +76,27 @@ public class User {
 
 	public static boolean updatePerms(User u, String region) {
 
-		if (RegionData.isOpen(region)) {
+		if (RegionData.isLocked(region)) {
+			if (u.hasWorldEdit) {
+				Permissions.removeWorldedit(u.uuid);
+			}
+			return false;
+		}
+
+		if (RegionData.isOpen(region) && !u.hasWorldEdit) {
 			Permissions.giveWorldedit(u.uuid);
 			return true;
-		} else if (OwnerData.isOwner(u.uuid, region)) {
+		} else if (OwnerData.isOwner(u.uuid, region) && !u.hasWorldEdit) {
 			Permissions.giveWorldedit(u.uuid);
 			OwnerData.updateTime(u.uuid, region);
 			return true;
 		} else if (MemberData.isMember(u.uuid, region)) {
-			Permissions.giveWorldedit(u.uuid);
-			MemberData.updateTime(u.uuid, region);
-			
+
+			if (!u.hasWorldEdit) {
+				Permissions.giveWorldedit(u.uuid);
+				MemberData.updateTime(u.uuid, region);
+			}
+
 			if (!(OwnerData.hasOwner(region))) {
 				OwnerData.addOwner(region, u.uuid);
 				MemberData.removeMember(region, u.uuid);
@@ -94,10 +104,12 @@ public class User {
 				RegionLogs.newLog(region, u.uuid, "owner");
 				RequestData.updateRegionOwner(region, u.uuid);
 			}
-			
+
 			return true;
 		} else {
-			Permissions.removeWorldedit(u.uuid);
+			if (u.hasWorldEdit) {
+				Permissions.removeWorldedit(u.uuid);
+			}
 			return false;
 		}
 

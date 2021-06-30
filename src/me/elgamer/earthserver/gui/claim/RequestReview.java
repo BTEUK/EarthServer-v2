@@ -94,7 +94,7 @@ public class RequestReview {
 					} else {
 						
 						OwnerData.addOwner(u.region_name, u.region_requester);
-						WorldGuardFunctions.addOwner(u.region_name, u.region_requester);
+						WorldGuardFunctions.addMember(u.region_name, u.region_requester);
 						RegionLogs.newLog(u.region_name, u.region_requester, "owner");
 						RequestData.closeRequest(u.region_name, u.region_requester);
 						
