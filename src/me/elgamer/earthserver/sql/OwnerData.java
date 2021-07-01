@@ -42,21 +42,21 @@ public class OwnerData {
 
 		Main instance = Main.getInstance();
 		PreparedStatement statement;
-		
+
 		try {
-			
+
 			//Get all inactive owners
 			statement = instance.getConnection().prepareStatement
 					("SELECT * FROM " + instance.ownerData + " WHERE LAST_ENTER<=?");
 			statement.setLong(1, inactive); 
-			
+
 			ResultSet results = statement.executeQuery();
-			
+
 			//Close all logs for inactive owners
 			while (results.next()) {
-				
+
 				RegionLogs.closeLog(results.getString("REGION_ID"), results.getString("UUID"));
-				
+
 			}
 
 			//Delete all inactive owners from owner table
@@ -136,7 +136,7 @@ public class OwnerData {
 		}	
 
 	}
-	
+
 	public static int count(String uuid) {
 
 		Main instance = Main.getInstance();
@@ -160,11 +160,11 @@ public class OwnerData {
 		}	
 
 	}
-	
+
 	public static void addOwner(String region, String uuid) {
-		
+
 		Main instance = Main.getInstance();
-		
+
 		PreparedStatement statement;
 		try {
 			statement = instance.getConnection().prepareStatement
@@ -174,13 +174,13 @@ public class OwnerData {
 			statement.setLong(3, Time.currentTime());
 
 			statement.executeUpdate();
-			
+
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		
+
 	}
-	
+
 	public static String getOwner(String region) {
 
 		Main instance = Main.getInstance();
@@ -193,9 +193,9 @@ public class OwnerData {
 			ResultSet results = statement.executeQuery();
 
 			if (results.next()) {
-				
+
 				return (results.getString("UUID"));
-				
+
 			} else {
 				return "false";
 			}
@@ -206,9 +206,9 @@ public class OwnerData {
 		}	
 
 	}
-	
+
 	public static void updateTime(String uuid, String region) {
-		
+
 		Main instance = Main.getInstance();
 
 		try {
@@ -223,31 +223,86 @@ public class OwnerData {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}	
-		
+
 	}
-	
+
 	public static void addNewOwners(HashMap<String, String> regions) {
-		
+
 		String uuid;
-		
+
 		for (String s : regions.keySet()) {
-			
+
 			if (MemberData.hasMember(s)) {
-				
+
 				uuid = MemberData.latestMember(s);
-				
+
 				OwnerData.addOwner(s, uuid);
 				MemberData.removeMember(s, uuid);
 				RegionLogs.closeLog(s, uuid);
 				RegionLogs.newLog(s, uuid, "owner");
 				RequestData.updateRegionOwner(s, uuid);
-				
+
 			}
-			
+
 		}
-		
-		
+
+
 	}
 
+	public static void addNewOwner(String region) {
+
+		if (MemberData.hasMember(region)) {
+
+			String uuid = MemberData.latestMember(region);
+
+			OwnerData.addOwner(region, uuid);
+			MemberData.removeMember(region, uuid);
+			RegionLogs.closeLog(region, uuid);
+			RegionLogs.newLog(region, uuid, "owner");
+			RequestData.updateRegionOwner(region, uuid);
+
+		}
+
+	}
+
+	public static ResultSet getRegions(String uuid) {
+
+		Main instance = Main.getInstance();
+
+		try {
+			PreparedStatement statement = instance.getConnection().prepareStatement
+					("SELECT * FROM " + instance.ownerData + " WHERE UUID=?");
+			statement.setString(1, uuid);
+
+			ResultSet results = statement.executeQuery();
+
+			return results;
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+
+	}
+
+	public static void removeOwner(String uuid, String region) {
+
+		Main instance = Main.getInstance();
+		PreparedStatement statement;
+
+		try {
+
+			statement = instance.getConnection().prepareStatement
+					("DELETE FROM " + instance.ownerData + " WHERE UUID=? AND REGION_ID=?");
+			statement.setString(1, uuid);
+			statement.setString(2, region);
+			statement.executeUpdate();
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+
+	}
 
 }

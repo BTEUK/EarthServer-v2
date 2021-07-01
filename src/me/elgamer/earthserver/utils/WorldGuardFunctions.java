@@ -232,6 +232,29 @@ public class WorldGuardFunctions {
 		}
 		
 	}
+	
+	public static void removeMember(String region, String uuid) {
+
+		World world = Main.buildWorld;
+
+		WorldGuardPlugin wg = getWorldGuard();
+
+		RegionContainer container = wg.getRegionContainer();
+		RegionManager regions = container.get(world);
+
+		ProtectedRegion WGregion = regions.getRegion(region);
+		DefaultDomain regionMembers = WGregion.getMembers();
+
+		regionMembers.removePlayer(UUID.fromString(uuid));
+		WGregion.setMembers(regionMembers);
+
+		try {
+			regions.save();
+		} catch (StorageException e1) {
+			e1.printStackTrace();
+		}
+
+	}
 
 
 }

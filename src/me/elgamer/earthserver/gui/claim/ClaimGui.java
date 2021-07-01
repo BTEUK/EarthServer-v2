@@ -82,13 +82,18 @@ public class ClaimGui {
 			u.p.sendMessage(RegionFunctions.joinRegion(u));
 
 		} else if (clicked.getType().equals(Material.BOOK_AND_QUILL)) {
+			
+			u.region_name = u.current_region;
+			
 			u.p.closeInventory();
+			
+			u.p.openInventory(RegionOptions.GUI(u));
 
 		} else if (clicked.getType().equals(Material.CHEST)) {
 			
 			if (clicked.getItemMeta().getDisplayName().equals(ChatColor.AQUA + "" + ChatColor.BOLD + "Region List")) {
 				u.gui_page = 1;
-				u.p.openInventory(RequestGui.GUI(u));
+				u.p.openInventory(RegionList.GUI(u));
 			} else if (clicked.getItemMeta().getDisplayName().equals(ChatColor.AQUA + "" + ChatColor.BOLD + "Join Requests")) {
 				u.gui_page = 1;
 				u.staff_request = false;

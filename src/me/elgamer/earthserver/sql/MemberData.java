@@ -220,7 +220,7 @@ public class MemberData {
 		}	
 
 	}
-	
+
 	public static boolean hasMember(String region) {
 
 		Main instance = Main.getInstance();
@@ -239,9 +239,9 @@ public class MemberData {
 			return false;
 		}
 	}
-	
+
 	public static String latestMember(String region) {
-		
+
 		Main instance = Main.getInstance();
 
 		try {
@@ -251,14 +251,14 @@ public class MemberData {
 
 			ResultSet results = statement.executeQuery();
 			results.next();
-			
+
 			return (results.getString("UUID"));
 
 		} catch (SQLException e) {
 			e.printStackTrace();
 			return null;
 		}
-		
+
 	}
 
 	public static void removeMember(String region, String uuid) {
@@ -279,7 +279,7 @@ public class MemberData {
 		}
 
 	}
-	
+
 	public static int countMembers(String region) {
 
 		Main instance = Main.getInstance();
@@ -303,7 +303,7 @@ public class MemberData {
 		}	
 
 	}
-	
+
 	public static ResultSet getMembers(String region) {
 
 		Main instance = Main.getInstance();
@@ -321,6 +321,26 @@ public class MemberData {
 			e.printStackTrace();
 			return null;
 		}	
+
+	}
+
+	public static ResultSet getRegions(String uuid) {
+
+		Main instance = Main.getInstance();
+
+		try {
+			PreparedStatement statement = instance.getConnection().prepareStatement
+					("SELECT * FROM " + instance.memberData + " WHERE UUID=?");
+			statement.setString(1, uuid);
+
+			ResultSet results = statement.executeQuery();
+
+			return results;
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
 
 	}
 

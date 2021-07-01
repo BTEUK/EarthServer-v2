@@ -203,5 +203,43 @@ public class RegionData {
 		}	
 
 	}
+	
+	public static void setPrivate(String region) {
+
+		Main instance = Main.getInstance();
+
+		try {
+			PreparedStatement statement = instance.getConnection().prepareStatement
+					("UPDATE " + instance.regionData + " SET PUBLIC=? WHERE REGION_ID=?");
+			statement.setBoolean(1, false);
+			
+			statement.setString(2, region);
+
+			statement.executeUpdate();
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}	
+
+	}
+	
+	public static void setPublic(String region) {
+
+		Main instance = Main.getInstance();
+
+		try {
+			PreparedStatement statement = instance.getConnection().prepareStatement
+					("UPDATE " + instance.regionData + " SET PUBLIC=? WHERE REGION_ID=?");
+			statement.setBoolean(1, true);
+			
+			statement.setString(2, region);
+
+			statement.executeUpdate();
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}	
+
+	}
 
 }
