@@ -33,6 +33,8 @@ public class StaffOptions {
 
 		inv.clear();
 		
+		RegionData.createRegionIfNotExists(u.current_region);
+		
 		if (RegionData.isOpen(u.current_region)) {
 			Utils.createItem(inv, Material.REDSTONE_LAMP_OFF, 1, 22, ChatColor.AQUA + "" + ChatColor.BOLD + "Close Region",
 					Utils.chat("&fClick to make the region closed."),

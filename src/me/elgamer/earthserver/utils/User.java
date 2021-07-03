@@ -31,6 +31,8 @@ public class User {
 	public int gui_slot;
 	public int gui_page;
 	public boolean staff_request;
+	
+	public String member_name;
 
 	public User(Player p) {
 		this.p = p;

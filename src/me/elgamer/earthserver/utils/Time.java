@@ -14,7 +14,7 @@ public class Time {
 
 	public static String getDate(long time) {
 
-		SimpleDateFormat formatter = new SimpleDateFormat("dd:HH:mm", Locale.UK);
+		SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.UK);
 		Date date = new Date(time);
 		return formatter.format(date);
 	}

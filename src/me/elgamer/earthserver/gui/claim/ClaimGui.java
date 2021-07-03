@@ -10,6 +10,7 @@ import me.elgamer.earthserver.sql.MemberData;
 import me.elgamer.earthserver.sql.OwnerData;
 import me.elgamer.earthserver.sql.RegionData;
 import me.elgamer.earthserver.sql.RequestData;
+import me.elgamer.earthserver.utils.ClaimLimit;
 import me.elgamer.earthserver.utils.RegionFunctions;
 import me.elgamer.earthserver.utils.User;
 import me.elgamer.earthserver.utils.Utils;
@@ -32,6 +33,8 @@ public class ClaimGui {
 		Inventory toReturn = Bukkit.createInventory(null, inv_rows, inventory_name);
 
 		inv.clear();
+		
+		RegionData.createRegionIfNotExists(u.current_region);
 
 		if (OwnerData.isOwner(u.uuid, u.current_region)) {
 			Utils.createItem(inv, Material.BOOK_AND_QUILL, 1, 22, ChatColor.AQUA + "" + ChatColor.BOLD + "Region " + u.current_region, 
@@ -45,16 +48,16 @@ public class ClaimGui {
 				Utils.createItem(inv, Material.BOOK, 1, 22, ChatColor.AQUA + "" + ChatColor.BOLD + "Region " + u.current_region, 
 						Utils.chat("&fThis region is open, you can build here without being a member of the claim."));
 			} else if (RegionData.isPublic(u.current_region)) {
-				Utils.createItem(inv, Material.SPRUCE_DOOR, 1, 22, ChatColor.AQUA + "" + ChatColor.BOLD + "Region " + u.current_region, 
+				Utils.createItem(inv, Material.DARK_OAK_DOOR, 1, 22, ChatColor.AQUA + "" + ChatColor.BOLD + "Region " + u.current_region, 
 						Utils.chat("&fThis region is public, click to join the region."));
 			} else {
-				Utils.createItem(inv, Material.SPRUCE_DOOR, 1, 22, ChatColor.AQUA + "" + ChatColor.BOLD + "Region " + u.current_region, 
+				Utils.createItem(inv, Material.DARK_OAK_DOOR, 1, 22, ChatColor.AQUA + "" + ChatColor.BOLD + "Region " + u.current_region, 
 						Utils.chat("&fThis region is claimed, click to request access to build."));
 			}
 
 		} else {
-			Utils.createItem(inv, Material.SPRUCE_DOOR, 1, 22, ChatColor.AQUA + "" + ChatColor.BOLD + "Region " + u.current_region, 
-					Utils.chat("&fThis region is does not have an owner, click to claim the region."));
+			Utils.createItem(inv, Material.DARK_OAK_DOOR, 1, 22, ChatColor.AQUA + "" + ChatColor.BOLD + "Region " + u.current_region, 
+					Utils.chat("&fThis region does not have an owner, click to claim the region."));
 		}
 
 		if ((OwnerData.count(u.uuid) + MemberData.count(u.uuid)) > 0) {
@@ -76,10 +79,19 @@ public class ClaimGui {
 
 	public static void clicked(User u, int slot, ItemStack clicked, Inventory inv) {
 
-		if (clicked.getType().equals(Material.SPRUCE_DOOR)) {
+		if (clicked.getType().equals(Material.DARK_OAK_DOOR)) {
 
 			u.p.closeInventory();
-			u.p.sendMessage(RegionFunctions.joinRegion(u));
+			
+			if (ClaimLimit.limitReached(u)) {
+				
+				u.p.sendMessage(ChatColor.RED + "You have reached your claim limit, leave another region or cancel a requests to join this one.");
+				
+			} else {
+				
+				u.p.sendMessage(RegionFunctions.joinRegion(u));
+				
+			}
 
 		} else if (clicked.getType().equals(Material.BOOK_AND_QUILL)) {
 			

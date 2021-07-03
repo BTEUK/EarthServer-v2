@@ -32,3 +32,8 @@ Spawn:
 #Inactivity demotion in days
 owner_inactive: 56
 member_inactive: 42
+
+#Region limits per role
+Limit:
+    Builder: 30
+    JrBuilder: 15

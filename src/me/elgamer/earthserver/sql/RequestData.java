@@ -343,5 +343,30 @@ public class RequestData {
 		}
 
 	}
+	
+	//Counts all requests by a specific player.
+	public static int countRequests(String uuid) {
+		
+		Main instance = Main.getInstance();
+
+		try {
+			PreparedStatement statement = instance.getConnection().prepareStatement
+					("SELECT COUNT(*) FROM " + instance.requestData + " WHERE UUID=?");
+			statement.setString(1, uuid);
+
+			ResultSet results = statement.executeQuery();
+
+			if (results.next()) {
+				return (results.getInt("1"));
+			} else {
+				return 0;
+			}
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return 0;
+		}
+		
+	}
 
 }
