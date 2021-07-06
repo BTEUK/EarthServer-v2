@@ -6,8 +6,9 @@ import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import me.elgamer.earthserver.sql.MemberData;
 import me.elgamer.earthserver.sql.OwnerData;
-import me.elgamer.earthserver.sql.RegionData;
+import me.elgamer.earthserver.sql.PlayerData;
 import me.elgamer.earthserver.sql.RegionLogs;
 import me.elgamer.earthserver.utils.User;
 import me.elgamer.earthserver.utils.Utils;
@@ -56,39 +57,33 @@ public class EditMember {
 			u.p.closeInventory();
 			u.p.openInventory(MembersGui.GUI(u));
 
-		} else if (clicked.getItemMeta().getDisplayName().equals(ChatColor.AQUA + "" + ChatColor.BOLD + "Leave Region")) {
-
+		} else if (clicked.getItemMeta().getDisplayName().equals(ChatColor.AQUA + "" + ChatColor.BOLD + "Remove Member")) {
+			
+			String uuid = PlayerData.getUUID(u.member_name);
+			RegionLogs.closeLog(u.current_region, uuid);
+			WorldGuardFunctions.removeMember(u.current_region, uuid);
+			MemberData.removeMember(u.current_region, uuid);
+			
 			u.p.closeInventory();
+			u.p.sendMessage(ChatColor.RED + "Removed " + u.member_name + " from the region " + u.current_region);
 
-			if (OwnerData.isOwner(u.uuid, u.region_name)) {
+		} else if (clicked.getItemMeta().getDisplayName().equals(ChatColor.AQUA + "" + ChatColor.BOLD + "Transfer Ownership")) {
 
-				RegionLogs.closeLog(u.region_name,u.uuid);
-				OwnerData.addNewOwner(u.region_name);
-				OwnerData.removeOwner(u.uuid, u.region_name);
-				WorldGuardFunctions.removeMember(u.region_name, u.uuid);
+			String uuid = PlayerData.getUUID(u.member_name);
+			
+			//Change owner to member
+			RegionLogs.closeLog(u.current_region, u.uuid);
+			RegionLogs.newLog(u.current_region, u.uuid, "member");
+			OwnerData.removeOwner(u.uuid, u.current_region);
+			MemberData.addMember(u.current_region, u.uuid);
+			
+			//Change member to owner
+			RegionLogs.closeLog(u.current_region, uuid);
+			RegionLogs.newLog(u.current_region, uuid, "owner");
+			MemberData.removeMember(u.current_region, uuid);
+			OwnerData.addOwner(u.current_region, uuid);
 
-			}
-
-		} else if (clicked.getItemMeta().getDisplayName().equals(ChatColor.AQUA + "" + ChatColor.BOLD + "Members")) {
-
-			u.gui_page = 1;
-			u.p.closeInventory();
-			u.p.openInventory(MembersGui.GUI(u));
-
-		} else if (clicked.getItemMeta().getDisplayName().equals(ChatColor.AQUA + "" + ChatColor.BOLD + "Private Region")) {
-
-			RegionData.setPrivate(u.current_region);
-
-			u.p.closeInventory();
-			u.p.sendMessage(ChatColor.GREEN + "The region " + u.current_region + " is now private!");
-
-
-		} else if (clicked.getItemMeta().getDisplayName().equals(ChatColor.AQUA + "" + ChatColor.BOLD + "Public Region")) {
-
-			RegionData.setPublic(u.current_region);
-
-			u.p.closeInventory();
-			u.p.sendMessage(ChatColor.GREEN + "The region " + u.current_region + " is now public!");
+			u.p.sendMessage(ChatColor.GREEN + "Transferred ownership of the region " + u.current_region + " to " + u.member_name);
 
 		} else {
 

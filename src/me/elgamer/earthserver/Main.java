@@ -28,6 +28,15 @@ import me.elgamer.earthserver.commands.RequestLocation;
 import me.elgamer.earthserver.commands.Requests;
 import me.elgamer.earthserver.commands.TPBlock;
 import me.elgamer.earthserver.gui.claim.ClaimGui;
+import me.elgamer.earthserver.gui.claim.EditMember;
+import me.elgamer.earthserver.gui.claim.MembersGui;
+import me.elgamer.earthserver.gui.claim.RegionList;
+import me.elgamer.earthserver.gui.claim.RegionOptions;
+import me.elgamer.earthserver.gui.claim.RequestGui;
+import me.elgamer.earthserver.gui.claim.RequestReview;
+import me.elgamer.earthserver.gui.claim.StaffGui;
+import me.elgamer.earthserver.gui.claim.StaffOptions;
+import me.elgamer.earthserver.gui.claim.StaffRequests;
 import me.elgamer.earthserver.gui.navigation.EnglandGui;
 import me.elgamer.earthserver.gui.navigation.LocationGui;
 import me.elgamer.earthserver.gui.navigation.LondonGui;
@@ -104,6 +113,7 @@ public class Main extends JavaPlugin {
 		SQLTables.location(this, locationData);
 		SQLTables.locationRequest(this, locationRequestData);
 
+		//Region SQL
 		SQLTables.region(instance, regionData);
 		SQLTables.owner(instance, ownerData);
 		SQLTables.member(instance, memberData);
@@ -138,6 +148,15 @@ public class Main extends JavaPlugin {
 
 		//GUI
 		ClaimGui.initialize();
+		EditMember.initialize();
+		MembersGui.initialize();
+		RegionList.initialize();
+		RegionOptions.initialize();
+		RequestGui.initialize();
+		RequestReview.initialize();
+		StaffGui.initialize();
+		StaffOptions.initialize();
+		StaffRequests.initialize();
 
 		//GUI's for the navigation menu
 		EnglandGui.initialize();
