@@ -1,4 +1,4 @@
-package me.elgamer.earthserver.commands;
+package me.elgamer.earthserver.commands.navigation;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -8,7 +8,7 @@ import org.bukkit.entity.Player;
 
 import me.elgamer.earthserver.sql.LocationSQL;
 
-public class GotoRequest implements CommandExecutor {
+public class RemoveLocation implements CommandExecutor {
 	
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
@@ -20,23 +20,28 @@ public class GotoRequest implements CommandExecutor {
 		
 		Player p = (Player) sender;
 		
-		if (!(p.hasPermission("earthserver.location.torequest"))) {
+		if (!(p.hasPermission("earthserver.location.remove"))) {
 			p.sendMessage(ChatColor.RED + "You do not have permission for this command!");
 			return true;
 		}
 		
 		if (args.length != 1) {
-			p.sendMessage(ChatColor.RED + "/torequest <name>");
+			p.sendMessage(ChatColor.RED + "/removelocation <name>");
 			return true;
 		}
 		
-		if (!(LocationSQL.requestExists(args[0]))) {
-			p.sendMessage(ChatColor.RED + "This location has not been requested.");
+		if (!(LocationSQL.locationExists(args[0]))) {
+			p.sendMessage(ChatColor.RED + "This location does not exist");
 			return true;
 		}
 		
-		p.teleport(LocationSQL.toRequestLocation(args[0]));
-		return true;
+		if (LocationSQL.removeLocation(args[0])) {
+			p.sendMessage(ChatColor.GREEN + "The location " + args[0] + " has been removed");
+			return true;
+		} else {
+			p.sendMessage(ChatColor.RED + "An error has occured!");
+			return true;
+		}
 	}
 
 }

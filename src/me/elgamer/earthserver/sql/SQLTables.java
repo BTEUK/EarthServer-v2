@@ -81,7 +81,7 @@ public class SQLTables {
 		try {
 			PreparedStatement statement = instance.getConnection().prepareStatement
 					("CREATE TABLE IF NOT EXISTS " + table
-							+ " (UUID VARCHAR(36) NOT NULL , NAME VARCHAR(17) NOT NULL , BUILDER_ROLE VARCHAR(32) NOT NULL , LAST_ONLINE BIGINT NOT NULL , UNIQUE (UUID))");
+							+ " (UUID VARCHAR(36) NOT NULL , NAME VARCHAR(17) NOT NULL , BUILDER_ROLE VARCHAR(32) NOT NULL , LAST_ONLINE BIGINT NOT NULL , BUILDING_TIME INT NOT NULL , UNIQUE (UUID))");
 			statement.executeUpdate();
 
 		} catch (SQLException e) {

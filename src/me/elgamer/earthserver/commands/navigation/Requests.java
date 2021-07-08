@@ -1,4 +1,4 @@
-package me.elgamer.earthserver.commands;
+package me.elgamer.earthserver.commands.navigation;
 
 import java.util.HashMap;
 import java.util.Map.Entry;

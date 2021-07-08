@@ -70,8 +70,9 @@ public class PlayerData {
 			statement.setString(1, u.name);
 			statement.setString(2, u.builder_role);
 			statement.setLong(3, Time.currentTime());
-			statement.setString(4, u.uuid);
-			statement.setInt(5, u.buildingTime);
+			statement.setInt(4, u.buildingTime);
+			
+			statement.setString(5, u.uuid);
 			statement.executeUpdate();
 
 		} catch (SQLException e) {

@@ -19,14 +19,16 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import com.earth2me.essentials.Essentials;
 
-import me.elgamer.earthserver.commands.AddLocation;
-import me.elgamer.earthserver.commands.DenyLocation;
-import me.elgamer.earthserver.commands.GotoRequest;
-import me.elgamer.earthserver.commands.OpenGui;
-import me.elgamer.earthserver.commands.RemoveLocation;
-import me.elgamer.earthserver.commands.RequestLocation;
-import me.elgamer.earthserver.commands.Requests;
 import me.elgamer.earthserver.commands.TPBlock;
+import me.elgamer.earthserver.commands.claim.Claim;
+import me.elgamer.earthserver.commands.claim.ConvertClaimData;
+import me.elgamer.earthserver.commands.navigation.AddLocation;
+import me.elgamer.earthserver.commands.navigation.DenyLocation;
+import me.elgamer.earthserver.commands.navigation.GotoRequest;
+import me.elgamer.earthserver.commands.navigation.OpenGui;
+import me.elgamer.earthserver.commands.navigation.RemoveLocation;
+import me.elgamer.earthserver.commands.navigation.RequestLocation;
+import me.elgamer.earthserver.commands.navigation.Requests;
 import me.elgamer.earthserver.gui.claim.ClaimGui;
 import me.elgamer.earthserver.gui.claim.EditMember;
 import me.elgamer.earthserver.gui.claim.MembersGui;
@@ -133,7 +135,9 @@ public class Main extends JavaPlugin {
 		this.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
 
 		//Commands for claiming
-
+		getCommand("claim").setExecutor(new Claim());
+		getCommand("convertclaims").setExecutor(new ConvertClaimData());
+		
 		//Utility command
 		getCommand("tpblock").setExecutor(new TPBlock());
 

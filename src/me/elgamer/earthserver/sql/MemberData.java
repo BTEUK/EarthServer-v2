@@ -343,5 +343,23 @@ public class MemberData {
 		}
 
 	}
+	
+	public static ResultSet getMembers() {
+
+		Main instance = Main.getInstance();
+
+		try {
+			PreparedStatement statement = instance.getConnection().prepareStatement
+					("SELECT * FROM " + instance.memberData);
+
+			ResultSet results = statement.executeQuery();
+
+			return results;
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
 
 }

@@ -109,4 +109,57 @@ public class RegionLogs {
 
 	}
 
+	public static void startLogs() {
+
+		ResultSet owners = OwnerData.getOwners();
+		ResultSet members = MemberData.getMembers();
+
+		Main instance = Main.getInstance();
+
+		PreparedStatement statement;
+
+		try {
+			while (owners.next()) {
+
+				statement = instance.getConnection().prepareStatement
+						("INSERT INTO " + instance.regionLogs + " (ID,REGION_ID,UUID,ROLE,START_TIME,END_TIME) VALUE (?,?,?,?,?,?)");
+
+				statement.setInt(1, getNewID());
+
+				statement.setString(2, owners.getString("REGION_ID"));
+				statement.setString(3, owners.getString("UUID"));
+
+				statement.setString(4, "owner");
+
+				statement.setLong(5, Time.currentTime());
+				statement.setLong(6, 0);
+
+				statement.executeUpdate();
+
+			}
+
+			while (members.next()) {
+
+				statement = instance.getConnection().prepareStatement
+						("INSERT INTO " + instance.regionLogs + " (ID,REGION_ID,UUID,ROLE,START_TIME,END_TIME) VALUE (?,?,?,?,?,?)");
+
+				statement.setInt(1, getNewID());
+
+				statement.setString(2, members.getString("REGION_ID"));
+				statement.setString(3, members.getString("UUID"));
+
+				statement.setString(4, "member");
+
+				statement.setLong(5, Time.currentTime());
+				statement.setLong(6, 0);
+
+				statement.executeUpdate();
+
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+	}
+
 }

@@ -1,4 +1,4 @@
-package me.elgamer.earthserver.commands;
+package me.elgamer.earthserver.commands.navigation;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;

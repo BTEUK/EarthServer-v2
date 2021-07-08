@@ -304,5 +304,23 @@ public class OwnerData {
 
 
 	}
+	
+	public static ResultSet getOwners() {
+
+		Main instance = Main.getInstance();
+
+		try {
+			PreparedStatement statement = instance.getConnection().prepareStatement
+					("SELECT * FROM " + instance.ownerData);
+
+			ResultSet results = statement.executeQuery();
+
+			return results;
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
 
 }
