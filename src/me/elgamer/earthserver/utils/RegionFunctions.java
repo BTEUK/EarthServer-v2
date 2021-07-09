@@ -19,12 +19,14 @@ public class RegionFunctions {
 					WorldGuardFunctions.addMember(u.current_region, u.uuid);
 					MemberData.addMember(u.current_region, u.uuid);
 					RegionLogs.newLog(u.current_region, u.uuid, "member");
+					User.updatePerms(u, u.current_region);
 
 					return (ChatColor.GREEN + "Joined region " + u.current_region + " as a member.");					
 				} else {
 					WorldGuardFunctions.addMember(u.current_region, u.uuid);
 					OwnerData.addOwner(u.current_region, u.uuid);
 					RegionLogs.newLog(u.current_region, u.uuid, "owner");
+					User.updatePerms(u, u.current_region);
 
 					return (ChatColor.GREEN + "Joined region " + u.current_region + " as an owner.");
 				}
@@ -40,6 +42,7 @@ public class RegionFunctions {
 				WorldGuardFunctions.addMember(u.current_region, u.uuid);
 				OwnerData.addOwner(u.current_region, u.uuid);
 				RegionLogs.newLog(u.current_region, u.uuid, "owner");
+				User.updatePerms(u, u.current_region);
 
 				return (ChatColor.GREEN + "Joined region " + u.current_region + " as an owner.");
 
@@ -70,7 +73,6 @@ public class RegionFunctions {
 			return (ChatColor.RED + "You must be Jr.Builder or higher to join a region.");
 
 		}
-
 
 	}
 

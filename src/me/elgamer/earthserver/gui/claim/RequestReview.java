@@ -7,6 +7,7 @@ import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import me.elgamer.earthserver.Main;
 import me.elgamer.earthserver.sql.MemberData;
 import me.elgamer.earthserver.sql.MessageData;
 import me.elgamer.earthserver.sql.OwnerData;
@@ -83,27 +84,46 @@ public class RequestReview {
 			if (u.staff_request) {
 
 				if (RequestData.ownerAccept(u.region_name, u.region_requester)) {
-					
+
 					if (OwnerData.hasOwner(u.region_name)) {
-						
+
 						MemberData.addMember(u.region_name, u.region_requester);
 						WorldGuardFunctions.addMember(u.region_name, u.region_requester);
 						RegionLogs.newLog(u.region_name, u.region_requester, "member");
 						RequestData.closeRequest(u.region_name, u.region_requester);
-						
+
+						if (Main.isOnline(u.region_requester)) {
+
+							Main.updatePerms(u.region_requester, u.region_name);
+
+						}
+
 					} else {
-						
+
 						OwnerData.addOwner(u.region_name, u.region_requester);
 						WorldGuardFunctions.addMember(u.region_name, u.region_requester);
 						RegionLogs.newLog(u.region_name, u.region_requester, "owner");
 						RequestData.closeRequest(u.region_name, u.region_requester);
-						
+
+						if (Main.isOnline(u.region_requester)) {
+
+							Main.updatePerms(u.region_requester, u.region_name);
+
+						}
+
 					}
 
 					MessageData.newMessage(u.region_requester, "Your region join request for " + u.region_name + " has been accepted!", "green");
+
+				} else {
+
+					RequestData.setStaffAccept(u.region_name, u.region_requester, true);
+					u.p.closeInventory();
+					u.p.sendMessage(ChatColor.GREEN + "You have accepted the request, now the owner has to review it.");
+
 				}
-				
-				
+
+
 			} else {
 				if (RequestData.staffAccept(u.region_name, u.region_requester)) {
 
@@ -111,6 +131,12 @@ public class RequestReview {
 					WorldGuardFunctions.addMember(u.region_name, u.region_requester);
 					RegionLogs.newLog(u.region_name, u.region_requester, "member");
 					RequestData.closeRequest(u.region_name, u.region_requester);
+					
+					if (Main.isOnline(u.region_requester)) {
+						
+						Main.updatePerms(u.region_requester, u.region_name);
+						
+					}
 
 					MessageData.newMessage(u.region_requester, "Your region join request for " + u.region_name + " has been accepted!", "green");
 
@@ -126,10 +152,10 @@ public class RequestReview {
 		} else if (clicked.getItemMeta().getDisplayName().equals(ChatColor.AQUA + "" + ChatColor.BOLD + "Deny Request")) {
 
 			if (u.staff_request) {
-				
+
 				RequestData.closeRequest(u.region_name, u.region_requester);
 				MessageData.newMessage(u.region_requester, "Your region join request for " + u.region_name + " has been denied by staff.", "red");
-				
+
 			} else {
 				RequestData.closeRequest(u.region_name, u.region_requester);
 				MessageData.newMessage(u.region_requester, "Your region join request for " + u.region_name + " has been denied by the owner.", "red");

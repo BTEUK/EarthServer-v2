@@ -8,6 +8,15 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 
 import me.elgamer.earthserver.Main;
 import me.elgamer.earthserver.gui.claim.ClaimGui;
+import me.elgamer.earthserver.gui.claim.EditMember;
+import me.elgamer.earthserver.gui.claim.MembersGui;
+import me.elgamer.earthserver.gui.claim.RegionList;
+import me.elgamer.earthserver.gui.claim.RegionOptions;
+import me.elgamer.earthserver.gui.claim.RequestGui;
+import me.elgamer.earthserver.gui.claim.RequestReview;
+import me.elgamer.earthserver.gui.claim.StaffGui;
+import me.elgamer.earthserver.gui.claim.StaffOptions;
+import me.elgamer.earthserver.gui.claim.StaffRequests;
 import me.elgamer.earthserver.gui.navigation.EnglandGui;
 import me.elgamer.earthserver.gui.navigation.LocationGui;
 import me.elgamer.earthserver.gui.navigation.LondonGui;
@@ -44,6 +53,8 @@ public class InventoryClicked implements Listener {
 		String title = e.getView().getTitle();
 		User u = Main.getUser((Player) e.getWhoClicked());		
 		
+		//Claim Menu
+		
 		if (title.equals(ClaimGui.inventory_name)) {
 			e.setCancelled(true);
 			if (e.getCurrentItem() == null){
@@ -52,7 +63,85 @@ public class InventoryClicked implements Listener {
 			if (title.equals(ClaimGui.inventory_name)) {
 				ClaimGui.clicked(u, e.getSlot(), e.getCurrentItem(), e.getInventory());
 			}
-		} else if (title.equals(NavigationGui.inventory_name)) {
+		} else if (title.equals(EditMember.inventory_name)) {
+			e.setCancelled(true);
+			if (e.getCurrentItem() == null){
+				return;
+			}
+			if (title.equals(EditMember.inventory_name)) {
+				EditMember.clicked(u, e.getSlot(), e.getCurrentItem(), e.getInventory());
+			}
+		} else if (title.equals(MembersGui.inventory_name)) {
+			e.setCancelled(true);
+			if (e.getCurrentItem() == null){
+				return;
+			}
+			if (title.equals(MembersGui.inventory_name)) {
+				MembersGui.clicked(u, e.getSlot(), e.getCurrentItem(), e.getInventory());
+			}
+		} else if (title.equals(RegionList.inventory_name)) {
+			e.setCancelled(true);
+			if (e.getCurrentItem() == null){
+				return;
+			}
+			if (title.equals(RegionList.inventory_name)) {
+				RegionList.clicked(u, e.getSlot(), e.getCurrentItem(), e.getInventory());
+			}
+		} else if (title.equals(RegionOptions.inventory_name)) {
+			e.setCancelled(true);
+			if (e.getCurrentItem() == null){
+				return;
+			}
+			if (title.equals(RegionOptions.inventory_name)) {
+				RegionOptions.clicked(u, e.getSlot(), e.getCurrentItem(), e.getInventory());
+			}
+		} else if (title.equals(RequestGui.inventory_name)) {
+			e.setCancelled(true);
+			if (e.getCurrentItem() == null){
+				return;
+			}
+			if (title.equals(RequestGui.inventory_name)) {
+				RequestGui.clicked(u, e.getSlot(), e.getCurrentItem(), e.getInventory());
+			}
+		} else if (title.equals(RequestReview.inventory_name)) {
+			e.setCancelled(true);
+			if (e.getCurrentItem() == null){
+				return;
+			}
+			if (title.equals(RequestReview.inventory_name)) {
+				RequestReview.clicked(u, e.getSlot(), e.getCurrentItem(), e.getInventory());
+			}
+		} else if (title.equals(StaffGui.inventory_name)) {
+			e.setCancelled(true);
+			if (e.getCurrentItem() == null){
+				return;
+			}
+			if (title.equals(StaffGui.inventory_name)) {
+				StaffGui.clicked(u, e.getSlot(), e.getCurrentItem(), e.getInventory());
+			}
+		} else if (title.equals(StaffOptions.inventory_name)) {
+			e.setCancelled(true);
+			if (e.getCurrentItem() == null){
+				return;
+			}
+			if (title.equals(StaffOptions.inventory_name)) {
+				StaffOptions.clicked(u, e.getSlot(), e.getCurrentItem(), e.getInventory());
+			}
+		} else if (title.equals(StaffRequests.inventory_name)) {
+			e.setCancelled(true);
+			if (e.getCurrentItem() == null){
+				return;
+			}
+			if (title.equals(StaffRequests.inventory_name)) {
+				StaffRequests.clicked(u, e.getSlot(), e.getCurrentItem(), e.getInventory());
+			}
+		} 
+		
+		
+		
+		//Navigation Menu
+		
+		else if (title.equals(NavigationGui.inventory_name)) {
 			e.setCancelled(true);
 			if (e.getCurrentItem() == null){
 				return;

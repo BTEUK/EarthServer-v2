@@ -100,13 +100,13 @@ public class StaffRequests {
 		
 			u.gui_page += 1;
 			u.p.closeInventory();
-			u.p.openInventory(RequestGui.GUI(u));
+			u.p.openInventory(StaffRequests.GUI(u));
 			
 		} else if (clicked.getItemMeta().getDisplayName().equals(ChatColor.AQUA + "" + ChatColor.BOLD + "Previous Page")) {
 			
 			u.gui_page -= 1;
 			u.p.closeInventory();
-			u.p.openInventory(RequestGui.GUI(u));
+			u.p.openInventory(StaffRequests.GUI(u));
 			
 		} else {
 

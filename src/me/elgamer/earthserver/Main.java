@@ -341,4 +341,26 @@ public class Main extends JavaPlugin {
 	public static void removeUser(User u) {
 		users.remove(u);
 	}
+	
+	public static boolean isOnline(String uuid) {
+		
+		for (User u : users) {
+			if (u.uuid.equals(uuid)) {
+				return true;
+			}
+		}
+		
+		return false;
+		
+	}
+	
+	public static void updatePerms(String uuid, String region) {
+		
+		for (User u : users) {
+			if (u.uuid.equals(uuid)) {
+				User.updatePerms(u, region);
+			}
+		}
+		
+	}
 }

@@ -203,6 +203,26 @@ public class RequestData {
 		}
 
 	}
+	
+	public static void setStaffAccept(String region, String requester, boolean value) {
+
+		Main instance = Main.getInstance();
+
+		PreparedStatement statement;
+		try {
+			statement = instance.getConnection().prepareStatement
+					("UPDATE " + instance.requestData + " SET STAFF_ACCEPT=? WHERE REGION_ID=? AND UUID=?");
+			statement.setBoolean(1, value);
+			statement.setString(2, region);
+			statement.setString(3, requester);
+
+			statement.executeUpdate();
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+	}
 
 	//Checks whether the region is already accepted by staff
 	public static boolean staffAccept(String region, String requester) {
