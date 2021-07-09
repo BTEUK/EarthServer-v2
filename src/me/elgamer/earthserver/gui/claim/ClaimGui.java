@@ -37,38 +37,38 @@ public class ClaimGui {
 		RegionData.createRegionIfNotExists(u.current_region);
 
 		if (OwnerData.isOwner(u.uuid, u.current_region)) {
-			Utils.createItem(inv, Material.BOOK_AND_QUILL, 1, 22, ChatColor.AQUA + "" + ChatColor.BOLD + "Region " + u.current_region, 
+			Utils.createItem(inv, Material.BOOK_AND_QUILL, 1, 5, ChatColor.AQUA + "" + ChatColor.BOLD + "Region " + u.current_region, 
 					Utils.chat("&fYou are the owner of this region, click to open the settings menu."));
 		} else if (MemberData.isMember(u.uuid, u.current_region)) {
-			Utils.createItem(inv, Material.BOOK_AND_QUILL, 1, 22, ChatColor.AQUA + "" + ChatColor.BOLD + "Region " + u.current_region, 
+			Utils.createItem(inv, Material.BOOK_AND_QUILL, 1, 5, ChatColor.AQUA + "" + ChatColor.BOLD + "Region " + u.current_region, 
 					Utils.chat("&fYou are a member of this region, click to open the settings menu."));
 		} else if (OwnerData.hasOwner(u.current_region)) {
 
 			if (RegionData.isOpen(u.current_region)) {
-				Utils.createItem(inv, Material.BOOK, 1, 22, ChatColor.AQUA + "" + ChatColor.BOLD + "Region " + u.current_region, 
+				Utils.createItem(inv, Material.BOOK, 1, 5, ChatColor.AQUA + "" + ChatColor.BOLD + "Region " + u.current_region, 
 						Utils.chat("&fThis region is open, you can build here without being a member of the claim."));
 			} else if (RegionData.isPublic(u.current_region)) {
-				Utils.createItem(inv, Material.DARK_OAK_DOOR, 1, 22, ChatColor.AQUA + "" + ChatColor.BOLD + "Region " + u.current_region, 
+				Utils.createItem(inv, Material.DARK_OAK_DOOR_ITEM, 1, 5, ChatColor.AQUA + "" + ChatColor.BOLD + "Region " + u.current_region, 
 						Utils.chat("&fThis region is public, click to join the region."));
 			} else {
-				Utils.createItem(inv, Material.DARK_OAK_DOOR, 1, 22, ChatColor.AQUA + "" + ChatColor.BOLD + "Region " + u.current_region, 
+				Utils.createItem(inv, Material.DARK_OAK_DOOR_ITEM, 1, 5, ChatColor.AQUA + "" + ChatColor.BOLD + "Region " + u.current_region, 
 						Utils.chat("&fThis region is claimed, click to request access to build."));
 			}
 
 		} else {
-			Utils.createItem(inv, Material.DARK_OAK_DOOR, 1, 22, ChatColor.AQUA + "" + ChatColor.BOLD + "Region " + u.current_region, 
+			Utils.createItem(inv, Material.DARK_OAK_DOOR_ITEM, 1, 5, ChatColor.AQUA + "" + ChatColor.BOLD + "Region " + u.current_region, 
 					Utils.chat("&fThis region does not have an owner, click to claim the region."));
 		}
 
 		if ((OwnerData.count(u.uuid) + MemberData.count(u.uuid)) > 0) {
-		Utils.createItem(inv, Material.CHEST, 1, 22, ChatColor.AQUA + "" + ChatColor.BOLD + "Region List", 
+		Utils.createItem(inv, Material.CHEST, 1, 21, ChatColor.AQUA + "" + ChatColor.BOLD + "Region List", 
 				Utils.chat("&fClick to view all regions you are owner or member of."),
 				Utils.chat("&fYou are the owner of " + OwnerData.count(u.uuid) + " regions"),
 				Utils.chat("&fand a member of " + MemberData.count(u.uuid) + " regions."));
 		}
 		
 		if (RequestData.count(u.uuid) > 0) {
-			Utils.createItem(inv, Material.CHEST, 1, 22, ChatColor.AQUA + "" + ChatColor.BOLD + "Join Requests", 
+			Utils.createItem(inv, Material.CHEST, 1, 25, ChatColor.AQUA + "" + ChatColor.BOLD + "Join Requests", 
 					Utils.chat("&fClick to view all the join requests for regions you own."),
 					Utils.chat("&fThere are currently " + RequestData.count(u.uuid) + " requests"));
 		}
@@ -79,7 +79,7 @@ public class ClaimGui {
 
 	public static void clicked(User u, int slot, ItemStack clicked, Inventory inv) {
 
-		if (clicked.getType().equals(Material.DARK_OAK_DOOR)) {
+		if (clicked.getType().equals(Material.DARK_OAK_DOOR_ITEM)) {
 
 			u.p.closeInventory();
 			

@@ -7,6 +7,7 @@ import java.util.ArrayList;
 
 import me.elgamer.earthserver.Main;
 import me.elgamer.earthserver.utils.OldClaim;
+import me.elgamer.earthserver.utils.WorldGuardFunctions;
 
 public class RegionData {
 
@@ -276,6 +277,8 @@ public class RegionData {
 			statement.setBoolean(6, false);
 
 			statement.executeUpdate();
+			
+			WorldGuardFunctions.createRegion(region, x, z);
 
 		} catch (SQLException e) {
 			e.printStackTrace();

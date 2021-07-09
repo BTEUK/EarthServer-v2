@@ -2,7 +2,7 @@ package me.elgamer.earthserver.utils;
 
 import org.bukkit.configuration.file.FileConfiguration;
 
-import me.elgamer.btepoints.Main;
+import me.elgamer.earthserver.Main;
 import me.elgamer.earthserver.sql.MemberData;
 import me.elgamer.earthserver.sql.OwnerData;
 import me.elgamer.earthserver.sql.RequestData;

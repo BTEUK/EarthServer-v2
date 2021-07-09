@@ -33,16 +33,16 @@ public class EditMember {
 
 		inv.clear();
 
-		Utils.createItem(inv, Material.WOODEN_DOOR, 1, 22, ChatColor.AQUA + "" + ChatColor.BOLD + "Remove Member",
+		Utils.createItem(inv, Material.WOODEN_DOOR, 1, 13, ChatColor.AQUA + "" + ChatColor.BOLD + "Remove Member",
 				Utils.chat("&fClick to remove " + u.member_name + " from this region."));
 		
-		Utils.createItem(inv, Material.WOODEN_DOOR, 1, 22, ChatColor.AQUA + "" + ChatColor.BOLD + "Transfer Ownership",
+		Utils.createItem(inv, Material.WOODEN_DOOR, 1, 15, ChatColor.AQUA + "" + ChatColor.BOLD + "Transfer Ownership",
 				Utils.chat("&fClick to make " + u.member_name + " owner of this region."),
 				Utils.chat("&fYou will lose ownership of the region,"),
 				Utils.chat("&fhowever you will remain a member."));
 
 
-		Utils.createItem(inv, Material.SPRUCE_DOOR, 1, 27, ChatColor.AQUA + "" + ChatColor.BOLD + "Return",
+		Utils.createItem(inv, Material.SPRUCE_DOOR_ITEM, 1, 27, ChatColor.AQUA + "" + ChatColor.BOLD + "Return",
 				Utils.chat("&fClick to go back to the region members menu."));
 
 
@@ -52,7 +52,7 @@ public class EditMember {
 
 	public static void clicked(User u, int slot, ItemStack clicked, Inventory inv) {
 
-		if (clicked.getType().equals(Material.SPRUCE_DOOR)) {
+		if (clicked.getType().equals(Material.SPRUCE_DOOR_ITEM)) {
 
 			u.p.closeInventory();
 			u.p.openInventory(MembersGui.GUI(u));

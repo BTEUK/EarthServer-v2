@@ -24,7 +24,7 @@ public class RequestData {
 			ResultSet results = statement.executeQuery();
 
 			if (results.next()) {
-				return (results.getInt("1"));
+				return (results.getInt(1));
 			} else {
 				return 0;
 			}
@@ -49,7 +49,7 @@ public class RequestData {
 			ResultSet results = statement.executeQuery();
 
 			if (results.next()) {
-				return (results.getInt("1"));
+				return (results.getInt(1));
 			} else {
 				return 0;
 			}
@@ -357,7 +357,7 @@ public class RequestData {
 			ResultSet results = statement.executeQuery();
 
 			if (results.next()) {
-				return (results.getInt("1"));
+				return (results.getInt(1));
 			} else {
 				return 0;
 			}

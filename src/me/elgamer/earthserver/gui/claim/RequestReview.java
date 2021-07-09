@@ -39,7 +39,7 @@ public class RequestReview {
 				Utils.chat("&fRegion: " + u.region_name),
 				Utils.chat("&fRequested by: " + u.region_requester));		
 
-		Utils.createItem(inv, Material.SPRUCE_DOOR, 1, 27, ChatColor.AQUA + "" + ChatColor.BOLD + "Return",
+		Utils.createItem(inv, Material.SPRUCE_DOOR_ITEM, 1, 27, ChatColor.AQUA + "" + ChatColor.BOLD + "Return",
 				Utils.chat("&fClick to go back to the review menu."));
 
 		Utils.createItem(inv, Material.EYE_OF_ENDER, 1, 14, ChatColor.AQUA + "" + ChatColor.BOLD + "Teleport to Region", 
@@ -51,7 +51,7 @@ public class RequestReview {
 				Utils.chat("&fIf the user is a Jr.Builder then"),
 				Utils.chat("&fstaff may need to accept it also."));
 
-		Utils.createItemByte(inv, Material.CONCRETE, 1, 14, 11, ChatColor.AQUA + "" + ChatColor.BOLD + "Deny Request",
+		Utils.createItemByte(inv, Material.CONCRETE, 1, 14, 17, ChatColor.AQUA + "" + ChatColor.BOLD + "Deny Request",
 				Utils.chat("&fDenies the request to join the region."));
 
 		toReturn.setContents(inv.getContents());
@@ -60,7 +60,7 @@ public class RequestReview {
 
 	public static void clicked(User u, int slot, ItemStack clicked, Inventory inv) {
 
-		if (clicked.getType().equals(Material.SPRUCE_DOOR)) {
+		if (clicked.getType().equals(Material.SPRUCE_DOOR_ITEM)) {
 
 			u.gui_page = 1;
 

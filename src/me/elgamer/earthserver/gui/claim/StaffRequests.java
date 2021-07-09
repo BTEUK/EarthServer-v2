@@ -78,7 +78,7 @@ public class StaffRequests {
 			
 		}
 
-		Utils.createItem(inv, Material.SPRUCE_DOOR, 1, 45, ChatColor.AQUA + "" + ChatColor.BOLD + "Return",
+		Utils.createItem(inv, Material.SPRUCE_DOOR_ITEM, 1, 45, ChatColor.AQUA + "" + ChatColor.BOLD + "Return",
 				Utils.chat("&fClick to go back to the claim menu."));
 
 
@@ -88,7 +88,7 @@ public class StaffRequests {
 
 	public static void clicked(User u, int slot, ItemStack clicked, Inventory inv) {
 
-		if (clicked.getType().equals(Material.SPRUCE_DOOR)) {
+		if (clicked.getType().equals(Material.SPRUCE_DOOR_ITEM)) {
 
 			u.p.closeInventory();
 			u.p.openInventory(ClaimGui.GUI(u));
