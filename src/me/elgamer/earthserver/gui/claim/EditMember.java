@@ -33,10 +33,10 @@ public class EditMember {
 
 		inv.clear();
 
-		Utils.createItem(inv, Material.WOODEN_DOOR, 1, 13, ChatColor.AQUA + "" + ChatColor.BOLD + "Remove Member",
+		Utils.createItem(inv, Material.BARRIER, 1, 13, ChatColor.AQUA + "" + ChatColor.BOLD + "Remove Member",
 				Utils.chat("&fClick to remove " + u.member_name + " from this region."));
 		
-		Utils.createItem(inv, Material.WOODEN_DOOR, 1, 15, ChatColor.AQUA + "" + ChatColor.BOLD + "Transfer Ownership",
+		Utils.createItem(inv, Material.MINECART, 1, 15, ChatColor.AQUA + "" + ChatColor.BOLD + "Transfer Ownership",
 				Utils.chat("&fClick to make " + u.member_name + " owner of this region."),
 				Utils.chat("&fYou will lose ownership of the region,"),
 				Utils.chat("&fhowever you will remain a member."));
@@ -60,30 +60,31 @@ public class EditMember {
 		} else if (clicked.getItemMeta().getDisplayName().equals(ChatColor.AQUA + "" + ChatColor.BOLD + "Remove Member")) {
 			
 			String uuid = PlayerData.getUUID(u.member_name);
-			RegionLogs.closeLog(u.current_region, uuid);
-			WorldGuardFunctions.removeMember(u.current_region, uuid);
-			MemberData.removeMember(u.current_region, uuid);
+			RegionLogs.closeLog(u.region_name, uuid);
+			WorldGuardFunctions.removeMember(u.region_name, uuid);
+			MemberData.removeMember(u.region_name, uuid);
 			
 			u.p.closeInventory();
-			u.p.sendMessage(ChatColor.RED + "Removed " + u.member_name + " from the region " + u.current_region);
+			u.p.sendMessage(ChatColor.RED + "Removed " + u.member_name + " from the region " + u.region_name);
 
 		} else if (clicked.getItemMeta().getDisplayName().equals(ChatColor.AQUA + "" + ChatColor.BOLD + "Transfer Ownership")) {
 
 			String uuid = PlayerData.getUUID(u.member_name);
 			
 			//Change owner to member
-			RegionLogs.closeLog(u.current_region, u.uuid);
-			RegionLogs.newLog(u.current_region, u.uuid, "member");
-			OwnerData.removeOwner(u.uuid, u.current_region);
-			MemberData.addMember(u.current_region, u.uuid);
+			RegionLogs.closeLog(u.region_name, u.uuid);
+			RegionLogs.newLog(u.region_name, u.uuid, "member");
+			OwnerData.removeOwner(u.uuid, u.region_name);
+			MemberData.addMember(u.region_name, u.uuid);
 			
 			//Change member to owner
-			RegionLogs.closeLog(u.current_region, uuid);
-			RegionLogs.newLog(u.current_region, uuid, "owner");
-			MemberData.removeMember(u.current_region, uuid);
-			OwnerData.addOwner(u.current_region, uuid);
+			RegionLogs.closeLog(u.region_name, uuid);
+			RegionLogs.newLog(u.region_name, uuid, "owner");
+			MemberData.removeMember(u.region_name, uuid);
+			OwnerData.addOwner(u.region_name, uuid);
 
-			u.p.sendMessage(ChatColor.GREEN + "Transferred ownership of the region " + u.current_region + " to " + u.member_name);
+			u.p.closeInventory();
+			u.p.sendMessage(ChatColor.GREEN + "Transferred ownership of the region " + u.region_name + " to " + u.member_name);
 
 		} else {
 

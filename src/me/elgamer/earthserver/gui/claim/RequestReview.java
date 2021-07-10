@@ -11,6 +11,7 @@ import me.elgamer.earthserver.Main;
 import me.elgamer.earthserver.sql.MemberData;
 import me.elgamer.earthserver.sql.MessageData;
 import me.elgamer.earthserver.sql.OwnerData;
+import me.elgamer.earthserver.sql.PlayerData;
 import me.elgamer.earthserver.sql.RegionLogs;
 import me.elgamer.earthserver.sql.RequestData;
 import me.elgamer.earthserver.utils.User;
@@ -38,7 +39,7 @@ public class RequestReview {
 
 		Utils.createItem(inv, Material.BOOK, 1, 5, ChatColor.AQUA + "" + ChatColor.BOLD + "Request Info",
 				Utils.chat("&fRegion: " + u.region_name),
-				Utils.chat("&fRequested by: " + u.region_requester));		
+				Utils.chat("&fRequested by: " + PlayerData.getName(u.region_requester)));		
 
 		Utils.createItem(inv, Material.SPRUCE_DOOR_ITEM, 1, 27, ChatColor.AQUA + "" + ChatColor.BOLD + "Return",
 				Utils.chat("&fClick to go back to the review menu."));
@@ -47,12 +48,12 @@ public class RequestReview {
 				Utils.chat("&fTeleport to the location in the region"),
 				Utils.chat("&fwhere the request was created."));
 
-		Utils.createItemByte(inv, Material.CONCRETE, 1, 5, 11, ChatColor.AQUA + "" + ChatColor.BOLD + "Accept Request",
+		Utils.createItemByte(inv, Material.CONCRETE, 5, 1, 11, ChatColor.AQUA + "" + ChatColor.BOLD + "Accept Request",
 				Utils.chat("&fAccepts the request to join the region."),
 				Utils.chat("&fIf the user is a Jr.Builder then"),
 				Utils.chat("&fstaff may need to accept it also."));
 
-		Utils.createItemByte(inv, Material.CONCRETE, 1, 14, 17, ChatColor.AQUA + "" + ChatColor.BOLD + "Deny Request",
+		Utils.createItemByte(inv, Material.CONCRETE, 14, 1, 17, ChatColor.AQUA + "" + ChatColor.BOLD + "Deny Request",
 				Utils.chat("&fDenies the request to join the region."));
 
 		toReturn.setContents(inv.getContents());
@@ -66,13 +67,17 @@ public class RequestReview {
 			u.gui_page = 1;
 
 			u.p.closeInventory();
-			u.p.openInventory(RequestGui.GUI(u));
+			
+			if (u.previous_gui.equals("request")) {
+				u.p.openInventory(RequestGui.GUI(u));
+			} else {
+				u.p.openInventory(StaffRequests.GUI(u));
+			}
 
 		} else if (clicked.getType().equals(Material.EYE_OF_ENDER)) {
 
 			Location l = RequestData.getRequestLocation(u.region_name, u.region_requester);
 
-			u.p.closeInventory();
 			if (l == null) {
 				u.p.sendMessage(ChatColor.RED + "An error occured, please try again!");
 			} else {

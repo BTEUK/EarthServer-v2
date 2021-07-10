@@ -117,6 +117,7 @@ public class StaffRequests {
 			u.p.closeInventory();
 			
 			if (RequestData.requestExists(u.region_name, u.region_requester, u.staff_request)) {
+				u.previous_gui = "staff";
 				u.p.openInventory(RequestReview.GUI(u));
 			} else {
 				u.p.sendMessage(ChatColor.RED + "This request does no longer exist!");

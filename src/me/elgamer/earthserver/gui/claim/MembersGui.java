@@ -35,7 +35,7 @@ public class MembersGui {
 
 		inv.clear();
 
-		ResultSet members = MemberData.getMembers(u.current_region);
+		ResultSet members = MemberData.getMembers(u.region_name);
 
 		u.gui_slot = (u.gui_page-1)*45 + 11;
 

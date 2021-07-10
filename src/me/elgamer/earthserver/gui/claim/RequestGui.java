@@ -49,7 +49,7 @@ public class RequestGui {
 			
 			while (results.next()) {
 
-				Utils.createItemByte(inv, Material.CONCRETE, 5, 1, u.gui_slot, ChatColor.AQUA + "" + ChatColor.BOLD + PlayerData.getName(results.getString("UUID") + ", " + results.getString("REGION_ID")), 
+				Utils.createItemByte(inv, Material.CONCRETE, 5, 1, u.gui_slot, ChatColor.AQUA + "" + ChatColor.BOLD + PlayerData.getName(results.getString("UUID")) + ", " + results.getString("REGION_ID"), 
 						Utils.chat("&fClick to review the request."));
 
 				if ((u.gui_slot & 45) == 17 ) {
@@ -114,12 +114,13 @@ public class RequestGui {
 		} else {
 
 			String[] info = ChatColor.stripColor(clicked.getItemMeta().getDisplayName()).replace(" ","").split(",");
-			u.region_requester = info[0];
-			u.region_name = info[1];
+			u.region_requester = PlayerData.getUUID(info[0]);
+			u.region_name = info[1] + "," + info[2];
 
 			u.p.closeInventory();
 			
 			if (RequestData.requestExists(u.region_name, u.region_requester)) {
+				u.previous_gui = "request";
 				u.p.openInventory(RequestReview.GUI(u));
 			} else {
 				u.p.sendMessage(ChatColor.RED + "This request does no longer exist!");

@@ -23,7 +23,10 @@ public class LeaveEvent implements Listener {
 	public void onPlayerQuit(PlayerQuitEvent e) {
 		
 		User u = Main.getUser(e.getPlayer());
-		Permissions.removeWorldedit(u.uuid);
+		
+		if (u.hasWorldEdit) {
+			Permissions.removeWorldedit(u.uuid);
+		}
 		
 		PlayerData.updatePlayer(u);		
 		

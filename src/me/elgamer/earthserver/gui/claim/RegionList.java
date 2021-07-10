@@ -77,7 +77,7 @@ public class RegionList {
 			while (members.next()) {
 
 				Utils.createItemByte(inv, Material.CONCRETE, 4, 1, u.gui_slot, ChatColor.AQUA + "" + ChatColor.BOLD + members.getString("REGION_ID"), 
-						Utils.chat("&fYou are a members of this region."));
+						Utils.chat("&fYou are a member of this region."));
 
 				if ((u.gui_slot & 45) == 17 ) {
 					u.gui_slot += 3;

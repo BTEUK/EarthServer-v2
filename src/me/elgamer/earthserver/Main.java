@@ -53,7 +53,11 @@ import me.elgamer.earthserver.listeners.JoinEvent;
 import me.elgamer.earthserver.listeners.LeaveEvent;
 import me.elgamer.earthserver.listeners.MoveEvent;
 import me.elgamer.earthserver.listeners.PlayerInteract;
+import me.elgamer.earthserver.sql.MemberData;
+import me.elgamer.earthserver.sql.OwnerData;
+import me.elgamer.earthserver.sql.PlayerData;
 import me.elgamer.earthserver.sql.SQLTables;
+import me.elgamer.earthserver.utils.Permissions;
 import me.elgamer.earthserver.utils.User;
 import net.milkbowl.vault.permission.Permission;
 
@@ -77,13 +81,13 @@ public class Main extends JavaPlugin {
 
 	public ItemStack slot5;
 	public static ItemStack gui;
-	
+
 	public static ArrayList<User> users;
-	
+
 	static Essentials ess;	
 	static int interval;
 	ConsoleCommandSender console;
-	
+
 	public static World buildWorld;
 
 	@Override
@@ -97,9 +101,9 @@ public class Main extends JavaPlugin {
 
 		//MySQL		
 		mysqlSetup();
-		
+
 		users = new ArrayList<User>();
-		
+
 		//Points setup
 		ess = (Essentials) Bukkit.getServer().getPluginManager().getPlugin("Essentials");
 		interval = 10*60;
@@ -110,7 +114,7 @@ public class Main extends JavaPlugin {
 
 		//World
 		buildWorld = Bukkit.getWorld(config.getString("World_Name"));
-		
+
 		//Creates the mysql table if not existing
 		SQLTables.location(this, locationData);
 		SQLTables.locationRequest(this, locationRequestData);
@@ -137,7 +141,7 @@ public class Main extends JavaPlugin {
 		//Commands for claiming
 		getCommand("claim").setExecutor(new Claim());
 		getCommand("convertclaims").setExecutor(new ConvertClaimData());
-		
+
 		//Utility command
 		getCommand("tpblock").setExecutor(new TPBlock());
 
@@ -204,23 +208,23 @@ public class Main extends JavaPlugin {
 					}
 
 				}
-				
+
 				//Increase buildingTime for each second the player is in a buildable claim and is not AFK
 				for (User u : users) {
-					
+
 					if (ess.getUser(u.p).isAfk() == false && u.hasWorldEdit) {
-						
+
 						u.buildingTime += 1;
-						
+
 						if (u.buildingTime >= interval) {
 							u.buildingTime -= interval;
-							
+
 							Bukkit.dispatchCommand(console, "addpoints " + u.name + " 1");
 						}
-						
-						
+
+
 					}
-					
+
 				}
 
 			}
@@ -238,9 +242,25 @@ public class Main extends JavaPlugin {
 
 	public void onDisable() {
 
+		for (User u : users) {
+
+			if (u.hasWorldEdit) {
+				Permissions.removeWorldedit(u.uuid);
+			}
+
+			PlayerData.updatePlayer(u);		
+
+			if (OwnerData.isOwner(u.uuid, u.current_region)) {
+				OwnerData.updateTime(u.uuid, u.current_region);
+			} else if (MemberData.isMember(u.uuid, u.current_region)) {
+				MemberData.updateTime(u.uuid, u.current_region);
+			}
+		}
+
 		//MySQL
 		try {
 			if (connection != null && !connection.isClosed()) {
+				Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "MySQL disconnected from " + config.getString("MySQL_database"));
 				connection.close();
 			}
 		} catch (Exception e) {
@@ -290,7 +310,7 @@ public class Main extends JavaPlugin {
 				setConnection(DriverManager.getConnection("jdbc:mysql://" + this.host + ":" 
 						+ this.port + "/" + this.database, this.username, this.password));
 
-				Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "MYSQL CONNECTED");
+				Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "MySQL connected to " + config.getString("MySQL_database"));
 			}
 
 		} catch (SQLException e) {
@@ -321,46 +341,46 @@ public class Main extends JavaPlugin {
 	public static Main getInstance() {
 		return instance;
 	}
-	
+
 	public static User addUser(Player p) {
 		User u = new User(p);
 		users.add(u);
 		return u;
 	}
-	
+
 	public static User getUser(Player p) {
 		for (User u : users) {
 			if (u.p.equals(p)) {
 				return (u);
 			}
 		}
-		
+
 		return null;
 	}
-	
+
 	public static void removeUser(User u) {
 		users.remove(u);
 	}
-	
+
 	public static boolean isOnline(String uuid) {
-		
+
 		for (User u : users) {
 			if (u.uuid.equals(uuid)) {
 				return true;
 			}
 		}
-		
+
 		return false;
-		
+
 	}
-	
+
 	public static void updatePerms(String uuid, String region) {
-		
+
 		for (User u : users) {
 			if (u.uuid.equals(uuid)) {
 				User.updatePerms(u, region);
 			}
 		}
-		
+
 	}
 }

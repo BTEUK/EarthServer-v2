@@ -58,10 +58,10 @@ public class PlayerData {
 		return false;
 
 	}
-	
+
 	//Update player data
 	public static void updatePlayer(User u) {
-		
+
 		Main instance = Main.getInstance();
 
 		try {
@@ -71,19 +71,19 @@ public class PlayerData {
 			statement.setString(2, u.builder_role);
 			statement.setLong(3, Time.currentTime());
 			statement.setInt(4, u.buildingTime);
-			
+
 			statement.setString(5, u.uuid);
 			statement.executeUpdate();
 
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		
+
 	}
-	
+
 	//Get building time
 	public static int getBuildingTime(String uuid) {
-		
+
 		Main instance = Main.getInstance();
 
 		try {
@@ -92,7 +92,7 @@ public class PlayerData {
 			statement.setString(1, uuid);
 
 			ResultSet results = statement.executeQuery();
-			
+
 			if (results.next()) {
 				return (results.getInt("BUILDING_TIME"));
 			} else {
@@ -103,11 +103,11 @@ public class PlayerData {
 			e.printStackTrace();
 			return 0;
 		}		
-		
+
 	}
-	
+
 	public static String getName(String uuid) {
-		
+
 		Main instance = Main.getInstance();
 
 		try {
@@ -116,7 +116,7 @@ public class PlayerData {
 			statement.setString(1, uuid);
 
 			ResultSet results = statement.executeQuery();
-			
+
 			if (results.next()) {
 				return (results.getString("NAME"));
 			} else {
@@ -127,11 +127,11 @@ public class PlayerData {
 			e.printStackTrace();
 			return null;
 		}		
-		
+
 	}
-	
-public static String getUUID(String uuid) {
-		
+
+	public static String getUUID(String uuid) {
+
 		Main instance = Main.getInstance();
 
 		try {
@@ -140,7 +140,7 @@ public static String getUUID(String uuid) {
 			statement.setString(1, uuid);
 
 			ResultSet results = statement.executeQuery();
-			
+
 			if (results.next()) {
 				return (results.getString("UUID"));
 			} else {
@@ -151,7 +151,7 @@ public static String getUUID(String uuid) {
 			e.printStackTrace();
 			return null;
 		}		
-		
+
 	}
 
 }

@@ -87,11 +87,16 @@ public class User {
 			return false;
 		}
 
-		if (RegionData.isOpen(region) && !u.hasWorldEdit) {
-			Permissions.giveWorldedit(u.uuid);
+		if (RegionData.isOpen(region)) {
+			
+			if (!u.hasWorldEdit) {
+				Permissions.giveWorldedit(u.uuid);
+			}
 			return true;
-		} else if (OwnerData.isOwner(u.uuid, region) && !u.hasWorldEdit) {
-			Permissions.giveWorldedit(u.uuid);
+		} else if (OwnerData.isOwner(u.uuid, region)) {
+			if (!u.hasWorldEdit) {
+				Permissions.giveWorldedit(u.uuid);
+			}
 			OwnerData.updateTime(u.uuid, region);
 			return true;
 		} else if (MemberData.isMember(u.uuid, region)) {

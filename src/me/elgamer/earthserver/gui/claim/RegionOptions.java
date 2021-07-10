@@ -49,12 +49,12 @@ public class RegionOptions {
 
 
 			if (RegionData.isPublic(u.region_name)) {
-				Utils.createItem(inv, Material.IRON_DOOR_BLOCK, 1, 14, ChatColor.AQUA + "" + ChatColor.BOLD + "Private Region",
+				Utils.createItem(inv, Material.IRON_DOOR, 1, 14, ChatColor.AQUA + "" + ChatColor.BOLD + "Private Region",
 						Utils.chat("&fClick to make the region private."),
 						Utils.chat("&fA private region is the default region."),
 						Utils.chat("&fAll new members need to be accepted by the region owner."));
 			} else {
-				Utils.createItem(inv, Material.WOOD_DOOR, 1, 14, ChatColor.AQUA + "" + ChatColor.BOLD + "Public Region",
+				Utils.createItem(inv, Material.BIRCH_DOOR_ITEM, 1, 14, ChatColor.AQUA + "" + ChatColor.BOLD + "Public Region",
 						Utils.chat("&fClick to make the region public."),
 						Utils.chat("&fA public region implies that new members can join"),
 						Utils.chat("&fwithout needing approval from the region owner."));
@@ -62,7 +62,7 @@ public class RegionOptions {
 
 		} else {
 
-			Utils.createItem(inv, Material.BARRIER, 1, 22, ChatColor.AQUA + "" + ChatColor.BOLD + "Leave Region",
+			Utils.createItem(inv, Material.BARRIER, 1, 14, ChatColor.AQUA + "" + ChatColor.BOLD + "Leave Region",
 					Utils.chat("&fClick to leave the region."));
 		}
 
@@ -96,10 +96,18 @@ public class RegionOptions {
 
 			if (OwnerData.isOwner(u.uuid, u.region_name)) {
 
+				if ((!MemberData.hasMember(u.region_name)) && RegionData.isPublic(u.region_name)) {
+					
+					RegionData.setPrivate(u.region_name);
+					
+				}
+				
 				RegionLogs.closeLog(u.region_name,u.uuid);
 				OwnerData.addNewOwner(u.region_name);
 				OwnerData.removeOwner(u.uuid, u.region_name);
 				WorldGuardFunctions.removeMember(u.region_name, u.uuid);
+				
+				u.p.sendMessage("You have left the region " + u.region_name);
 
 			}
 
@@ -111,7 +119,7 @@ public class RegionOptions {
 
 		} else if (clicked.getItemMeta().getDisplayName().equals(ChatColor.AQUA + "" + ChatColor.BOLD + "Private Region")) {
 
-			RegionData.setPrivate(u.current_region);
+			RegionData.setPrivate(u.region_name);
 
 			u.p.closeInventory();
 			u.p.sendMessage(ChatColor.GREEN + "The region " + u.current_region + " is now private!");
@@ -119,7 +127,7 @@ public class RegionOptions {
 
 		} else if (clicked.getItemMeta().getDisplayName().equals(ChatColor.AQUA + "" + ChatColor.BOLD + "Public Region")) {
 
-			RegionData.setPublic(u.current_region);
+			RegionData.setPublic(u.region_name);
 
 			u.p.closeInventory();
 			u.p.sendMessage(ChatColor.GREEN + "The region " + u.current_region + " is now public!");
