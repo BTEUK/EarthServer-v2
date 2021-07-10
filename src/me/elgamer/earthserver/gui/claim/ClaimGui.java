@@ -99,6 +99,7 @@ public class ClaimGui {
 			
 			u.p.closeInventory();
 			
+			u.previous_gui = "main";
 			u.p.openInventory(RegionOptions.GUI(u));
 
 		} else if (clicked.getType().equals(Material.CHEST)) {

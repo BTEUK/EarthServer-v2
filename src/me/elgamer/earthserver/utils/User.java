@@ -32,6 +32,8 @@ public class User {
 	public int gui_page;
 	public boolean staff_request;
 	
+	public String previous_gui;
+	
 	public String member_name;
 
 	public User(Player p) {

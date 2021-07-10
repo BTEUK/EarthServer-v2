@@ -143,11 +143,13 @@ public class RegionList {
 			
 			if (OwnerData.isOwner(u.uuid, u.region_name)) {
 				
-				u.p.openInventory(GUI(u));
+				u.previous_gui = "region";
+				u.p.openInventory(RegionOptions.GUI(u));
 				
 			} else if (MemberData.isMember(u.uuid, u.region_name)) {
 				
-				u.p.openInventory(GUI(u));
+				u.previous_gui = "region";
+				u.p.openInventory(RegionOptions.GUI(u));
 				
 			} else {
 				
