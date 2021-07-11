@@ -31,6 +31,7 @@ import me.elgamer.earthserver.commands.navigation.RequestLocation;
 import me.elgamer.earthserver.commands.navigation.Requests;
 import me.elgamer.earthserver.gui.claim.ClaimGui;
 import me.elgamer.earthserver.gui.claim.EditMember;
+import me.elgamer.earthserver.gui.claim.EditRequests;
 import me.elgamer.earthserver.gui.claim.MembersGui;
 import me.elgamer.earthserver.gui.claim.RegionList;
 import me.elgamer.earthserver.gui.claim.RegionOptions;
@@ -165,6 +166,7 @@ public class Main extends JavaPlugin {
 		StaffGui.initialize();
 		StaffOptions.initialize();
 		StaffRequests.initialize();
+		EditRequests.initialize();
 
 		//GUI's for the navigation menu
 		EnglandGui.initialize();

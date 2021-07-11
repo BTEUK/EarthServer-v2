@@ -119,6 +119,18 @@ public class RequestReview {
 					}
 
 					MessageData.newMessage(u.region_requester, "Your region join request for " + u.region_name + " has been accepted!", "green");
+					
+					u.gui_page = 1;
+
+					u.p.closeInventory();
+					
+					if (u.previous_gui.equals("request")) {
+						u.p.openInventory(RequestGui.GUI(u));
+					} else {
+						u.p.openInventory(StaffRequests.GUI(u));
+					}
+					
+					u.p.sendMessage(ChatColor.GREEN + "You have accepted the request, " + PlayerData.getName(u.region_requester) + " is now a member of " + u.region_name + ".") ;
 
 				} else {
 
@@ -144,6 +156,19 @@ public class RequestReview {
 					}
 
 					MessageData.newMessage(u.region_requester, "Your region join request for " + u.region_name + " has been accepted!", "green");
+					
+					u.gui_page = 1;
+
+					u.p.closeInventory();
+					
+					if (u.previous_gui.equals("request")) {
+						u.p.openInventory(RequestGui.GUI(u));
+					} else {
+						u.p.openInventory(StaffRequests.GUI(u));
+					}
+					
+					u.p.sendMessage(ChatColor.GREEN + "You have accepted the request, " + PlayerData.getName(u.region_requester) + " is now a member of " + u.region_name + ".") ;
+					
 
 				} else {
 

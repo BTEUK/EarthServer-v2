@@ -13,5 +13,7 @@
 	<classpathentry kind="lib" path="C:/Users/Laurens/Downloads/ExtraContexts.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Laurens/Downloads/EssentialsX.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Laurens/Downloads/BTEPoints.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Laurens/Desktop/UKUtils.jar"/>
+	<classpathentry kind="src" path="/UKnetUtilities"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

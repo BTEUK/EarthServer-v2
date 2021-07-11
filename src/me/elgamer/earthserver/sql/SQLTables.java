@@ -107,7 +107,7 @@ public class SQLTables {
 		try {
 			PreparedStatement statement = instance.getConnection().prepareStatement
 					("CREATE TABLE IF NOT EXISTS " + table
-							+ " (ID INT NOT NULL , UUID VARCHAR(36) NOT NULL , MESSAGE TEXT NOT NULL , COLOUR TEXT NOT NULL , UNIQUE (UUID))");
+							+ " (ID INT NOT NULL , UUID VARCHAR(36) NOT NULL , MESSAGE TEXT NOT NULL , COLOUR TEXT NOT NULL , UNIQUE (ID))");
 			statement.executeUpdate();
 
 		} catch (SQLException e) {

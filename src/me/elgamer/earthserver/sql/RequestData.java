@@ -388,5 +388,24 @@ public class RequestData {
 		}
 		
 	}
+	
+	public static boolean hasRequest(String uuid) {
+		
+		Main instance = Main.getInstance();
+
+		try {
+			PreparedStatement statement = instance.getConnection().prepareStatement
+					("SELECT * FROM " + instance.requestData + " WHERE UUID=?");
+			statement.setString(1, uuid);
+
+			ResultSet results = statement.executeQuery();
+
+			return (results.next());
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
 
 }

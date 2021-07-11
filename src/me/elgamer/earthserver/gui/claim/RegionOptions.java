@@ -10,6 +10,7 @@ import me.elgamer.earthserver.sql.MemberData;
 import me.elgamer.earthserver.sql.OwnerData;
 import me.elgamer.earthserver.sql.RegionData;
 import me.elgamer.earthserver.sql.RegionLogs;
+import me.elgamer.earthserver.utils.RegionFunctions;
 import me.elgamer.earthserver.utils.User;
 import me.elgamer.earthserver.utils.Utils;
 import me.elgamer.earthserver.utils.WorldGuardFunctions;
@@ -68,6 +69,9 @@ public class RegionOptions {
 
 		Utils.createItem(inv, Material.SPRUCE_DOOR_ITEM, 1, 27, ChatColor.AQUA + "" + ChatColor.BOLD + "Return",
 				Utils.chat("&fClick to go back to the region menu."));
+		
+		Utils.createItem(inv, Material.EYE_OF_ENDER, 1, 5, ChatColor.AQUA + "" + ChatColor.BOLD + "Teleport",
+				Utils.chat("&fTeleport to the centre of the region."));
 
 
 		toReturn.setContents(inv.getContents());
@@ -109,6 +113,18 @@ public class RegionOptions {
 				
 				u.p.sendMessage("You have left the region " + u.region_name);
 
+			} else if (MemberData.isMember(u.uuid, u.region_name)) {
+				
+				RegionLogs.closeLog(u.region_name,u.uuid);
+				MemberData.removeMember(u.region_name, u.uuid);
+				WorldGuardFunctions.removeMember(u.region_name, u.uuid);
+				
+				u.p.sendMessage("You have left the region " + u.region_name);
+				
+			} else {
+				
+				u.p.sendMessage(ChatColor.RED + "You are not part of this region.");
+				
 			}
 
 		} else if (clicked.getItemMeta().getDisplayName().equals(ChatColor.AQUA + "" + ChatColor.BOLD + "Members")) {
@@ -122,7 +138,7 @@ public class RegionOptions {
 			RegionData.setPrivate(u.region_name);
 
 			u.p.closeInventory();
-			u.p.sendMessage(ChatColor.GREEN + "The region " + u.current_region + " is now private!");
+			u.p.sendMessage(ChatColor.GREEN + "The region " + u.region_name + " is now private!");
 
 
 		} else if (clicked.getItemMeta().getDisplayName().equals(ChatColor.AQUA + "" + ChatColor.BOLD + "Public Region")) {
@@ -130,10 +146,13 @@ public class RegionOptions {
 			RegionData.setPublic(u.region_name);
 
 			u.p.closeInventory();
-			u.p.sendMessage(ChatColor.GREEN + "The region " + u.current_region + " is now public!");
+			u.p.sendMessage(ChatColor.GREEN + "The region " + u.region_name + " is now public!");
 
-		} else {
-
+		} else if (clicked.getItemMeta().getDisplayName().equals(ChatColor.AQUA + "" + ChatColor.BOLD + "Teleport")) {
+			
+			double[] proj = RegionFunctions.getTeleport(u.region_name);
+			u.p.performCommand("tpll " + proj[1] + ", " + proj[0]);
+			u.p.closeInventory();
 
 		}
 	}
