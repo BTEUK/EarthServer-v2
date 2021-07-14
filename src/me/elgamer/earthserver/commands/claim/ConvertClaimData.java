@@ -14,8 +14,6 @@ import me.elgamer.earthserver.sql.OwnerData;
 import me.elgamer.earthserver.sql.RegionData;
 import me.elgamer.earthserver.sql.RegionLogs;
 import me.elgamer.earthserver.utils.OldClaim;
-import me.elgamer.earthserver.utils.Permissions;
-import me.elgamer.earthserver.utils.WorldGuardFunctions;
 
 public class ConvertClaimData implements CommandExecutor {
 	

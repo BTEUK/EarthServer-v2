@@ -111,7 +111,7 @@ public class RegionOptions {
 				OwnerData.removeOwner(u.uuid, u.region_name);
 				WorldGuardFunctions.removeMember(u.region_name, u.uuid);
 				
-				u.p.sendMessage("You have left the region " + u.region_name);
+				u.p.sendMessage(ChatColor.GREEN + "You have left the region " + u.region_name);
 
 			} else if (MemberData.isMember(u.uuid, u.region_name)) {
 				
@@ -119,7 +119,7 @@ public class RegionOptions {
 				MemberData.removeMember(u.region_name, u.uuid);
 				WorldGuardFunctions.removeMember(u.region_name, u.uuid);
 				
-				u.p.sendMessage("You have left the region " + u.region_name);
+				u.p.sendMessage(ChatColor.GREEN + "You have left the region " + u.region_name);
 				
 			} else {
 				

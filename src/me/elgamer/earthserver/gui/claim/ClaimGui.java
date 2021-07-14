@@ -35,13 +35,20 @@ public class ClaimGui {
 		inv.clear();
 		
 		RegionData.createRegionIfNotExists(u.current_region);
-
-		if (OwnerData.isOwner(u.uuid, u.current_region)) {
+		
+		if (RegionData.isLocked(u.current_region)) {
+			Utils.createItem(inv, Material.IRON_FENCE, 1, 5, ChatColor.AQUA + "" + ChatColor.BOLD + "Region " + u.current_region,
+					Utils.chat("&fThis region is locked, it can not be edited by anyone."));
+		} else if (OwnerData.isOwner(u.uuid, u.current_region)) {
 			Utils.createItem(inv, Material.BOOK_AND_QUILL, 1, 5, ChatColor.AQUA + "" + ChatColor.BOLD + "Region " + u.current_region, 
 					Utils.chat("&fYou are the owner of this region, click to open the settings menu."));
 		} else if (MemberData.isMember(u.uuid, u.current_region)) {
 			Utils.createItem(inv, Material.BOOK_AND_QUILL, 1, 5, ChatColor.AQUA + "" + ChatColor.BOLD + "Region " + u.current_region, 
 					Utils.chat("&fYou are a member of this region, click to open the settings menu."));
+		} else if (RequestData.hasRequested(u.current_region, u.uuid)) {
+			Utils.createItem(inv, Material.BARRIER, 1, 5, ChatColor.AQUA + "" + ChatColor.BOLD + "Region " + u.current_region, 
+					Utils.chat("&fYou have requested to join this region, the request is pending."),
+					Utils.chat("&fClick to cancel the request."));	
 		} else if (OwnerData.hasOwner(u.current_region)) {
 
 			if (RegionData.isOpen(u.current_region)) {
@@ -63,14 +70,21 @@ public class ClaimGui {
 		if ((OwnerData.count(u.uuid) + MemberData.count(u.uuid)) > 0) {
 		Utils.createItem(inv, Material.CHEST, 1, 21, ChatColor.AQUA + "" + ChatColor.BOLD + "Region List", 
 				Utils.chat("&fClick to view all regions you are owner or member of."),
-				Utils.chat("&fYou are the owner of " + OwnerData.count(u.uuid) + " regions"),
-				Utils.chat("&fand a member of " + MemberData.count(u.uuid) + " regions."));
+				Utils.chat("&fYou are the owner of " + OwnerData.count(u.uuid) + " region(s)"),
+				Utils.chat("&fand a member of " + MemberData.count(u.uuid) + " region(s)."));
 		}
 		
 		if (RequestData.count(u.uuid) > 0) {
 			Utils.createItem(inv, Material.CHEST, 1, 25, ChatColor.AQUA + "" + ChatColor.BOLD + "Join Requests", 
 					Utils.chat("&fClick to view all the join requests for regions you own."),
 					Utils.chat("&fThere are currently " + RequestData.count(u.uuid) + " requests"));
+		}
+		
+		if (u.p.hasPermission("earthserver.admin.review") || u.p.hasPermission("earthserver.admin.edit")) {
+			
+			Utils.createItem(inv, Material.EMERALD, 1, 23, ChatColor.AQUA + "" + ChatColor.BOLD + "Staff Menu",
+					Utils.chat("&fClick to open the staff menu, functions will depend on permissions of your role."));
+			
 		}
 
 		toReturn.setContents(inv.getContents());
@@ -113,6 +127,23 @@ public class ClaimGui {
 				u.p.openInventory(RequestGui.GUI(u));
 			}
 			
+			
+		} else if (clicked.getType().equals(Material.BARRIER)) {
+			
+			if (RequestData.hasRequested(u.current_region, u.uuid)) {
+				RequestData.closeRequest(u.current_region, u.uuid);
+				u.p.sendMessage(ChatColor.GREEN + "You have cancelled to request to join " + u.current_region);
+				u.p.closeInventory();
+				
+			} else {
+				u.p.sendMessage(ChatColor.RED + "This request does no longer exist!");
+				u.p.closeInventory();
+			}
+			
+		} else if (clicked.getType().equals(Material.EMERALD)) {
+			
+			u.p.closeInventory();
+			u.p.openInventory(StaffGui.GUI(u));		
 			
 		}
 

@@ -43,7 +43,7 @@ public class RequestData {
 
 		try {
 			PreparedStatement statement = instance.getConnection().prepareStatement
-					("SELECT COUNT(*) FROM " + instance.requestData + " STAFF_ACCEPT=?");
+					("SELECT COUNT(*) FROM " + instance.requestData + " WHERE STAFF_ACCEPT=?");
 			statement.setBoolean(1, false);
 
 			ResultSet results = statement.executeQuery();
@@ -203,7 +203,7 @@ public class RequestData {
 		}
 
 	}
-	
+
 	public static void setStaffAccept(String region, String requester, boolean value) {
 
 		Main instance = Main.getInstance();
@@ -363,10 +363,10 @@ public class RequestData {
 		}
 
 	}
-	
+
 	//Counts all requests by a specific player.
 	public static int countRequests(String uuid) {
-		
+
 		Main instance = Main.getInstance();
 
 		try {
@@ -386,11 +386,11 @@ public class RequestData {
 			e.printStackTrace();
 			return 0;
 		}
-		
+
 	}
-	
+
 	public static boolean hasRequest(String uuid) {
-		
+
 		Main instance = Main.getInstance();
 
 		try {
@@ -406,6 +406,67 @@ public class RequestData {
 			e.printStackTrace();
 			return false;
 		}
+	}
+
+	//Get all request for a specific owner
+	public static ResultSet getYourRequests(String uuid) {
+
+		Main instance = Main.getInstance();
+
+		PreparedStatement statement;
+		try {
+			statement = instance.getConnection().prepareStatement
+					("SELECT * FROM " + instance.requestData + " WHERE UUID=?");
+			statement.setString(1, uuid);
+
+			return (statement.executeQuery());
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+
+	}
+
+	//Checks whether the request still exists
+	public static boolean hasRequested(String region, String requester) {
+
+		Main instance = Main.getInstance();
+
+		PreparedStatement statement;
+		try {
+			statement = instance.getConnection().prepareStatement
+					("SELECT * FROM " + instance.requestData + " WHERE REGION_ID=? AND UUID=?");
+			statement.setString(1, region);
+			statement.setString(2, requester);
+
+			ResultSet results = statement.executeQuery();
+
+			return results.next();
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}		
+
+	}
+	
+	public static void closeRequests(String region) {
+
+		Main instance = Main.getInstance();
+
+		PreparedStatement statement;
+		try {
+			statement = instance.getConnection().prepareStatement
+					("DELETE FROM " + instance.requestData + " WHERE REGION_ID=?");
+			statement.setString(1, region);
+
+			statement.executeUpdate();
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
 	}
 
 }

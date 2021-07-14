@@ -32,15 +32,20 @@ public class StaffGui {
 
 		inv.clear();
 
-		if (RequestData.count() > 0) {
-			Utils.createItem(inv, Material.CHEST, 1, 14, ChatColor.AQUA + "" + ChatColor.BOLD + "Jr.Builder Requests", 
-					Utils.chat("&fClick to view all the join requests by Jr.Builders."),
-					Utils.chat("&fThere are currently " + RequestData.count() + " requests"));
+		if (u.p.hasPermission("earthserver.admin.review")) {
+
+			if (RequestData.count() > 0) {
+				Utils.createItem(inv, Material.CHEST, 1, 14, ChatColor.AQUA + "" + ChatColor.BOLD + "Jr.Builder Requests", 
+						Utils.chat("&fClick to view all the join requests by Jr.Builders."),
+						Utils.chat("&fThere are currently " + RequestData.count() + " requests"));
+			}
 		}
-		
-		Utils.createItem(inv, Material.WORKBENCH, 1, 12, ChatColor.AQUA + "" + ChatColor.BOLD + "Edit Region",
+
+		if (u.p.hasPermission("earthserver.admin.edit")) {
+			Utils.createItem(inv, Material.WORKBENCH, 1, 12, ChatColor.AQUA + "" + ChatColor.BOLD + "Edit Region",
 					Utils.chat("&fClick to open the region edit menu."),
 					Utils.chat("&fYou can edit accessiblity and members of the claim."));
+		}
 		
 		String owner;
 		if (OwnerData.hasOwner(u.current_region)) {
@@ -48,14 +53,14 @@ public class StaffGui {
 		} else {
 			owner = "No Owner";
 		}
-		
+
 		int members = MemberData.countMembers(u.current_region);
-		
+
 		Utils.createItem(inv, Material.BOOK, 1, 5, ChatColor.AQUA + "" + ChatColor.BOLD + "Region Info",
 				Utils.chat("&fRegion: " + u.current_region),
 				Utils.chat("&fOwner: " + owner),
 				Utils.chat("&fNumber of Members: " + members));
-		
+
 		Utils.createItem(inv, Material.SPRUCE_DOOR_ITEM, 1, 27, ChatColor.AQUA + "" + ChatColor.BOLD + "Return",
 				Utils.chat("&fClick to go back to the claim menu."));
 
@@ -72,24 +77,17 @@ public class StaffGui {
 			u.p.openInventory(ClaimGui.GUI(u));
 
 		} else if (clicked.getItemMeta().getDisplayName().equals(ChatColor.AQUA + "" + ChatColor.BOLD + "Jr.Builder Requests")) {
-		
+
 			u.gui_page = 1;
 			u.staff_request = true;
+			u.p.closeInventory();
 			u.p.openInventory(StaffRequests.GUI(u));
-			
-		} else {
 
-			String[] info = ChatColor.stripColor(clicked.getItemMeta().getDisplayName()).replace(" ","").split(",");
-			u.region_requester = info[0];
-			u.region_name = info[1];
+		} else if (clicked.getItemMeta().getDisplayName().equals(ChatColor.AQUA + "" + ChatColor.BOLD + "Edit Region")) {
 
 			u.p.closeInventory();
-			
-			if (RequestData.requestExists(u.region_name, u.region_requester)) {
-				u.p.openInventory(RequestReview.GUI(u));
-			} else {
-				u.p.sendMessage(ChatColor.RED + "This request does no longer exist!");
-			}
+			u.p.openInventory(StaffOptions.GUI(u));
+
 		}
 	}
 

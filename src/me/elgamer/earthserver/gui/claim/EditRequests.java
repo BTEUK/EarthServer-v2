@@ -32,7 +32,7 @@ public class EditRequests {
 
 		inv.clear();
 
-		ResultSet results = RequestData.getRequests(u.uuid);
+		ResultSet results = RequestData.getYourRequests(u.uuid);
 
 		u.gui_slot = 11;
 
@@ -40,7 +40,7 @@ public class EditRequests {
 			
 			while (results.next()) {
 
-				Utils.createItemByte(inv, Material.CONCRETE, 5, 1, u.gui_slot, ChatColor.AQUA + "" + ChatColor.BOLD + results.getString("REGION_ID"), 
+				Utils.createItemByte(inv, Material.CONCRETE, 1, 1, u.gui_slot, ChatColor.AQUA + "" + ChatColor.BOLD + results.getString("REGION_ID"), 
 						Utils.chat("&fClick to cancel the request."));
 
 				if ((u.gui_slot & 45) == 17 ) {
@@ -79,7 +79,8 @@ public class EditRequests {
 			String[] info = ChatColor.stripColor(clicked.getItemMeta().getDisplayName()).split(",");
 			u.region_name = info[0] + "," + info[1];
 
-			RequestData.closeRequest(u.uuid, u.region_name);
+			RequestData.closeRequest(u.region_name, u.uuid);
+			u.p.sendMessage(ChatColor.GREEN + "You have cancelled to request to join " + u.region_name);
 			
 			u.p.closeInventory();
 			u.gui_page = 1;

@@ -9,6 +9,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import me.elgamer.earthserver.Main;
 import me.elgamer.earthserver.gui.claim.ClaimGui;
 import me.elgamer.earthserver.gui.claim.EditMember;
+import me.elgamer.earthserver.gui.claim.EditRequests;
 import me.elgamer.earthserver.gui.claim.MembersGui;
 import me.elgamer.earthserver.gui.claim.RegionList;
 import me.elgamer.earthserver.gui.claim.RegionOptions;
@@ -135,7 +136,15 @@ public class InventoryClicked implements Listener {
 			if (title.equals(StaffRequests.inventory_name)) {
 				StaffRequests.clicked(u, e.getSlot(), e.getCurrentItem(), e.getInventory());
 			}
-		} 
+		} else if (title.equals(EditRequests.inventory_name)) {
+			e.setCancelled(true);
+			if (e.getCurrentItem() == null){
+				return;
+			}
+			if (title.equals(EditRequests.inventory_name)) {
+				EditRequests.clicked(u, e.getSlot(), e.getCurrentItem(), e.getInventory());
+			}
+		}
 		
 		
 		

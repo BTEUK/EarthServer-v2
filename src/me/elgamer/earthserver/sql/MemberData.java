@@ -292,7 +292,7 @@ public class MemberData {
 			ResultSet results = statement.executeQuery();
 
 			if (results.next()) {
-				return (results.getInt("1"));
+				return (results.getInt(1));
 			} else {
 				return 0;
 			}
