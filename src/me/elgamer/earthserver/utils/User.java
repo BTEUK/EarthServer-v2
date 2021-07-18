@@ -77,6 +77,14 @@ public class User {
 		int rZ = (int) Math.floor((z/512));
 		return (rX + "," + rZ);
 	}
+	
+	public static String getRegion(Location l) {
+		double x = l.getX();
+		double z = l.getZ();
+		int rX = (int) Math.floor((x/512));
+		int rZ = (int) Math.floor((z/512));
+		return (rX + "," + rZ);
+	}
 
 	public static boolean updatePerms(User u, String region) {
 

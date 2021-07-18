@@ -1,6 +1,7 @@
 package me.elgamer.earthserver.utils;
 
 import me.elgamer.UKnetUtilities.projections.ModifiedAirocean;
+import me.elgamer.earthserver.Main;
 import me.elgamer.earthserver.sql.MemberData;
 import me.elgamer.earthserver.sql.OwnerData;
 import me.elgamer.earthserver.sql.RegionData;
@@ -36,6 +37,16 @@ public class RegionFunctions {
 			} else if (OwnerData.hasOwner(u.current_region)) {
 
 				RequestData.newRequest(u.current_region, u.uuid, true, false, u.p.getLocation());
+
+				for (User us : Main.users) {
+
+					if (OwnerData.isOwner(us.uuid, u.current_region)) {
+						us.p.sendMessage(ChatColor.GREEN + "You have a new region join request, /claim to open the gui.");
+					}
+
+				}
+
+
 				return (ChatColor.GREEN + "You have requested to join the region " + u.current_region + ", the region owner will need to accept the request.");				
 
 			} else {
@@ -55,16 +66,47 @@ public class RegionFunctions {
 			if (RegionData.isPublic(u.current_region)) {
 
 				RequestData.newRequest(u.current_region, u.uuid, false, true, u.p.getLocation());
+
+				for (User us : Main.users) {
+
+					if (us.p.hasPermission("earthserver.admin.review")) {
+						us.p.sendMessage(ChatColor.GREEN + "A Jr.Builder has made a new region join request, /claim to open the gui.");
+					}
+
+				}
+
 				return (ChatColor.GREEN + "You have requested to join the region " + u.current_region + ", a staff member will need to accept thed request.");
 
 			} else if (OwnerData.hasOwner(u.current_region)) {
 
 				RequestData.newRequest(u.current_region, u.uuid, false, false, u.p.getLocation());
+
+				for (User us : Main.users) {
+
+					if (OwnerData.isOwner(us.uuid, u.current_region)) {
+						us.p.sendMessage(ChatColor.GREEN + "You have a new region join request, /claim to open the gui.");
+					}
+
+					if (us.p.hasPermission("earthserver.admin.review")) {
+						us.p.sendMessage(ChatColor.GREEN + "A Jr.Builder has made a new region join request, /claim to open the gui.");
+					}
+
+				}
+
 				return (ChatColor.GREEN + "You have requested to join the region " + u.current_region + ", the region owner and a staff member will need to accept the request.");				
 
 			} else {
 
 				RequestData.newRequest(u.current_region, u.uuid, false, true, u.p.getLocation());
+
+				for (User us : Main.users) {
+
+					if (us.p.hasPermission("earthserver.admin.review")) {
+						us.p.sendMessage(ChatColor.GREEN + "A Jr.Builder has made a new region join request, /claim to open the gui.");
+					}
+
+				}
+
 				return (ChatColor.GREEN + "You have requested to join the region " + u.current_region + ", a staff member will need to accept thed request.");
 
 			}
@@ -76,23 +118,23 @@ public class RegionFunctions {
 		}
 
 	}
-	
+
 	public static double[] getTeleport(String region) {
-		
+
 		String[] xz = region.split("");
-		
+
 		int rx = Integer.parseInt(xz[0]);
 		int rz = Integer.parseInt(xz[0]);
-		
+
 		ModifiedAirocean projection = new ModifiedAirocean();
 
 		int x = rx*512 + 256;
 		int z = rz*512 + 256;
-		
+
 		double[] proj = projection.toGeo(x, z);
-		
+
 		return (proj);
-		
+
 	}
 
 }

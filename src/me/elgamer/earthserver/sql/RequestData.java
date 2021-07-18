@@ -450,7 +450,7 @@ public class RequestData {
 		}		
 
 	}
-	
+
 	public static void closeRequests(String region) {
 
 		Main instance = Main.getInstance();
@@ -466,6 +466,50 @@ public class RequestData {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+
+	}
+
+	//Check whether you have any requests for claims you own
+	public static boolean hasRequestOwner(String uuid) {
+
+		Main instance = Main.getInstance();
+
+		PreparedStatement statement;
+		try {
+			statement = instance.getConnection().prepareStatement
+					("SELECT * FROM " + instance.requestData + " WHERE OWNER=?");
+			statement.setString(1, uuid);
+
+			ResultSet results = statement.executeQuery();
+
+			return results.next();
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}	
+
+	}
+
+	//Check whether you have any requests for claims you own
+	public static boolean hasRequestStaff() {
+
+		Main instance = Main.getInstance();
+
+		PreparedStatement statement;
+		try {
+			statement = instance.getConnection().prepareStatement
+					("SELECT * FROM " + instance.requestData + " WHERE STAFF_ACCEPT=?");
+			statement.setBoolean(1, false);
+
+			ResultSet results = statement.executeQuery();
+
+			return results.next();
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}	
 
 	}
 

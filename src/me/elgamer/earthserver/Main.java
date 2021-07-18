@@ -2,6 +2,7 @@ package me.elgamer.earthserver;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
@@ -54,7 +55,9 @@ import me.elgamer.earthserver.listeners.JoinEvent;
 import me.elgamer.earthserver.listeners.LeaveEvent;
 import me.elgamer.earthserver.listeners.MoveEvent;
 import me.elgamer.earthserver.listeners.PlayerInteract;
+import me.elgamer.earthserver.listeners.TeleportEvent;
 import me.elgamer.earthserver.sql.MemberData;
+import me.elgamer.earthserver.sql.MessageData;
 import me.elgamer.earthserver.sql.OwnerData;
 import me.elgamer.earthserver.sql.PlayerData;
 import me.elgamer.earthserver.sql.SQLTables;
@@ -135,6 +138,7 @@ public class Main extends JavaPlugin {
 		new LeaveEvent(this);
 		new PlayerInteract(this);
 		new MoveEvent(this);
+		new TeleportEvent(this);
 
 		//Bungeecord
 		this.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
@@ -237,6 +241,24 @@ public class Main extends JavaPlugin {
 			public void run() {
 
 				getConnection();
+
+				for (User u : users) {
+					if (MessageData.hasMessage(u.uuid)) {
+
+						ResultSet results = MessageData.getMessages(u.uuid);
+						MessageData.removeMessages(u.uuid);
+
+						try {
+							while (results.next()) {
+								u.p.sendMessage(ChatColor.valueOf(results.getString("COLOUR"))  + results.getString("MESSAGE"));
+							}
+						} catch (IllegalArgumentException | SQLException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+
+					}
+				}
 
 			}
 		}, 0L, 1200L);

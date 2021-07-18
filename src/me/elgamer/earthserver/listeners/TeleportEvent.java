@@ -5,7 +5,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 
 import me.elgamer.earthserver.Main;
 import me.elgamer.earthserver.sql.RegionData;
@@ -15,15 +15,15 @@ import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 
-public class MoveEvent implements Listener {
-
-	public MoveEvent(Main plugin) {
+public class TeleportEvent implements Listener {
+	
+	public TeleportEvent(Main plugin) {
 
 		Bukkit.getServer().getPluginManager().registerEvents(this, plugin);
 	}
 
 	@EventHandler
-	public void onPlayerMove(PlayerMoveEvent e) {
+	public void onPlayerTeleport(PlayerTeleportEvent e) {
 
 		Player p = e.getPlayer();
 		User u = Main.getUser(p);
@@ -65,4 +65,5 @@ public class MoveEvent implements Listener {
 		}
 
 	}
+
 }

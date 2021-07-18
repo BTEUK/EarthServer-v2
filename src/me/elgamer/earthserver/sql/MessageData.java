@@ -54,9 +54,60 @@ public class MessageData {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+	
+	}
+	
+	public static boolean hasMessage(String uuid) {
+		
+		Main instance = Main.getInstance();
 
+		PreparedStatement statement;
+		try {
+			statement = instance.getConnection().prepareStatement
+					("SELECT * FROM " + instance.messageData + " WHERE UUID=?");
+			
+			ResultSet results = statement.executeQuery();
+			
+			return (results.next());
+					
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
 		
+	}
+	
+	public static ResultSet getMessages(String uuid) {
 		
+		Main instance = Main.getInstance();
+
+		PreparedStatement statement;
+		try {
+			statement = instance.getConnection().prepareStatement
+					("SELECT * FROM " + instance.messageData + " WHERE UUID=?");
+			
+			return statement.executeQuery();
+					
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+		
+	}
+	
+	public static void removeMessages(String uuid) {
+		
+		Main instance = Main.getInstance();
+
+		PreparedStatement statement;
+		try {
+			statement = instance.getConnection().prepareStatement
+					("DELETE FROM " + instance.messageData + " WHERE UUID=?");
+			statement.executeUpdate();
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 
 }

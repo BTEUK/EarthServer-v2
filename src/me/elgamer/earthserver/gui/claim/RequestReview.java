@@ -118,7 +118,7 @@ public class RequestReview {
 
 					}
 
-					MessageData.newMessage(u.region_requester, "Your region join request for " + u.region_name + " has been accepted!", "green");
+					MessageData.newMessage(u.region_requester, "Your region join request for " + u.region_name + " has been accepted!", "GREEN");
 					
 					u.gui_page = 1;
 
@@ -155,7 +155,7 @@ public class RequestReview {
 						
 					}
 
-					MessageData.newMessage(u.region_requester, "Your region join request for " + u.region_name + " has been accepted!", "green");
+					MessageData.newMessage(u.region_requester, "Your region join request for " + u.region_name + " has been accepted!", "GREEN");
 					
 					u.gui_page = 1;
 
@@ -184,11 +184,11 @@ public class RequestReview {
 			if (u.staff_request) {
 
 				RequestData.closeRequest(u.region_name, u.region_requester);
-				MessageData.newMessage(u.region_requester, "Your region join request for " + u.region_name + " has been denied by staff.", "red");
+				MessageData.newMessage(u.region_requester, "Your region join request for " + u.region_name + " has been denied by staff.", "RED");
 
 			} else {
 				RequestData.closeRequest(u.region_name, u.region_requester);
-				MessageData.newMessage(u.region_requester, "Your region join request for " + u.region_name + " has been denied by the owner.", "red");
+				MessageData.newMessage(u.region_requester, "Your region join request for " + u.region_name + " has been denied by the owner.", "RED");
 			}
 
 		} else {
