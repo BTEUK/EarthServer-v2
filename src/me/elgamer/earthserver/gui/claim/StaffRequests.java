@@ -49,14 +49,14 @@ public class StaffRequests {
 			
 			while (results.next()) {
 
-				Utils.createItemByte(inv, Material.CONCRETE, 5, 1, u.gui_slot, ChatColor.AQUA + "" + ChatColor.BOLD + PlayerData.getName(results.getString("UUID") + ", " + results.getString("REGION_ID")), 
+				Utils.createItemByte(inv, Material.CONCRETE, 5, 1, (u.gui_slot % 45), ChatColor.AQUA + "" + ChatColor.BOLD + PlayerData.getName(results.getString("UUID") + ", " + results.getString("REGION_ID")), 
 						Utils.chat("&fClick to review the request."));
 
-				if ((u.gui_slot & 45) == 17 ) {
+				if ((u.gui_slot % 45) == 17 ) {
 					u.gui_slot += 3;
-				} else if ((u.gui_slot & 45) == 26) {
+				} else if ((u.gui_slot % 45) == 26) {
 					u.gui_slot += 3;
-				} else if ((u.gui_slot & 45) == 35) {
+				} else if ((u.gui_slot % 45) == 35) {
 					
 					Utils.createItem(inv, Material.ARROW, 1, 27, ChatColor.AQUA + "" + ChatColor.BOLD + "Next Page",
 							Utils.chat("&fClick to go to the next page of requests."));

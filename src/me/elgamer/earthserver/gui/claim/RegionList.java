@@ -36,6 +36,8 @@ public class RegionList {
 
 		ResultSet owners = OwnerData.getRegions(u.uuid);
 		ResultSet members = MemberData.getRegions(u.uuid);
+		
+		boolean cont = true;
 
 		u.gui_slot = (u.gui_page-1)*45 + 11;
 
@@ -55,36 +57,38 @@ public class RegionList {
 
 			while (owners.next()) {
 
-				Utils.createItemByte(inv, Material.CONCRETE, 5, 1, u.gui_slot, ChatColor.AQUA + "" + ChatColor.BOLD + owners.getString("REGION_ID"), 
+				//u.p.sendMessage(u.gui_slot + ", " + u.gui_page);
+				Utils.createItemByte(inv, Material.CONCRETE, 5, 1, (u.gui_slot % 45), ChatColor.AQUA + "" + ChatColor.BOLD + owners.getString("REGION_ID"), 
 						Utils.chat("&fYou are the owner of this region."),
 						Utils.chat("&fClick to edit this region."));
 
-				if ((u.gui_slot & 45) == 17 ) {
+				if ((u.gui_slot % 45) == 17 ) {
 					u.gui_slot += 3;
-				} else if ((u.gui_slot & 45) == 26) {
+				} else if ((u.gui_slot % 45) == 26) {
 					u.gui_slot += 3;
-				} else if ((u.gui_slot & 45) == 35) {
+				} else if ((u.gui_slot % 45) == 35) {
 
 					Utils.createItem(inv, Material.ARROW, 1, 27, ChatColor.AQUA + "" + ChatColor.BOLD + "Next Page",
 							Utils.chat("&fClick to go to the next page of regions."));
 
+					cont = false;
 					break;
 				} else {
 					u.gui_slot += 1;
 				}
 
 			}
-
-			while (members.next()) {
-
-				Utils.createItemByte(inv, Material.CONCRETE, 4, 1, u.gui_slot, ChatColor.AQUA + "" + ChatColor.BOLD + members.getString("REGION_ID"), 
+	
+			while (members.next() && cont) {
+				
+				Utils.createItemByte(inv, Material.CONCRETE, 4, 1, (u.gui_slot % 45), ChatColor.AQUA + "" + ChatColor.BOLD + members.getString("REGION_ID"), 
 						Utils.chat("&fYou are a member of this region."));
 
-				if ((u.gui_slot & 45) == 17 ) {
+				if ((u.gui_slot % 45) == 17 ) {
 					u.gui_slot += 3;
-				} else if ((u.gui_slot & 45) == 26) {
+				} else if ((u.gui_slot % 45) == 26) {
 					u.gui_slot += 3;
-				} else if ((u.gui_slot & 45) == 35) {
+				} else if ((u.gui_slot % 45) == 35) {
 
 					Utils.createItem(inv, Material.ARROW, 1, 27, ChatColor.AQUA + "" + ChatColor.BOLD + "Next Page",
 							Utils.chat("&fClick to go to the next page of regions."));

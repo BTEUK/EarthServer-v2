@@ -40,8 +40,10 @@ public class ConvertClaimData implements CommandExecutor {
 		RegionLogs.startLogs();
 		//Disabled for testing purposes.
 		//WorldGuardFunctions.removePublic(claims);
+		//WorldGuardFunctions.convertOwners(claims);
 		//Permissions.removePermissions(claims);
 		
+		sender.sendMessage(ChatColor.GREEN + "Conversion Complete!");
 		return true;
 	}
 

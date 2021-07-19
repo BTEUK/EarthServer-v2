@@ -37,3 +37,7 @@ member_inactive: 42
 Limit:
     Builder: 30
     JrBuilder: 15
+    
+#Height limits
+positive_y: 500.0
+negative_y: -100.0

@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -279,6 +280,46 @@ public class WorldGuardFunctions {
 			e1.printStackTrace();
 		}
 		
+	}
+	
+	public static void convertOwners(HashMap<String, String> rg) {
+
+		World world = Main.buildWorld;
+
+		WorldGuardPlugin wg = getWorldGuard();
+
+		RegionContainer container = wg.getRegionContainer();
+		RegionManager regions = container.get(world);
+
+		ProtectedRegion region;
+		DefaultDomain regionMembers;
+		DefaultDomain regionOwners;
+		UUID ownerID = null;
+		Set<UUID> owners;
+		
+		for (Entry<String, String> e : rg.entrySet()) {
+
+			region = regions.getRegion(e.getKey());
+			regionMembers = region.getMembers();
+			regionOwners = region.getOwners();
+
+			owners = regionOwners.getUniqueIds();
+			for (UUID uuid : owners) {
+				ownerID = uuid;
+			}
+			regionOwners.clear();
+			
+			regionMembers.addPlayer(ownerID);
+			region.setMembers(regionMembers);
+			region.setOwners(regionOwners);
+
+			try {
+				regions.save();
+			} catch (StorageException e1) {
+				e1.printStackTrace();
+			}
+
+		}
 	}
 
 

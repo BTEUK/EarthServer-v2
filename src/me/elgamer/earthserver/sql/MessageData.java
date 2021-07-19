@@ -65,6 +65,7 @@ public class MessageData {
 		try {
 			statement = instance.getConnection().prepareStatement
 					("SELECT * FROM " + instance.messageData + " WHERE UUID=?");
+			statement.setString(1, uuid);
 			
 			ResultSet results = statement.executeQuery();
 			
@@ -85,6 +86,7 @@ public class MessageData {
 		try {
 			statement = instance.getConnection().prepareStatement
 					("SELECT * FROM " + instance.messageData + " WHERE UUID=?");
+			statement.setString(1, uuid);
 			
 			return statement.executeQuery();
 					
@@ -103,6 +105,8 @@ public class MessageData {
 		try {
 			statement = instance.getConnection().prepareStatement
 					("DELETE FROM " + instance.messageData + " WHERE UUID=?");
+			statement.setString(1, uuid);
+			
 			statement.executeUpdate();
 			
 		} catch (SQLException e) {
