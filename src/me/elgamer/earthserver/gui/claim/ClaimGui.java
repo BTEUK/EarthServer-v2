@@ -97,9 +97,9 @@ public class ClaimGui {
 
 			u.p.closeInventory();
 			
-			if (ClaimLimit.limitReached(u)) {
+			if (ClaimLimit.limitReached(u) && !(u.p.hasPermission("earthserver.claim.bypass"))) {
 				
-				u.p.sendMessage(ChatColor.RED + "You have reached your claim limit, leave another region or cancel a requests to join this one.");
+				u.p.sendMessage(ChatColor.RED + "You have reached your claim limit, leave another region or cancel a request to join this one.");
 				
 			} else {
 				

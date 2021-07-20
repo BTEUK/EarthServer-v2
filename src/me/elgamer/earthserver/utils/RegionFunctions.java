@@ -124,7 +124,7 @@ public class RegionFunctions {
 		String[] xz = region.split(",");
 
 		int rx = Integer.parseInt(xz[0]);
-		int rz = Integer.parseInt(xz[0]);
+		int rz = Integer.parseInt(xz[1]);
 
 		ModifiedAirocean projection = new ModifiedAirocean();
 
