@@ -282,7 +282,7 @@ public class WorldGuardFunctions {
 		
 	}
 	
-	public static void convertOwners(HashMap<String, String> rg) {
+	public static void convertOwners(ArrayList<OldClaim> claims) {
 
 		World world = Main.buildWorld;
 
@@ -297,9 +297,9 @@ public class WorldGuardFunctions {
 		UUID ownerID = null;
 		Set<UUID> owners;
 		
-		for (Entry<String, String> e : rg.entrySet()) {
+		for (OldClaim e : claims) {
 
-			region = regions.getRegion(e.getKey());
+			region = regions.getRegion(e.region);
 			regionMembers = region.getMembers();
 			regionOwners = region.getOwners();
 

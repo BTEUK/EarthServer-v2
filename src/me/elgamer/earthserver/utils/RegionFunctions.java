@@ -121,7 +121,7 @@ public class RegionFunctions {
 
 	public static double[] getTeleport(String region) {
 
-		String[] xz = region.split("");
+		String[] xz = region.split(",");
 
 		int rx = Integer.parseInt(xz[0]);
 		int rz = Integer.parseInt(xz[0]);

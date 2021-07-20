@@ -31,7 +31,7 @@ public class Inactive {
 		HashMap<String, String> inactiveOwners = OwnerData.getInactiveOwners(inactivity);
 
 		if (inactiveOwners == null || inactiveOwners.isEmpty()) {
-			Bukkit.broadcastMessage("Return");
+			//Bukkit.broadcastMessage("Return");
 			return;
 		} else {
 			
