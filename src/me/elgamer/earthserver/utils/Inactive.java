@@ -2,6 +2,7 @@ package me.elgamer.earthserver.utils;
 
 import java.util.HashMap;
 
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import me.elgamer.earthserver.Main;
@@ -20,20 +21,31 @@ public class Inactive {
 		long currentTime = Time.currentTime();
 
 		long days = config.getLong("owner_inactive");
+
+		//Testing value
+		//long timeSpan = days * 2000;
+
 		long timeSpan = days * 24 * 60 * 60 * 1000;
 		long inactivity = currentTime - timeSpan;
 
 		HashMap<String, String> inactiveOwners = OwnerData.getInactiveOwners(inactivity);
 
-		if (inactiveOwners == null) {
+		if (inactiveOwners == null || inactiveOwners.isEmpty()) {
+			Bukkit.broadcastMessage("Return");
 			return;
 		} else {
-			if (MemberData.addMembers(inactiveOwners)) {
-				RegionLogs.closeLogs(inactiveOwners);
-				RegionLogs.newLogs(inactiveOwners, "member");
-				OwnerData.removeInactiveOwners(inactivity);
-				OwnerData.addNewOwners(inactiveOwners);
-			}
+			
+			//Bukkit.broadcastMessage("Step 1 " + inactiveOwners.size());
+			RegionLogs.closeLogs(inactiveOwners);
+			//Bukkit.broadcastMessage("Step 2");
+			RegionLogs.newLogs(inactiveOwners, "member");
+			//Bukkit.broadcastMessage("Step 3");
+			OwnerData.removeInactiveOwners(inactivity);
+			//Bukkit.broadcastMessage("Step 4");
+			OwnerData.addNewOwners(inactiveOwners);
+			MemberData.addMembers(inactiveOwners);
+			Bukkit.broadcastMessage("Inactive Owners demoted to Member");
+
 		}
 
 	}
@@ -47,17 +59,22 @@ public class Inactive {
 		long currentTime = Time.currentTime();
 
 		long days = config.getLong("member_inactive");
+		
+		//Testing value
+		//long timeSpan = days * 1000;
+		
 		long timeSpan = days * 24 * 60 * 60 * 1000;
 		long inactivity = currentTime - timeSpan;
-		
+
 		HashMap<String, String> inactiveMembers = MemberData.getInactiveMembers(inactivity);
-		
-		if (inactiveMembers == null) {
+
+		if (inactiveMembers == null || inactiveMembers.isEmpty()) {
 			return;
 		} else {
 			RegionLogs.closeLogs(inactiveMembers);
-			WorldGuardFunctions.removeMembers(inactiveMembers);
+			//WorldGuardFunctions.removeMembers(inactiveMembers);
 			MemberData.removeInactiveMembers(inactivity);
+			Bukkit.broadcastMessage("Inactive Members removed from regions");
 		}
 
 	}

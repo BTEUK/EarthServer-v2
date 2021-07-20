@@ -30,6 +30,7 @@ public class ConvertClaimData implements CommandExecutor {
 		
 		if (RegionData.hasEntry()) {
 			sender.sendMessage(ChatColor.RED + "This command can only be run when there are no claims in the new system!");
+			return true;
 		}
 	
 		ArrayList<OldClaim> claims = OldClaimSQL.getAllClaims();

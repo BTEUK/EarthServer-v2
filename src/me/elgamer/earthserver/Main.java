@@ -61,6 +61,7 @@ import me.elgamer.earthserver.sql.MessageData;
 import me.elgamer.earthserver.sql.OwnerData;
 import me.elgamer.earthserver.sql.PlayerData;
 import me.elgamer.earthserver.sql.SQLTables;
+import me.elgamer.earthserver.utils.Inactive;
 import me.elgamer.earthserver.utils.Permissions;
 import me.elgamer.earthserver.utils.User;
 import net.milkbowl.vault.permission.Permission;
@@ -242,6 +243,9 @@ public class Main extends JavaPlugin {
 
 				getConnection();
 
+				Inactive.members();
+				Inactive.owners();
+				
 				for (User u : users) {
 					if (MessageData.hasMessage(u.uuid)) {
 
@@ -332,7 +336,7 @@ public class Main extends JavaPlugin {
 
 				Class.forName("com.mysql.jdbc.Driver");
 				setConnection(DriverManager.getConnection("jdbc:mysql://" + this.host + ":" 
-						+ this.port + "/" + this.database, this.username, this.password));
+						+ this.port + "/" + this.database + "?&useSSL=false&", this.username, this.password));
 
 				Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "MySQL connected to " + config.getString("MySQL_database"));
 			}

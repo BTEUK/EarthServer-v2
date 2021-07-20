@@ -6,6 +6,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+//import org.bukkit.Bukkit;
+
 import me.elgamer.earthserver.Main;
 import me.elgamer.earthserver.utils.OldClaim;
 import me.elgamer.earthserver.utils.Time;
@@ -45,25 +47,12 @@ public class OwnerData {
 
 		try {
 
-			//Get all inactive owners
-			statement = instance.getConnection().prepareStatement
-					("SELECT * FROM " + instance.ownerData + " WHERE LAST_ENTER<=?");
-			statement.setLong(1, inactive); 
-
-			ResultSet results = statement.executeQuery();
-
-			//Close all logs for inactive owners
-			while (results.next()) {
-
-				RegionLogs.closeLog(results.getString("REGION_ID"), results.getString("UUID"));
-
-			}
-
 			//Delete all inactive owners from owner table
 			statement = instance.getConnection().prepareStatement
 					("DELETE FROM " + instance.ownerData + " WHERE LAST_ENTER<=?");
 			statement.setLong(1, inactive);
 			statement.executeUpdate();
+			//Bukkit.broadcastMessage("Removed Owners");
 
 		} catch (SQLException e) {
 			e.printStackTrace();

@@ -74,20 +74,6 @@ public class MemberData {
 		PreparedStatement statement;
 		try {
 
-			//Get all inactive member
-			statement = instance.getConnection().prepareStatement
-					("SELECT * FROM " + instance.memberData + " WHERE LAST_ENTER<=?");
-			statement.setLong(1, inactive); 
-
-			ResultSet results = statement.executeQuery();
-
-			//Close all logs for inactive member
-			while (results.next()) {
-
-				RegionLogs.closeLog(results.getString("REGION_ID"), results.getString("UUID"));
-
-			}
-
 			//Delete all inactive members from member table
 			statement = instance.getConnection().prepareStatement
 					("DELETE FROM " + instance.memberData + " WHERE LAST_ENTER<=?");
@@ -121,6 +107,10 @@ public class MemberData {
 
 				for (String member : claim.members) {
 
+					if (OwnerData.isOwner(member, claim.region)) {
+						continue;
+					}
+					
 					statement = instance.getConnection().prepareStatement
 							("INSERT INTO " + instance.memberData + " (REGION_ID,UUID,LAST_ENTER) VALUE (?,?,?)");
 					statement.setString(1, claim.region);
