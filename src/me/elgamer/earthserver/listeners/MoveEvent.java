@@ -85,7 +85,11 @@ public class MoveEvent implements Listener {
 				}
 			}
 			
-			p.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.GREEN + "You have entered " + User.getRegion(l) + " and left " + u.current_region));
+			if (u.hasWorldEdit) {
+				p.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.GREEN + "You have entered " + User.getRegion(l) + " and left " + u.current_region + ", you can build here!"));
+			} else {
+				p.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.GREEN + "You have entered " + User.getRegion(l) + " and left " + u.current_region));
+			}
 			u.current_region = User.getRegion(p);
 
 		}

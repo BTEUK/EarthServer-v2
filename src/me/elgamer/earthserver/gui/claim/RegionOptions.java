@@ -95,8 +95,16 @@ public class RegionOptions {
 			}
 
 		} else if (clicked.getItemMeta().getDisplayName().equals(ChatColor.AQUA + "" + ChatColor.BOLD + "Leave Region")) {
-
+			
 			u.p.closeInventory();
+			if (u.previous_gui.equals("main")) {
+				u.p.openInventory(ClaimGui.GUI(u));
+			} else if (OwnerData.count(u.uuid) + MemberData.count(u.uuid) > 0)  {
+				u.gui_page = 1;
+				u.p.openInventory(RegionList.GUI(u));
+			} else {
+				u.p.openInventory(ClaimGui.GUI(u));
+			}
 
 			if (OwnerData.isOwner(u.uuid, u.region_name)) {
 
@@ -111,6 +119,7 @@ public class RegionOptions {
 				OwnerData.removeOwner(u.uuid, u.region_name);
 				WorldGuardFunctions.removeMember(u.region_name, u.uuid);
 				
+				User.updatePerms(u, u.current_region);
 				u.p.sendMessage(ChatColor.GREEN + "You have left the region " + u.region_name);
 
 			} else if (MemberData.isMember(u.uuid, u.region_name)) {
@@ -119,6 +128,7 @@ public class RegionOptions {
 				MemberData.removeMember(u.region_name, u.uuid);
 				WorldGuardFunctions.removeMember(u.region_name, u.uuid);
 				
+				User.updatePerms(u, u.current_region);
 				u.p.sendMessage(ChatColor.GREEN + "You have left the region " + u.region_name);
 				
 			} else {
@@ -138,6 +148,7 @@ public class RegionOptions {
 			RegionData.setPrivate(u.region_name);
 
 			u.p.closeInventory();
+			u.p.openInventory(RegionOptions.GUI(u));
 			u.p.sendMessage(ChatColor.GREEN + "The region " + u.region_name + " is now private!");
 
 
@@ -146,6 +157,7 @@ public class RegionOptions {
 			RegionData.setPublic(u.region_name);
 
 			u.p.closeInventory();
+			u.p.openInventory(RegionOptions.GUI(u));
 			u.p.sendMessage(ChatColor.GREEN + "The region " + u.region_name + " is now public!");
 
 		} else if (clicked.getItemMeta().getDisplayName().equals(ChatColor.AQUA + "" + ChatColor.BOLD + "Teleport")) {

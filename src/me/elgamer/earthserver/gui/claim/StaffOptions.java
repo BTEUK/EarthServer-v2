@@ -1,8 +1,11 @@
 package me.elgamer.earthserver.gui.claim;
 
+import java.util.UUID;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
@@ -60,11 +63,29 @@ public class StaffOptions {
 		}
 		
 		String owner;
+		String uuid;
+		
 		if (OwnerData.hasOwner(u.current_region)) {
-			owner = PlayerData.getName(OwnerData.getOwner(u.current_region));
+			uuid = OwnerData.getOwner(u.current_region);
+			owner =  PlayerData.getName(uuid);
+			Player p;
+			
+			if (owner == null) {
+				
+				p = Bukkit.getPlayer(UUID.fromString(uuid));
+					
+					if (p == null) {
+						owner = Bukkit.getOfflinePlayer(UUID.fromString(uuid)).getName();
+					} else {
+						owner = p.getName();
+					}
+				
+				PlayerData.addPlayer(uuid, owner);
+			}
 		} else {
 			owner = "No Owner";
 		}
+
 		
 		int members = MemberData.countMembers(u.current_region);
 		

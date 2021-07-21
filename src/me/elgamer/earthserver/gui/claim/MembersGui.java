@@ -7,6 +7,7 @@ import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
@@ -57,14 +58,17 @@ public class MembersGui {
 				
 				uuid = members.getString("UUID");
 				member =  PlayerData.getName(uuid);
+				Player p;
 				
 				if (member == null) {
 					
-					member = Bukkit.getPlayer(UUID.fromString(uuid)).getName();
-					
-					if (member == null) {
-						member = Bukkit.getOfflinePlayer(UUID.fromString(uuid)).getName();
-					}
+					p = Bukkit.getPlayer(UUID.fromString(uuid));
+						
+						if (p == null) {
+							member = Bukkit.getOfflinePlayer(UUID.fromString(uuid)).getName();
+						} else {
+							member = p.getName();
+						}
 					
 					PlayerData.addPlayer(uuid, member);
 				}

@@ -39,6 +39,9 @@ public class ClaimGui {
 		if (RegionData.isLocked(u.current_region)) {
 			Utils.createItem(inv, Material.IRON_FENCE, 1, 5, ChatColor.AQUA + "" + ChatColor.BOLD + "Region " + u.current_region,
 					Utils.chat("&fThis region is locked, it can not be edited by anyone."));
+		} else if (RegionData.isOpen(u.current_region)) {
+			Utils.createItem(inv, Material.BOOK, 1, 5, ChatColor.AQUA + "" + ChatColor.BOLD + "Region " + u.current_region, 
+					Utils.chat("&fThis region is open, you can build here without being a member of the claim."));
 		} else if (OwnerData.isOwner(u.uuid, u.current_region)) {
 			Utils.createItem(inv, Material.BOOK_AND_QUILL, 1, 5, ChatColor.AQUA + "" + ChatColor.BOLD + "Region " + u.current_region, 
 					Utils.chat("&fYou are the owner of this region, click to open the settings menu."));
@@ -51,10 +54,7 @@ public class ClaimGui {
 					Utils.chat("&fClick to cancel the request."));	
 		} else if (OwnerData.hasOwner(u.current_region)) {
 
-			if (RegionData.isOpen(u.current_region)) {
-				Utils.createItem(inv, Material.BOOK, 1, 5, ChatColor.AQUA + "" + ChatColor.BOLD + "Region " + u.current_region, 
-						Utils.chat("&fThis region is open, you can build here without being a member of the claim."));
-			} else if (RegionData.isPublic(u.current_region)) {
+			if (RegionData.isPublic(u.current_region)) {
 				Utils.createItem(inv, Material.DARK_OAK_DOOR_ITEM, 1, 5, ChatColor.AQUA + "" + ChatColor.BOLD + "Region " + u.current_region, 
 						Utils.chat("&fThis region is public, click to join the region."));
 			} else {
