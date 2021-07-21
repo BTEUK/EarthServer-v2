@@ -153,5 +153,29 @@ public class PlayerData {
 		}		
 
 	}
+	
+	//Create player instance if not connected to server
+		public static boolean addPlayer(String uuid, String name) {
+
+			Main instance = Main.getInstance();
+
+			try {
+				PreparedStatement statement = instance.getConnection().prepareStatement
+						("INSERT INTO " + instance.playerData + " (UUID,NAME,BUILDER_ROLE,LAST_ONLINE,BUILDING_TIME) VALUE (?,?,?,?,?)");
+				statement.setString(1, uuid);
+				statement.setString(2, name);
+				statement.setString(3, "builder");
+				statement.setLong(4, Time.currentTime());
+				statement.setInt(5, 0);
+
+				statement.executeUpdate();
+
+				return true;
+
+			} catch (SQLException e) {
+				e.printStackTrace();
+				return false;
+			}
+		}
 
 }

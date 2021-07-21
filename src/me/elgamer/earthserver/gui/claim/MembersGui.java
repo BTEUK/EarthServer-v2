@@ -2,6 +2,7 @@ package me.elgamer.earthserver.gui.claim;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -39,6 +40,9 @@ public class MembersGui {
 
 		u.gui_slot = (u.gui_page-1)*45 + 11;
 
+		String uuid;
+		String member;
+		
 		try {
 	
 			if (u.gui_page > 1) {
@@ -50,8 +54,22 @@ public class MembersGui {
 			}
 			
 			while (members.next()) {
+				
+				uuid = members.getString("UUID");
+				member =  PlayerData.getName(uuid);
+				
+				if (member == null) {
+					
+					member = Bukkit.getPlayer(UUID.fromString(uuid)).getName();
+					
+					if (member == null) {
+						member = Bukkit.getOfflinePlayer(UUID.fromString(uuid)).getName();
+					}
+					
+					PlayerData.addPlayer(uuid, member);
+				}
 
-				Utils.createItemByte(inv, Material.CONCRETE, 4, 1, u.gui_slot, ChatColor.AQUA + "" + ChatColor.BOLD + PlayerData.getName(members.getString("UUID")), 
+				Utils.createItemByte(inv, Material.CONCRETE, 4, 1, u.gui_slot, ChatColor.AQUA + "" + ChatColor.BOLD + member, 
 						Utils.chat("&fLast Entered Region: " + Time.getDate(members.getLong("LAST_ENTER"))),
 						Utils.chat("&fClick to edit member, you can remove member or transfer ownership."));
 
