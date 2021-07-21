@@ -11,6 +11,7 @@ import me.elgamer.earthserver.sql.OwnerData;
 import me.elgamer.earthserver.sql.PlayerData;
 import me.elgamer.earthserver.utils.Permissions;
 import me.elgamer.earthserver.utils.User;
+import net.md_5.bungee.api.ChatColor;
 
 public class LeaveEvent implements Listener {
 	
@@ -35,6 +36,9 @@ public class LeaveEvent implements Listener {
 		} else if (MemberData.isMember(u.uuid, u.current_region)) {
 			MemberData.updateTime(u.uuid, u.current_region);
 		}
+		
+		Bukkit.broadcastMessage(ChatColor.RED + "Removed user " + u.name);
+		Main.removeUser(u);
 		
 	}
 
