@@ -37,7 +37,7 @@ public class LeaveEvent implements Listener {
 			MemberData.updateTime(u.uuid, u.current_region);
 		}
 		
-		Bukkit.broadcastMessage(ChatColor.RED + "Removed user " + u.name);
+		Bukkit.broadcastMessage(ChatColor.RED + "Removed user " + u.name + " from the List");
 		Main.removeUser(u);
 		
 	}

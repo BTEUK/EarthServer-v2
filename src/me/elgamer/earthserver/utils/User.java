@@ -131,5 +131,23 @@ public class User {
 		}
 
 	}
+	
+	public static void updateRole(User u) {
+		if (u.p.hasPermission("group.builder")) {
+			u.builder_role = "builder";
+			if (!(u.current_region.equals("buildhub"))) {
+				u.hasWorldEdit = updatePerms(u, u.current_region);
+			}
+		} else if (u.p.hasPermission("group.jrbuilder")) {
+			u.builder_role = "jrbuilder";
+			if (!(u.current_region.equals("buildhub"))) {
+				u.hasWorldEdit = updatePerms(u, u.current_region);
+			}
+		} else if (u.p.hasPermission("group.apprentice")) {
+			u.builder_role = "apprentice";
+		} else {
+			u.builder_role = "guest";
+		}
+	}
 
 }

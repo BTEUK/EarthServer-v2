@@ -23,7 +23,12 @@ public class Claim implements CommandExecutor {
 				return true;
 			}
 			
-			User u = Main.getUser(p);		
+			User u = Main.getUser(p);	
+			
+			if (u.builder_role.equals("guest") || u.builder_role.equals("apprentice")) {
+				User.updateRole(u);
+			}
+			
 			p.openInventory(ClaimGui.GUI(u));
 			
 			return true;

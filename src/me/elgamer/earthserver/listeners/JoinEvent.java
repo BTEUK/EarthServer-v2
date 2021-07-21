@@ -30,7 +30,7 @@ public class JoinEvent implements Listener {
 		Player p = e.getPlayer();
 		User u = Main.addUser(p);
 		
-		Bukkit.broadcastMessage(ChatColor.RED + "Added user " + u.name);
+		Bukkit.broadcastMessage(ChatColor.GREEN + "Added user " + u.name + " to the List");
 
 		if (PlayerData.hasPlayer(u)) {
 			PlayerData.updatePlayer(u);
