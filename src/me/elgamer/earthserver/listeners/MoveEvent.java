@@ -90,7 +90,7 @@ public class MoveEvent implements Listener {
 			} else {
 				p.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.GREEN + "You have entered " + User.getRegion(l) + " and left " + u.current_region));
 			}
-			u.current_region = User.getRegion(p);
+			u.current_region = User.getRegion(l);
 
 		}
 
