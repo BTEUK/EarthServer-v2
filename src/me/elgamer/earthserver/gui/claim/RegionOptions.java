@@ -97,14 +97,6 @@ public class RegionOptions {
 		} else if (clicked.getItemMeta().getDisplayName().equals(ChatColor.AQUA + "" + ChatColor.BOLD + "Leave Region")) {
 			
 			u.p.closeInventory();
-			if (u.previous_gui.equals("main")) {
-				u.p.openInventory(ClaimGui.GUI(u));
-			} else if (OwnerData.count(u.uuid) + MemberData.count(u.uuid) > 0)  {
-				u.gui_page = 1;
-				u.p.openInventory(RegionList.GUI(u));
-			} else {
-				u.p.openInventory(ClaimGui.GUI(u));
-			}
 
 			if (OwnerData.isOwner(u.uuid, u.region_name)) {
 
@@ -135,6 +127,15 @@ public class RegionOptions {
 				
 				u.p.sendMessage(ChatColor.RED + "You are not part of this region.");
 				
+			}
+			
+			if (u.previous_gui.equals("main")) {
+				u.p.openInventory(ClaimGui.GUI(u));
+			} else if (OwnerData.count(u.uuid) + MemberData.count(u.uuid) > 0)  {
+				u.gui_page = 1;
+				u.p.openInventory(RegionList.GUI(u));
+			} else {
+				u.p.openInventory(ClaimGui.GUI(u));
 			}
 
 		} else if (clicked.getItemMeta().getDisplayName().equals(ChatColor.AQUA + "" + ChatColor.BOLD + "Members")) {
