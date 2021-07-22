@@ -3,6 +3,9 @@ package me.elgamer.earthserver.sql;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.UUID;
+
+import org.bukkit.Bukkit;
 
 import me.elgamer.earthserver.Main;
 import me.elgamer.earthserver.utils.Time;
@@ -120,7 +123,11 @@ public class PlayerData {
 			if (results.next()) {
 				return (results.getString("NAME"));
 			} else {
-				return null;
+				if (Bukkit.getPlayer(uuid) != null) {
+					return (Bukkit.getPlayer(UUID.fromString(uuid)).getName());
+				} else {
+					return (Bukkit.getOfflinePlayer(UUID.fromString(uuid)).getName());
+				}
 			}
 
 		} catch (SQLException e) {

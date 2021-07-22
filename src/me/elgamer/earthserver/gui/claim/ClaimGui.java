@@ -8,6 +8,7 @@ import org.bukkit.inventory.ItemStack;
 
 import me.elgamer.earthserver.sql.MemberData;
 import me.elgamer.earthserver.sql.OwnerData;
+import me.elgamer.earthserver.sql.PlayerData;
 import me.elgamer.earthserver.sql.RegionData;
 import me.elgamer.earthserver.sql.RequestData;
 import me.elgamer.earthserver.utils.ClaimLimit;
@@ -33,9 +34,9 @@ public class ClaimGui {
 		Inventory toReturn = Bukkit.createInventory(null, inv_rows, inventory_name);
 
 		inv.clear();
-		
+
 		RegionData.createRegionIfNotExists(u.current_region);
-		
+
 		if (RegionData.isLocked(u.current_region)) {
 			Utils.createItem(inv, Material.IRON_FENCE, 1, 5, ChatColor.AQUA + "" + ChatColor.BOLD + "Region " + u.current_region,
 					Utils.chat("&fThis region is locked, it can not be edited by anyone."));
@@ -56,10 +57,12 @@ public class ClaimGui {
 
 			if (RegionData.isPublic(u.current_region)) {
 				Utils.createItem(inv, Material.DARK_OAK_DOOR_ITEM, 1, 5, ChatColor.AQUA + "" + ChatColor.BOLD + "Region " + u.current_region, 
-						Utils.chat("&fThis region is public, click to join the region."));
+						Utils.chat("&fThis region is public, click to join the region."),
+						Utils.chat("&f" + PlayerData.getName(OwnerData.getOwner(u.current_region))) + " is the owner of this region.");
 			} else {
 				Utils.createItem(inv, Material.DARK_OAK_DOOR_ITEM, 1, 5, ChatColor.AQUA + "" + ChatColor.BOLD + "Region " + u.current_region, 
-						Utils.chat("&fThis region is claimed, click to request access to build."));
+						Utils.chat("&fThis region is claimed, click to request access to build."),
+						Utils.chat("&f" + PlayerData.getName(OwnerData.getOwner(u.current_region))) + " is the owner of this region.");
 			}
 
 		} else {
@@ -68,23 +71,23 @@ public class ClaimGui {
 		}
 
 		if ((OwnerData.count(u.uuid) + MemberData.count(u.uuid)) > 0) {
-		Utils.createItem(inv, Material.CHEST, 1, 21, ChatColor.AQUA + "" + ChatColor.BOLD + "Region List", 
-				Utils.chat("&fClick to view all regions you are owner or member of."),
-				Utils.chat("&fYou are the owner of " + OwnerData.count(u.uuid) + " region(s)"),
-				Utils.chat("&fand a member of " + MemberData.count(u.uuid) + " region(s)."));
+			Utils.createItem(inv, Material.CHEST, 1, 21, ChatColor.AQUA + "" + ChatColor.BOLD + "Region List", 
+					Utils.chat("&fClick to view all regions you are owner or member of."),
+					Utils.chat("&fYou are the owner of " + OwnerData.count(u.uuid) + " region(s)"),
+					Utils.chat("&fand a member of " + MemberData.count(u.uuid) + " region(s)."));
 		}
-		
+
 		if (RequestData.count(u.uuid) > 0) {
 			Utils.createItem(inv, Material.CHEST, 1, 25, ChatColor.AQUA + "" + ChatColor.BOLD + "Join Requests", 
 					Utils.chat("&fClick to view all the join requests for regions you own."),
 					Utils.chat("&fThere are currently " + RequestData.count(u.uuid) + " requests"));
 		}
-		
+
 		if (u.p.hasPermission("earthserver.admin.review") || u.p.hasPermission("earthserver.admin.edit")) {
-			
+
 			Utils.createItem(inv, Material.EMERALD, 1, 23, ChatColor.AQUA + "" + ChatColor.BOLD + "Staff Menu",
 					Utils.chat("&fClick to open the staff menu, functions will depend on permissions of your role."));
-			
+
 		}
 
 		toReturn.setContents(inv.getContents());
@@ -96,28 +99,28 @@ public class ClaimGui {
 		if (clicked.getType().equals(Material.DARK_OAK_DOOR_ITEM)) {
 
 			u.p.closeInventory();
-			
+
 			if (ClaimLimit.limitReached(u) && !(u.p.hasPermission("earthserver.claim.bypass"))) {
-				
+
 				u.p.sendMessage(ChatColor.RED + "You have reached your claim limit, leave another region or cancel a request to join this one.");
-				
+
 			} else {
-				
+
 				u.p.sendMessage(RegionFunctions.joinRegion(u));
-				
+
 			}
 
 		} else if (clicked.getType().equals(Material.BOOK_AND_QUILL)) {
-			
+
 			u.region_name = u.current_region;
-			
+
 			u.p.closeInventory();
-			
+
 			u.previous_gui = "main";
 			u.p.openInventory(RegionOptions.GUI(u));
 
 		} else if (clicked.getType().equals(Material.CHEST)) {
-			
+
 			if (clicked.getItemMeta().getDisplayName().equals(ChatColor.AQUA + "" + ChatColor.BOLD + "Region List")) {
 				u.gui_page = 1;
 				u.p.openInventory(RegionList.GUI(u));
@@ -126,25 +129,25 @@ public class ClaimGui {
 				u.staff_request = false;
 				u.p.openInventory(RequestGui.GUI(u));
 			}
-			
-			
+
+
 		} else if (clicked.getType().equals(Material.BARRIER)) {
-			
+
 			if (RequestData.hasRequested(u.current_region, u.uuid)) {
 				RequestData.closeRequest(u.current_region, u.uuid);
 				u.p.sendMessage(ChatColor.GREEN + "You have cancelled to request to join " + u.current_region);
 				u.p.closeInventory();
-				
+
 			} else {
 				u.p.sendMessage(ChatColor.RED + "This request does no longer exist!");
 				u.p.closeInventory();
 			}
-			
+
 		} else if (clicked.getType().equals(Material.EMERALD)) {
-			
+
 			u.p.closeInventory();
 			u.p.openInventory(StaffGui.GUI(u));		
-			
+
 		}
 
 	}
