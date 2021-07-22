@@ -33,7 +33,12 @@ public class Claim implements CommandExecutor {
 			
 			if (args.length >= 1) {
 				if (args[0].equalsIgnoreCase("info")) {
-					p.sendMessage(ChatColor.GREEN + "Region " + u.current_region + " owned by " + PlayerData.getName(OwnerData.getOwner(u.current_region)));
+					
+					if (OwnerData.getOwner(u.current_region).equals("false")) {
+						p.sendMessage(ChatColor.GREEN + "Region " + u.current_region);
+					} else {
+						p.sendMessage(ChatColor.GREEN + "Region " + u.current_region + " owned by " + PlayerData.getName(OwnerData.getOwner(u.current_region)));
+					}
 					
 					if (MemberData.hasMember(u.current_region)) {
 						ResultSet members = MemberData.getMembers(u.current_region);
@@ -60,7 +65,7 @@ public class Claim implements CommandExecutor {
 						}
 						
 						if (memberString != null) {
-							p.sendMessage(memberString);
+							p.sendMessage(ChatColor.GREEN + memberString);
 						}
 					}
 					

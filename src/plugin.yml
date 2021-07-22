@@ -12,6 +12,8 @@ commands:
     convertclaims:
         usage: /<command>
         description: Converts all old claims to the new system, only works if there are no existing regions.
+    fixregions:
+        usage: /<command>
     tpblock:
         usage: /tpblock <x> <y> <z>
         description: Simple command to place teleport command blocks.

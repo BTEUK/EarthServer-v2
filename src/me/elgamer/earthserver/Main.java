@@ -23,6 +23,7 @@ import com.earth2me.essentials.Essentials;
 import me.elgamer.earthserver.commands.TPBlock;
 import me.elgamer.earthserver.commands.claim.Claim;
 import me.elgamer.earthserver.commands.claim.ConvertClaimData;
+import me.elgamer.earthserver.commands.claim.FixRegions;
 import me.elgamer.earthserver.commands.navigation.AddLocation;
 import me.elgamer.earthserver.commands.navigation.DenyLocation;
 import me.elgamer.earthserver.commands.navigation.GotoRequest;
@@ -147,6 +148,7 @@ public class Main extends JavaPlugin {
 		//Commands for claiming
 		getCommand("claim").setExecutor(new Claim());
 		getCommand("convertclaims").setExecutor(new ConvertClaimData());
+		getCommand("fixregions").setExecutor(new FixRegions());
 
 		//Utility command
 		getCommand("tpblock").setExecutor(new TPBlock());

@@ -161,5 +161,24 @@ public class RegionLogs {
 		}
 
 	}
+	
+	public static ResultSet getLogsAfter(long time) {
+		
+		Main instance = Main.getInstance();
+
+		PreparedStatement statement;
+		try {
+			statement = instance.getConnection().prepareStatement
+					("SELECT * FROM " + instance.regionLogs + " WHERE END_TIME>=? ORDER BY END_TIME ASC");
+			statement.setLong(1, time);
+			
+			return statement.executeQuery();
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}	
+		
+	}
 
 }
