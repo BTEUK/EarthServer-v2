@@ -38,7 +38,7 @@ public class Claim implements CommandExecutor {
 					if (MemberData.hasMember(u.current_region)) {
 						ResultSet members = MemberData.getMembers(u.current_region);
 						
-						String memberString;
+						String memberString = null;
 						
 						try {
 							members.next();
@@ -59,8 +59,12 @@ public class Claim implements CommandExecutor {
 							e.printStackTrace();
 						}
 						
-						p.sendMessage(label);
+						if (memberString != null) {
+							p.sendMessage(memberString);
+						}
 					}
+					
+					return true;
 				}
 			}
 			
