@@ -2,7 +2,7 @@ name: EarthServer
 version: 2.1.0
 main: me.elgamer.earthserver.Main
 description: Claiming System and Navigation for the Earth server.
-depend: [WorldEdit, WorldGuard, LuckPerms, Vault]
+depend: [WorldEdit, WorldGuard, LuckPerms, Vault, BTEPoints]
 
 commands:
     claim:

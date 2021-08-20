@@ -73,7 +73,11 @@ public class PlayerData {
 			statement.setString(1, u.name);
 			statement.setString(2, u.builder_role);
 			statement.setLong(3, Time.currentTime());
-			statement.setInt(4, u.buildingTime);
+			
+			//Rather than use buildingTime from here, use the point plugin instead.
+			//statement.setInt(4, u.buildingTime);
+			me.elgamer.btepoints.utils.PlayerData.setBuildTime(u.uuid, u.buildingTime);
+			
 
 			statement.setString(5, u.uuid);
 			statement.executeUpdate();

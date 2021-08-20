@@ -228,7 +228,9 @@ public class Main extends JavaPlugin {
 						if (u.buildingTime >= interval) {
 							u.buildingTime -= interval;
 
-							Bukkit.dispatchCommand(console, "addpoints " + u.name + " 1");
+							//Use BTEPoints plugin
+							//Bukkit.dispatchCommand(console, "addpoints " + u.name + " 1");
+							me.elgamer.btepoints.utils.Points.addPoints(u.uuid, 1);
 						}
 
 

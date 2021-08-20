@@ -7,7 +7,7 @@ import org.bukkit.entity.Player;
 import me.elgamer.earthserver.Main;
 import me.elgamer.earthserver.sql.MemberData;
 import me.elgamer.earthserver.sql.OwnerData;
-import me.elgamer.earthserver.sql.PlayerData;
+//import me.elgamer.earthserver.sql.PlayerData;
 import me.elgamer.earthserver.sql.RegionData;
 import me.elgamer.earthserver.sql.RegionLogs;
 import me.elgamer.earthserver.sql.RequestData;
@@ -41,7 +41,9 @@ public class User {
 		uuid = p.getUniqueId().toString();
 		name = p.getName();
 
-		this.buildingTime = PlayerData.getBuildingTime(uuid);
+		//Rather than use building time from this plugin, use the points plugin.
+		//this.buildingTime = PlayerData.getBuildingTime(uuid);
+		this.buildingTime = me.elgamer.btepoints.utils.PlayerData.getBuildTime(uuid);
 
 		current_world = p.getWorld();
 
