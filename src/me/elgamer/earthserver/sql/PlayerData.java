@@ -69,7 +69,7 @@ public class PlayerData {
 
 		try {
 			PreparedStatement statement = instance.getConnection().prepareStatement
-					("UPDATE " + instance.playerData + " SET NAME=?,BUILDER_ROLE=?,LAST_ONLINE=?,BUILDING_TIME=? WHERE UUID=?");
+					("UPDATE " + instance.playerData + " SET NAME=?,BUILDER_ROLE=?,LAST_ONLINE=? WHERE UUID=?");
 			statement.setString(1, u.name);
 			statement.setString(2, u.builder_role);
 			statement.setLong(3, Time.currentTime());
@@ -79,7 +79,7 @@ public class PlayerData {
 			me.elgamer.btepoints.utils.PlayerData.setBuildTime(u.uuid, u.buildingTime);
 			
 
-			statement.setString(5, u.uuid);
+			statement.setString(4, u.uuid);
 			statement.executeUpdate();
 
 		} catch (SQLException e) {

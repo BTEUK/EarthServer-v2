@@ -33,6 +33,7 @@ commands:
         usage: /removelocation
         description: removes a location from the gui
     navigator:
+        aliases: [nav]
         usage: /navigator
         description: opens the navigation gui
     torequest:
