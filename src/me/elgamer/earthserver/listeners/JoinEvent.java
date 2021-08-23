@@ -56,24 +56,24 @@ public class JoinEvent implements Listener {
 		
 		if (MessageData.hasMessage(u.uuid)) {
 			
+			Bukkit.getScheduler().runTaskLater (Main.getInstance(), () -> {
 			ResultSet results = MessageData.getMessages(u.uuid);
 			MessageData.removeMessages(u.uuid);
 			
 			try {
 				while (results.next()) {
-					Bukkit.getScheduler().runTaskLater (Main.getInstance(), () -> {
 						try {
 							u.p.sendMessage(ChatColor.valueOf(results.getString("COLOUR"))  + results.getString("MESSAGE"));
 						} catch (SQLException e1) {
 							// TODO Auto-generated catch block
 							e1.printStackTrace();
 						}
-					}, 20); //20 ticks equal 1 second
 				}
 			} catch (IllegalArgumentException | SQLException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
+			}, 20);
 			
 		}
 

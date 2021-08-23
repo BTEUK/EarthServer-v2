@@ -15,7 +15,7 @@ public class ClaimLimit {
 		Main instance = Main.getInstance();
 		FileConfiguration config = instance.getConfig();
 		
-		if (role.equals("jr.builder")) {
+		if (role.equals("jrbuilder")) {
 			
 			return config.getInt("Limit.JrBuilder");
 			

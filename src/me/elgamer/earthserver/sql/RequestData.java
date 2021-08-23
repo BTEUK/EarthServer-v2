@@ -145,7 +145,7 @@ public class RequestData {
 		PreparedStatement statement;
 		try {
 			statement = instance.getConnection().prepareStatement
-					("SELECT * FROM " + instance.requestData + " STAFF_ACCEPT=?");
+					("SELECT * FROM " + instance.requestData + " WHERE STAFF_ACCEPT=?");
 			statement.setBoolean(1, false);
 
 			return (statement.executeQuery());
