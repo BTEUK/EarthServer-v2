@@ -1,10 +1,13 @@
 package me.elgamer.earthserver.sql;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import javax.sql.DataSource;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -13,22 +16,25 @@ import me.elgamer.earthserver.Main;
 
 public class LocationSQL {
 
+	DataSource dataSource;
 
-	//Returns the number of locations for a given subcategory
-	public static int subCount(String sub) {
+	public LocationSQL(DataSource dataSource) {
 
-		return 0;
+		this.dataSource = dataSource;
 
 	}
 
+	private Connection conn() throws SQLException {
+		return dataSource.getConnection();
+	}
+
 	//Returns whether the location is already requested
-	public static boolean requestExists(String loc) {
+	public boolean requestExists(String loc) {
 
-		Main instance = Main.getInstance();
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"SELECT location FROM location_request_data WHERE location = ?;"
+				)){
 
-		try {
-			PreparedStatement statement = instance.getConnection().prepareStatement
-					("SELECT * FROM " + instance.locationRequestData + " WHERE LOCATION=?");
 			statement.setString(1, loc);
 			ResultSet results = statement.executeQuery();
 
@@ -46,13 +52,11 @@ public class LocationSQL {
 	}
 
 	//Returns true if there is a new location request
-	public static boolean requestExists() {
+	public boolean requestExists() {
 
-		Main instance = Main.getInstance();
-
-		try {
-			PreparedStatement statement = instance.getConnection().prepareStatement
-					("SELECT * FROM " + instance.locationRequestData);
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"SELECT location FROM location_request_data;"
+				)){
 			ResultSet results = statement.executeQuery();
 
 			if (results.next()) {
@@ -69,14 +73,11 @@ public class LocationSQL {
 	}
 
 	//Creates a location request
-	public static boolean addRequest(String loc, Location l) {
+	public boolean addRequest(String loc, Location l) {
 
-		Main instance = Main.getInstance();
-
-
-		try {
-			PreparedStatement statement = instance.getConnection().prepareStatement
-					("INSERT INTO " + instance.locationRequestData + " (LOCATION,X,Y,Z,PITCH,YAW) VALUE (?,?,?,?,?,?)");
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"INSERT INTO location_request_data(location, x, y, z, pitch, yaw) VALUES(?, ?, ?, ?, ?, ?);"
+				)){
 			statement.setString(1, loc);
 			statement.setDouble(2, l.getX());
 			statement.setDouble(3, l.getY());
@@ -87,7 +88,7 @@ public class LocationSQL {
 			statement.executeUpdate();
 
 			return true;
-			
+
 		} catch (SQLException e) {
 			e.printStackTrace();
 			return false;
@@ -97,13 +98,12 @@ public class LocationSQL {
 	}
 
 	//Creates a location from request
-	public static boolean addLocation(String loc, String cat, String subcat, Location l) {
+	public boolean addLocation(String loc, String cat, String subcat, Location l) {
 
-		Main instance = Main.getInstance();
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"INSERT INTO location_data(location, category, subcategory, x, y, z, pitch, yaw) VALUES (?, ?, ?, ?, ?, ?, ?, ?);"
+				)){
 
-		try {
-			PreparedStatement statement = instance.getConnection().prepareStatement
-					("INSERT INTO " + instance.locationData + " (LOCATION,CATEGORY,SUBCATEGORY,X,Y,Z,PITCH,YAW) VALUE (?,?,?,?,?,?,?,?)");
 			statement.setString(1, loc);
 			statement.setString(2, cat);
 			statement.setString(3, subcat);
@@ -126,13 +126,12 @@ public class LocationSQL {
 	}
 
 	//Returns whether the location is already requested
-	public static boolean locationExists(String loc) {
+	public boolean locationExists(String loc) {
 
-		Main instance = Main.getInstance();
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"SELECT location FROM location_data WHERE location = ?;"
+				)){
 
-		try {
-			PreparedStatement statement = instance.getConnection().prepareStatement
-					("SELECT * FROM " + instance.locationData + " WHERE LOCATION=?");
 			statement.setString(1, loc);
 			ResultSet results = statement.executeQuery();
 
@@ -150,23 +149,20 @@ public class LocationSQL {
 	}
 
 	//Return the location of a request and deletes it subsequently
-	public static Location getRequestLocation(String loc) {
+	public Location getRequestLocation(String loc) {
 
-		Main instance = Main.getInstance();
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"SELECT * FROM location_request_data WHERE location = ?;"
+				)){
 
-		try {
-			PreparedStatement statement = instance.getConnection().prepareStatement
-					("SELECT * FROM " + instance.locationRequestData + " WHERE LOCATION=?");
 			statement.setString(1, loc);
 			ResultSet results = statement.executeQuery();
 			results.next();
 
-			statement = instance.getConnection().prepareStatement
-					("DELETE FROM " + instance.locationRequestData + " WHERE LOCATION=?");
-			statement.setString(1, loc);
-			statement.executeUpdate();
+			Location l = new Location(Bukkit.getWorld("world"), results.getDouble("x"), results.getDouble("y"), results.getDouble("z"), results.getFloat("yaw"), results.getFloat("pitch"));
+			removeRequest(loc);
 
-			return (new Location(Bukkit.getWorld("world"), results.getDouble("X"), results.getDouble("Y"), results.getDouble("Z"), results.getFloat("YAW"), results.getFloat("PITCH")));
+			return (l);
 
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -174,55 +170,14 @@ public class LocationSQL {
 		return null;
 
 	}
-	
-	//Return the location of a request and deletes it subsequently
-		public static Location toRequestLocation(String loc) {
 
-			Main instance = Main.getInstance();
+	//Remove a location request
+	public boolean removeRequest(String loc) {
 
-			try {
-				PreparedStatement statement = instance.getConnection().prepareStatement
-						("SELECT * FROM " + instance.locationRequestData + " WHERE LOCATION=?");
-				statement.setString(1, loc);
-				ResultSet results = statement.executeQuery();
-				results.next();
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"DELETE FROM location_request_data WHERE location = ?;"
+				)){
 
-				return (new Location(Bukkit.getWorld("world"), results.getDouble("X"), results.getDouble("Y"), results.getDouble("Z"), results.getFloat("YAW"), results.getFloat("PITCH")));
-
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-			return null;
-
-		}
-
-	//Remove location request
-	public static boolean removeRequest(String loc) {
-
-		Main instance = Main.getInstance();
-
-		try {
-			PreparedStatement statement = instance.getConnection().prepareStatement
-					("DELETE FROM " + instance.locationRequestData + " WHERE LOCATION=?");
-			statement.executeUpdate();
-
-			return true;
-
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return false;
-
-	}
-
-	//Remove location
-	public static boolean removeLocation(String loc) {
-
-		Main instance = Main.getInstance();
-
-		try {
-			PreparedStatement statement = instance.getConnection().prepareStatement
-					("DELETE FROM " + instance.locationData + " WHERE LOCATION=?");
 			statement.setString(1, loc);
 			statement.executeUpdate();
 
@@ -235,19 +190,58 @@ public class LocationSQL {
 
 	}
 
-	public static HashMap<String, Location> getRequests(){
+	//Return the location of a request and deletes it subsequently
+	public Location toRequestLocation(String loc) {
 
-		Main instance = Main.getInstance();
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"SELECT * FROM location_request_data WHERE location = ?;"
+				)){
+
+			statement.setString(1, loc);
+			ResultSet results = statement.executeQuery();
+			results.next();
+
+			return (new Location(Bukkit.getWorld("world"), results.getDouble("x"), results.getDouble("y"), results.getDouble("z"), results.getFloat("yaw"), results.getFloat("pitch")));
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+
+	}
+
+	//Remove location
+	public boolean removeLocation(String loc) {
+
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"DELETE FROM location_data WHERE location = ?;"
+				)){
+
+			statement.setString(1, loc);
+			statement.executeUpdate();
+
+			return true;
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return false;
+
+	}
+
+	public HashMap<String, Location> getRequests(){
+
 		HashMap<String, Location> requests = new HashMap<String, Location>();
 
-		try {
-			PreparedStatement statement = instance.getConnection().prepareStatement
-					("SELECT * FROM " + instance.locationRequestData);
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"SELECT * FROM location_request_data;"
+				)){
+
 			ResultSet results = statement.executeQuery();
 
 			while (results.next()) {
 
-				requests.put(results.getString("LOCATION"), new Location(Bukkit.getWorld("world"), results.getDouble("X"), results.getDouble("Y"), results.getDouble("Z"), results.getFloat("PITCH"), results.getFloat("YAW")));
+				requests.put(results.getString("location"), new Location(Bukkit.getWorld("world"), results.getDouble("x"), results.getDouble("y"), results.getDouble("z"), results.getFloat("pitch"), results.getFloat("yaw")));
 
 			}
 
@@ -259,13 +253,12 @@ public class LocationSQL {
 		return null;
 	}
 
-	public static int CategoryCount(String cat) {
+	public int CategoryCount(String cat) {
 
-		Main instance = Main.getInstance();
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"SELECT COUNT(location) FROM location_data WHERE category = ?;"
+				)){
 
-		try {
-			PreparedStatement statement = instance.getConnection().prepareStatement
-					("SELECT COUNT(*) FROM " + instance.locationData + " WHERE CATEGORY=?");
 			statement.setString(1, cat);
 			ResultSet results = statement.executeQuery();
 
@@ -279,22 +272,22 @@ public class LocationSQL {
 		}
 
 	}
-	
-	public static ArrayList<String[]> getLocations(String cat){
-		
-		Main instance = Main.getInstance();
-		ArrayList<String[]> locations = new ArrayList<String[]>();
 
-		try {
-			PreparedStatement statement = instance.getConnection().prepareStatement
-					("SELECT * FROM " + instance.locationData + " WHERE CATEGORY=?");
+	public ArrayList<String[]> getLocations(String cat){
+
+		ArrayList<String[]> locations = new ArrayList<String[]>();
+		
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"SELECT location, subcategory FROM location_data WHERE category = ?;"
+				)){
+
 			statement.setString(1, cat);
 			ResultSet results = statement.executeQuery();
 
 			while (results.next()) {
 
-				locations.add(new String[] {results.getString("LOCATION"), results.getString("SUBCATEGORY")});
-				
+				locations.add(new String[] {results.getString("location"), results.getString("subcategory")});
+
 			}
 
 			return locations;
@@ -303,34 +296,33 @@ public class LocationSQL {
 			e.printStackTrace();
 		}
 		return null;
-		
-	}
-	
-	public static Location getLocation(String name) {
-		
-		Main instance = Main.getInstance();
 
-		try {
-			PreparedStatement statement = instance.getConnection().prepareStatement
-					("SELECT * FROM " + instance.locationData + " WHERE LOCATION=?");
+	}
+
+	public Location getLocation(String name) {
+
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"SELECT * FROM location_data WHERE location = ?;"
+				)){
+
 			statement.setString(1, name);
 			ResultSet results = statement.executeQuery();
 
 			results.next();
 
-			return (new Location(Bukkit.getWorld(instance.getConfig().getString("World_Name")),
-					results.getDouble("X"),
-					results.getDouble("Y"),
-					results.getDouble("Z"),
-					results.getFloat("YAW"),
-					results.getFloat("PITCH")));
+			return (new Location(Bukkit.getWorld(Main.getInstance().getConfig().getString("World_Name")),
+					results.getDouble("x"),
+					results.getDouble("y"),
+					results.getDouble("z"),
+					results.getFloat("yaw"),
+					results.getFloat("pitch")));
 
 		} catch (SQLException e) {
 			e.printStackTrace();
 			return null;
 		}
-		
-		
+
+
 	}
 
 }

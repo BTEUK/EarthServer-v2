@@ -1,7 +1,6 @@
 package me.elgamer.earthserver.gui.claim;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.util.ArrayList;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -9,12 +8,13 @@ import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import me.elgamer.earthserver.Main;
 import me.elgamer.earthserver.sql.RequestData;
 import me.elgamer.earthserver.utils.User;
 import me.elgamer.earthserver.utils.Utils;
 
 public class EditRequests {
-	
+
 	public static Inventory inv;
 	public static String inventory_name;
 	public static int inv_rows = 5 * 9;
@@ -32,31 +32,28 @@ public class EditRequests {
 
 		inv.clear();
 
-		ResultSet results = RequestData.getYourRequests(u.uuid);
+		RequestData requestData = Main.getInstance().requestData;
+		ArrayList<String> requests = requestData.getYourRequests(u.uuid);
 
 		u.gui_slot = 11;
 
-		try {
-			
-			while (results.next()) {
+		for (String s : requests) {
 
-				Utils.createItemByte(inv, Material.CONCRETE, 1, 1, u.gui_slot, ChatColor.AQUA + "" + ChatColor.BOLD + results.getString("REGION_ID"), 
-						Utils.chat("&fClick to cancel the request."));
 
-				if ((u.gui_slot & 45) == 17 ) {
-					u.gui_slot += 3;
-				} else if ((u.gui_slot & 45) == 26) {
-					u.gui_slot += 3;
-				} else if ((u.gui_slot & 45) == 35) {
-										
-					break;
-				} else {
-					u.gui_slot += 1;
-				}
+			Utils.createItemByte(inv, Material.CONCRETE, 1, 1, u.gui_slot, ChatColor.AQUA + "" + ChatColor.BOLD + s, 
+					Utils.chat("&fClick to cancel the request."));
 
+			if ((u.gui_slot & 45) == 17 ) {
+				u.gui_slot += 3;
+			} else if ((u.gui_slot & 45) == 26) {
+				u.gui_slot += 3;
+			} else if ((u.gui_slot & 45) == 35) {
+
+				break;
+			} else {
+				u.gui_slot += 1;
 			}
-		} catch (SQLException e) {
-			e.printStackTrace();
+
 		}
 
 		Utils.createItem(inv, Material.SPRUCE_DOOR_ITEM, 1, 45, ChatColor.AQUA + "" + ChatColor.BOLD + "Return",
@@ -68,30 +65,32 @@ public class EditRequests {
 
 	public static void clicked(User u, int slot, ItemStack clicked, Inventory inv) {
 
+		RequestData requestData = Main.getInstance().requestData;
+		
 		if (clicked.getType().equals(Material.SPRUCE_DOOR_ITEM)) {
 
 			u.gui_page = 1;
 			u.p.closeInventory();
 			u.p.openInventory(RegionList.GUI(u));
-			
+
 		} else {
 
 			String[] info = ChatColor.stripColor(clicked.getItemMeta().getDisplayName()).split(",");
 			u.region_name = info[0] + "," + info[1];
 
-			RequestData.closeRequest(u.region_name, u.uuid);
+			requestData.closeRequest(u.region_name, u.uuid);
 			u.p.sendMessage(ChatColor.GREEN + "You have cancelled to request to join " + u.region_name);
-			
+
 			u.p.closeInventory();
 			u.gui_page = 1;
-			
-			if (RequestData.hasRequest(u.uuid)) {
-				
+
+			if (requestData.hasRequest(u.uuid)) {
+
 				u.p.openInventory(EditRequests.GUI(u));
 			} else {
-				
+
 				u.p.openInventory(RegionList.GUI(u));
-				
+
 			}
 		}
 

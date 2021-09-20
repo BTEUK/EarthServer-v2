@@ -30,8 +30,12 @@ public class ClaimLimit {
 	
 	public static boolean limitReached(User u) {
 		
+		OwnerData ownerData = Main.getInstance().ownerData;
+		MemberData memberData = Main.getInstance().memberData;
+		RequestData requestData = Main.getInstance().requestData;
+		
 		//Count all regions the player is in plus all active region requests.
-		int regionNumber = OwnerData.count(u.uuid) + MemberData.count(u.uuid) + RequestData.countRequests(u.uuid);
+		int regionNumber = ownerData.count(u.uuid) + memberData.count(u.uuid) + requestData.countRequests(u.uuid);
 		
 		if (regionNumber >= limit(u.builder_role)) {
 			return true;

@@ -1,23 +1,33 @@
 package me.elgamer.earthserver.sql;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 
-import me.elgamer.earthserver.Main;
-import me.elgamer.earthserver.utils.OldClaim;
+import javax.sql.DataSource;
+
 import me.elgamer.earthserver.utils.WorldGuardFunctions;
 
 public class RegionData {
 
-	public static boolean hasEntry() {
+	DataSource dataSource;
 
-		Main instance = Main.getInstance();
+	public RegionData(DataSource dataSource) {
 
-		try {
-			PreparedStatement statement = instance.getConnection().prepareStatement
-					("SELECT * FROM " + instance.regionData);
+		this.dataSource = dataSource;
+
+	}
+
+	private Connection conn() throws SQLException {
+		return dataSource.getConnection();
+	}
+	
+	public boolean hasEntry() {
+
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"SELECT region FROM regions;"
+				)){
 
 			ResultSet results = statement.executeQuery();
 
@@ -29,50 +39,12 @@ public class RegionData {
 		}			
 	}
 
-	public static void convertRegions(ArrayList<OldClaim> claims) {
+	public boolean isOpen(String region) {
 
-		Main instance = Main.getInstance();
-
-		PreparedStatement statement;
-
-		int x;
-		int z;
-
-		try {
-
-			for (OldClaim claim : claims) {
-
-				statement = instance.getConnection().prepareStatement
-						("INSERT INTO " + instance.regionData + " (REGION_ID,REGION_X,REGION_Z,PUBLIC,LOCKED,OPEN) VALUE (?,?,?,?,?,?)");
-				statement.setString(1, claim.region);
-
-				String[] region = claim.region.split(",");
-				x = Integer.parseInt(region[0]);
-				z = Integer.parseInt(region[1]);
-
-				statement.setInt(2, x);
-				statement.setInt(3, z);
-
-				statement.setBoolean(4, claim.public_private);
-				statement.setBoolean(5, false);
-				statement.setBoolean(6, false);
-
-				statement.executeUpdate();
-			}
-
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}	
-
-	}
-
-	public static boolean isOpen(String region) {
-
-		Main instance = Main.getInstance();
-
-		try {
-			PreparedStatement statement = instance.getConnection().prepareStatement
-					("SELECT * FROM " + instance.regionData + " WHERE REGION_ID=? AND OPEN=?");
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"SELECT region FROM regions WHERE region = ? AND open = ?;"
+				)){
+			
 			statement.setString(1, region);
 			statement.setBoolean(2, true);
 
@@ -87,13 +59,12 @@ public class RegionData {
 
 	}
 
-	public static boolean isPublic(String region) {
+	public boolean isPublic(String region) {
 
-		Main instance = Main.getInstance();
-
-		try {
-			PreparedStatement statement = instance.getConnection().prepareStatement
-					("SELECT * FROM " + instance.regionData + " WHERE REGION_ID=? AND PUBLIC=?");
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"SELECT region FROM regions WHERE region = ? AND public = ?;"
+				)){
+			
 			statement.setString(1, region);
 			statement.setBoolean(2, true);
 
@@ -108,13 +79,12 @@ public class RegionData {
 
 	}
 
-	public static boolean isLocked(String region) {
+	public boolean isLocked(String region) {
 
-		Main instance = Main.getInstance();
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"SELECT region FROM regions WHERE region = ? AND locked = ?;"
+				)){
 
-		try {
-			PreparedStatement statement = instance.getConnection().prepareStatement
-					("SELECT * FROM " + instance.regionData + " WHERE REGION_ID=? AND LOCKED=?");
 			statement.setString(1, region);
 			statement.setBoolean(2, true);
 
@@ -129,13 +99,12 @@ public class RegionData {
 
 	}
 
-	public static void setOpen(String region) {
+	public void setOpen(String region) {
 
-		Main instance = Main.getInstance();
-
-		try {
-			PreparedStatement statement = instance.getConnection().prepareStatement
-					("UPDATE " + instance.regionData + " SET OPEN=? WHERE REGION_ID=?");
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"UPDATE regions SET open = ? WHERE region = ?;"
+				)){
+			
 			statement.setBoolean(1, true);
 
 			statement.setString(2, region);
@@ -148,13 +117,12 @@ public class RegionData {
 
 	}
 
-	public static void setClosed(String region) {
+	public void setClosed(String region) {
 
-		Main instance = Main.getInstance();
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"UPDATE regions SET open = ? WHERE region = ?;"
+				)){
 
-		try {
-			PreparedStatement statement = instance.getConnection().prepareStatement
-					("UPDATE " + instance.regionData + " SET OPEN=? WHERE REGION_ID=?");
 			statement.setBoolean(1, false);
 
 			statement.setString(2, region);
@@ -167,13 +135,12 @@ public class RegionData {
 
 	}
 
-	public static void setLocked(String region) {
+	public void setLocked(String region) {
 
-		Main instance = Main.getInstance();
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"UPDATE regions SET locked = ? WHERE region = ?;"
+				)){
 
-		try {
-			PreparedStatement statement = instance.getConnection().prepareStatement
-					("UPDATE " + instance.regionData + " SET LOCKED=? WHERE REGION_ID=?");
 			statement.setBoolean(1, true);
 
 			statement.setString(2, region);
@@ -186,13 +153,12 @@ public class RegionData {
 
 	}
 
-	public static void setUnlocked(String region) {
+	public void setUnlocked(String region) {
 
-		Main instance = Main.getInstance();
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"UPDATE regions SET locked = ? WHERE region = ?;"
+				)){
 
-		try {
-			PreparedStatement statement = instance.getConnection().prepareStatement
-					("UPDATE " + instance.regionData + " SET LOCKED=? WHERE REGION_ID=?");
 			statement.setBoolean(1, false);
 
 			statement.setString(2, region);
@@ -205,13 +171,12 @@ public class RegionData {
 
 	}
 
-	public static void setPrivate(String region) {
+	public void setPrivate(String region) {
 
-		Main instance = Main.getInstance();
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"UPDATE regions SET public = ? WHERE region = ?;"
+				)){
 
-		try {
-			PreparedStatement statement = instance.getConnection().prepareStatement
-					("UPDATE " + instance.regionData + " SET PUBLIC=? WHERE REGION_ID=?");
 			statement.setBoolean(1, false);
 
 			statement.setString(2, region);
@@ -224,13 +189,12 @@ public class RegionData {
 
 	}
 
-	public static void setPublic(String region) {
+	public void setPublic(String region) {
 
-		Main instance = Main.getInstance();
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"UPDATE regions SET public = ? WHERE region = ?;"
+				)){
 
-		try {
-			PreparedStatement statement = instance.getConnection().prepareStatement
-					("UPDATE " + instance.regionData + " SET PUBLIC=? WHERE REGION_ID=?");
 			statement.setBoolean(1, true);
 
 			statement.setString(2, region);
@@ -243,9 +207,7 @@ public class RegionData {
 
 	}
 
-	public static void createRegionIfNotExists(String region) {
-
-		Main instance = Main.getInstance();
+	public void createRegionIfNotExists(String region) {
 
 		if (regionExists(region)) {
 			return;
@@ -254,19 +216,16 @@ public class RegionData {
 		if (region.equalsIgnoreCase("BuildHub")) {
 			return;
 		}
-		
-		PreparedStatement statement;
-
 
 		String[] xz = region.split(",");
 
 		int x = Integer.parseInt(xz[0]);
 		int z = Integer.parseInt(xz[1]);
 		
-		try {
-
-			statement = instance.getConnection().prepareStatement
-					("INSERT INTO " + instance.regionData + " (REGION_ID,REGION_X,REGION_Z,PUBLIC,LOCKED,OPEN) VALUE (?,?,?,?,?,?)");
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"INSERT INTO regions(region, region_x, region_z, public, locked, open) VALUES(?, ?, ?, ?, ?, ?);"
+				)){
+			
 			statement.setString(1, region);
 
 			statement.setInt(2, x);
@@ -286,13 +245,12 @@ public class RegionData {
 
 	}
 	
-	public static boolean regionExists(String region) {
+	public boolean regionExists(String region) {
 		
-		Main instance = Main.getInstance();
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"SELECT region FROM regions WHERE region = ?;"
+				)){
 
-		try {
-			PreparedStatement statement = instance.getConnection().prepareStatement
-					("SELECT * FROM " + instance.regionData + " WHERE REGION_ID=?");
 			statement.setString(1, region);
 
 			ResultSet results = statement.executeQuery();

@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import me.elgamer.earthserver.Main;
 import me.elgamer.earthserver.sql.LocationSQL;
 import me.elgamer.earthserver.utils.Utils;
 
@@ -30,10 +31,12 @@ public class OtherGui {
 		Inventory toReturn = Bukkit.createInventory(null, inv_rows, inventory_name);
 
 		inv.clear();
+		
+		LocationSQL locationSQL = Main.getInstance().locationData;
 
-		if (LocationSQL.CategoryCount("wales") + LocationSQL.CategoryCount("scotland") + LocationSQL.CategoryCount("northern-ireland") + LocationSQL.CategoryCount("other") > 21) {
+		if (locationSQL.CategoryCount("wales") + locationSQL.CategoryCount("scotland") + locationSQL.CategoryCount("northern-ireland") + locationSQL.CategoryCount("other") > 21) {
 
-			ArrayList<String[]> locations = LocationSQL.getLocations("other");
+			ArrayList<String[]> locations = locationSQL.getLocations("other");
 
 			int i = 11;
 
@@ -52,7 +55,7 @@ public class OtherGui {
 
 		} else {
 
-			ArrayList<String[]> locations = LocationSQL.getLocations("scotland");
+			ArrayList<String[]> locations = locationSQL.getLocations("scotland");
 
 			int i = 11;
 
@@ -74,7 +77,7 @@ public class OtherGui {
 
 			}
 
-			locations = LocationSQL.getLocations("wales");
+			locations = locationSQL.getLocations("wales");
 
 			if (locations == null) {
 
@@ -93,7 +96,7 @@ public class OtherGui {
 				}
 			}
 			
-			locations = LocationSQL.getLocations("northern-ireland");
+			locations = locationSQL.getLocations("northern-ireland");
 
 			if (locations == null) {
 
@@ -112,7 +115,7 @@ public class OtherGui {
 				}
 			}
 			
-			locations = LocationSQL.getLocations("other");
+			locations = locationSQL.getLocations("other");
 
 			if (locations == null) {
 
@@ -149,8 +152,10 @@ public class OtherGui {
 
 		} else {
 
+			LocationSQL locationSQL = Main.getInstance().locationData;
+			
 			String[] location = clicked.getItemMeta().getDisplayName().replace(" ", "").split(",");
-			p.teleport(LocationSQL.getLocation(ChatColor.stripColor(location[0])));
+			p.teleport(locationSQL.getLocation(ChatColor.stripColor(location[0])));
 			
 		}
 	}

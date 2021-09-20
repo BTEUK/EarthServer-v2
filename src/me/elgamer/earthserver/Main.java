@@ -1,10 +1,17 @@
 package me.elgamer.earthserver;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.stream.Collectors;
+
+import javax.sql.DataSource;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -19,11 +26,11 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.earth2me.essentials.Essentials;
+import com.mysql.jdbc.jdbc2.optional.MysqlConnectionPoolDataSource;
+import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 
 import me.elgamer.earthserver.commands.TPBlock;
 import me.elgamer.earthserver.commands.claim.Claim;
-import me.elgamer.earthserver.commands.claim.ConvertClaimData;
-import me.elgamer.earthserver.commands.claim.FixRegions;
 import me.elgamer.earthserver.commands.navigation.AddLocation;
 import me.elgamer.earthserver.commands.navigation.DenyLocation;
 import me.elgamer.earthserver.commands.navigation.GotoRequest;
@@ -57,11 +64,14 @@ import me.elgamer.earthserver.listeners.LeaveEvent;
 import me.elgamer.earthserver.listeners.MoveEvent;
 import me.elgamer.earthserver.listeners.PlayerInteract;
 import me.elgamer.earthserver.listeners.TeleportEvent;
+import me.elgamer.earthserver.sql.LocationSQL;
 import me.elgamer.earthserver.sql.MemberData;
 import me.elgamer.earthserver.sql.MessageData;
 import me.elgamer.earthserver.sql.OwnerData;
 import me.elgamer.earthserver.sql.PlayerData;
-import me.elgamer.earthserver.sql.SQLTables;
+import me.elgamer.earthserver.sql.RegionData;
+import me.elgamer.earthserver.sql.RegionLogs;
+import me.elgamer.earthserver.sql.RequestData;
 import me.elgamer.earthserver.utils.Inactive;
 import me.elgamer.earthserver.utils.Permissions;
 import me.elgamer.earthserver.utils.User;
@@ -71,9 +81,19 @@ public class Main extends JavaPlugin {
 
 	//MySQL
 	private Connection connection;
-	public String host, database, username, password, claimData, permissionData, locationData, locationRequestData;
-
-	public String regionData, ownerData, memberData, playerData, requestData, regionLogs, messageData;
+	public DataSource dataSource;
+	public String host, database, username, password;
+	
+	public RegionData regionData;
+	public OwnerData ownerData;
+	public MemberData memberData;
+	public PlayerData playerData;
+	public RequestData requestData;
+	public RegionLogs regionLogs;
+	public MessageData messageData;
+	
+	public LocationSQL locationData;
+	
 
 	public int port;
 
@@ -106,7 +126,26 @@ public class Main extends JavaPlugin {
 		saveDefaultConfig();
 
 		//MySQL		
-		mysqlSetup();
+		try {
+			dataSource = mysqlSetup();
+			initDb();
+
+			//Claim data
+			regionData = new RegionData(dataSource);
+			ownerData = new OwnerData(dataSource);
+			memberData = new MemberData(dataSource);
+			playerData = new PlayerData(dataSource);
+			requestData = new RequestData(dataSource);
+			regionLogs = new RegionLogs(dataSource);
+			messageData = new MessageData(dataSource);
+
+			//Navigation menu
+			locationData = new LocationSQL(dataSource);
+
+		} catch (SQLException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 		users = new ArrayList<User>();
 
@@ -121,34 +160,19 @@ public class Main extends JavaPlugin {
 		//World
 		buildWorld = Bukkit.getWorld(config.getString("World_Name"));
 
-		//Creates the mysql table if not existing
-		SQLTables.location(this, locationData);
-		SQLTables.locationRequest(this, locationRequestData);
-
-		//Region SQL
-		SQLTables.region(instance, regionData);
-		SQLTables.owner(instance, ownerData);
-		SQLTables.member(instance, memberData);
-		SQLTables.player(instance, playerData);
-		SQLTables.request(instance, requestData);
-		SQLTables.logs(instance, regionLogs);
-		SQLTables.messages(instance, messageData);
-
 		//Listeners
 		new InventoryClicked(this);
-		new JoinEvent(this);
-		new LeaveEvent(this);
+		new JoinEvent(this, messageData, playerData, requestData);
+		new LeaveEvent(this, memberData, ownerData, playerData);
 		new PlayerInteract(this);
-		new MoveEvent(this);
-		new TeleportEvent(this);
+		new MoveEvent(this, regionData);
+		new TeleportEvent(this, regionData);
 
 		//Bungeecord
 		this.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
 
 		//Commands for claiming
 		getCommand("claim").setExecutor(new Claim());
-		getCommand("convertclaims").setExecutor(new ConvertClaimData());
-		getCommand("fixregions").setExecutor(new FixRegions());
 
 		//Utility command
 		getCommand("tpblock").setExecutor(new TPBlock());
@@ -245,26 +269,18 @@ public class Main extends JavaPlugin {
 		this.getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
 			public void run() {
 
-				getConnection();
-
 				Inactive.members();
 				Inactive.owners();
-				
+
 				for (User u : users) {
-					if (MessageData.hasMessage(u.uuid)) {
+					if (messageData.hasMessage(u.uuid)) {
 
-						ResultSet results = MessageData.getMessages(u.uuid);
-						MessageData.removeMessages(u.uuid);
+						ArrayList<String> messages = messageData.getMessages(u.uuid);
+						messageData.removeMessages(u.uuid);
 
-						try {
-							while (results.next()) {
-								u.p.sendMessage(ChatColor.valueOf(results.getString("COLOUR"))  + results.getString("MESSAGE"));
-							}
-						} catch (IllegalArgumentException | SQLException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
+						for (String message : messages) {
+							u.p.sendMessage(message);
 						}
-
 					}
 				}
 
@@ -280,12 +296,12 @@ public class Main extends JavaPlugin {
 				Permissions.removeWorldedit(u.uuid);
 			}
 
-			PlayerData.updatePlayer(u);		
+			playerData.updatePlayer(u);		
 
-			if (OwnerData.isOwner(u.uuid, u.current_region)) {
-				OwnerData.updateTime(u.uuid, u.current_region);
-			} else if (MemberData.isMember(u.uuid, u.current_region)) {
-				MemberData.updateTime(u.uuid, u.current_region);
+			if (ownerData.isOwner(u.uuid, u.current_region)) {
+				ownerData.updateTime(u.uuid, u.current_region);
+			} else if (memberData.isMember(u.uuid, u.current_region)) {
+				memberData.updateTime(u.uuid, u.current_region);
 			}
 		}
 
@@ -300,74 +316,60 @@ public class Main extends JavaPlugin {
 		}
 	}
 
-	public void mysqlSetup() {
+	//Creates the mysql connection.
+	private DataSource mysqlSetup() throws SQLException {
 
-		//Login info
 		host = config.getString("MySQL_host");
 		port = config.getInt("MySQL_port");
+		database = config.getString("MySQL_database");
 		username = config.getString("MySQL_username");
 		password = config.getString("MySQL_password");
 
-		//Database name
-		database = config.getString("MySQL_database");
+		MysqlDataSource dataSource = new MysqlConnectionPoolDataSource();
 
-		//Table names
-		//Old claim data
-		claimData = config.getString("MySQL_claimData");
-		permissionData = config.getString("MySQL_permissionData");
+		dataSource.setServerName(host);
+		dataSource.setPortNumber(port);
+		dataSource.setDatabaseName(database + "?&useSSL=false&");
+		dataSource.setUser(username);
+		dataSource.setPassword(password);
 
-		//New claim data
-		regionData = config.getString("region_data");
-		ownerData = config.getString("owner_data");
-		memberData = config.getString("member_data");
-		playerData = config.getString("player_data");
-		requestData = config.getString("request_data");
-		regionLogs = config.getString("region_logs");
-		messageData = config.getString("message_data");
-
-
-		//Navigation menu
-		locationData = config.getString("MySQL_locationData");
-		locationRequestData = config.getString("MySQL_locationRequestData");
-
-
-		try {
-
-			synchronized (this) {
-				if (connection != null && !connection.isClosed()) {
-					return;
-				}
-
-				Class.forName("com.mysql.jdbc.Driver");
-				setConnection(DriverManager.getConnection("jdbc:mysql://" + this.host + ":" 
-						+ this.port + "/" + this.database + "?&useSSL=false&", this.username, this.password));
-
-				Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "MySQL connected to " + config.getString("MySQL_database"));
-			}
-
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
+		testDataSource(dataSource);
+		return dataSource;
 
 	}
 
-	public Connection getConnection() {
-
-		try {
-			if (connection == null || connection.isClosed()) {
-				mysqlSetup();
+	private void testDataSource(DataSource dataSource) throws SQLException{
+		try (Connection connection = dataSource.getConnection()) {
+			if (!connection.isValid(1000)) {
+				throw new SQLException("Could not establish database connection.");
 			}
-		} catch (SQLException e) {
-			e.printStackTrace();
 		}
-
-		return connection;
 	}
 
-	public void setConnection(Connection connection) {
-		this.connection = connection;
+	private void initDb() throws SQLException, IOException {
+		// first lets read our setup file.
+		// This file contains statements to create our inital tables.
+		// it is located in the resources.
+		String setup;
+		try (InputStream in = getClassLoader().getResourceAsStream("dbsetup.sql")) {
+			// Legacy way
+			setup = new BufferedReader(new InputStreamReader(in)).lines().collect(Collectors.joining("\n"));
+		} catch (IOException e) {
+			getLogger().log(Level.SEVERE, "Could not read db setup file.", e);
+			throw e;
+		}
+		// Mariadb can only handle a single query per statement. We need to split at ;.
+		String[] queries = setup.split(";");
+		// execute each query to the database.
+		for (String query : queries) {
+			// If you use the legacy way you have to check for empty queries here.
+			if (query.trim().isEmpty()) continue;
+			try (Connection conn = dataSource.getConnection();
+					PreparedStatement stmt = conn.prepareStatement(query)) {
+				stmt.execute();
+			}
+		}
+		getLogger().info("§2Database setup complete.");
 	}
 
 	public static Main getInstance() {

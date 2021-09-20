@@ -6,6 +6,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import me.elgamer.earthserver.Main;
 import me.elgamer.earthserver.sql.LocationSQL;
 
 public class GotoRequest implements CommandExecutor {
@@ -30,12 +31,14 @@ public class GotoRequest implements CommandExecutor {
 			return true;
 		}
 		
-		if (!(LocationSQL.requestExists(args[0]))) {
+		LocationSQL locationSQL = Main.getInstance().locationData;
+		
+		if (!(locationSQL.requestExists(args[0]))) {
 			p.sendMessage(ChatColor.RED + "This location has not been requested.");
 			return true;
 		}
 		
-		p.teleport(LocationSQL.toRequestLocation(args[0]));
+		p.teleport(locationSQL.toRequestLocation(args[0]));
 		return true;
 	}
 

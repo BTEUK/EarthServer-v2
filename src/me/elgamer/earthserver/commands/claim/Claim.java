@@ -1,7 +1,6 @@
 package me.elgamer.earthserver.commands.claim;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.util.ArrayList;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -23,62 +22,64 @@ public class Claim implements CommandExecutor {
 
 		if (sender instanceof Player) {
 			Player p = (Player) sender;
-			
+
 			if (!(p.hasPermission("earthserver.claim"))) {
 				p.sendMessage(ChatColor.RED + "You do not have permission to use this command!");
 				return true;
 			}
-			
+
 			User u = Main.getUser(p);	
-			
+
 			if (args.length >= 1) {
 				if (args[0].equalsIgnoreCase("info")) {
 					
-					if (OwnerData.getOwner(u.current_region).equals("false")) {
+					OwnerData ownerData = Main.getInstance().ownerData;
+					PlayerData playerData = Main.getInstance().playerData;
+
+					if (ownerData.getOwner(u.current_region).equals("false")) {
 						p.sendMessage(ChatColor.GREEN + "Region " + u.current_region);
 					} else {
-						p.sendMessage(ChatColor.GREEN + "Region " + u.current_region + " owned by " + PlayerData.getName(OwnerData.getOwner(u.current_region)));
+						p.sendMessage(ChatColor.GREEN + "Region " + u.current_region + " owned by " + playerData.getName(ownerData.getOwner(u.current_region)));
 					}
-					
-					if (MemberData.hasMember(u.current_region)) {
-						ResultSet members = MemberData.getMembers(u.current_region);
-						
+
+					MemberData memberData = Main.getInstance().memberData;
+
+					if (memberData.hasMember(u.current_region)) {
+						ArrayList<String> members = memberData.getMembers(u.current_region);
+
 						String memberString = null;
-						
-						try {
-							members.next();
-							memberString = PlayerData.getName(members.getString("UUID"));
-							
-							while (members.next()) {
-								memberString = memberString + ", " + PlayerData.getName(members.getString("UUID"));
-							}
-							
-							if (memberString.split(" ").length > 1) {
-								memberString = memberString + " are members of this region.";
+
+						for (int i = 0; i < members.size(); i++) {
+
+							if (i == 0) {
+								memberString = playerData.getName(members.get(i));
 							} else {
-								memberString = memberString + " is a member of this region.";
+								memberString = memberString + ", " + playerData.getName(members.get(i));
 							}
-							
-						} catch (SQLException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+
 						}
-						
+
+						if (memberString.split(" ").length > 1) {
+							memberString = memberString + " are members of this region.";
+						} else {
+							memberString = memberString + " is a member of this region.";
+						}
+
 						if (memberString != null) {
 							p.sendMessage(ChatColor.GREEN + memberString);
 						}
 					}
-					
+
 					return true;
 				}
 			}
-			
+
 			if (u.builder_role.equals("guest") || u.builder_role.equals("apprentice")) {
 				User.updateRole(u);
 			}
-			
+
 			p.openInventory(ClaimGui.GUI(u));
-			
+
 			return true;
 		} else {
 			sender.sendMessage("This command can only be run as a player!");

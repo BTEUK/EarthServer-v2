@@ -1,31 +1,43 @@
 package me.elgamer.earthserver.sql;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.UUID;
 
+import javax.sql.DataSource;
+
 import org.bukkit.Bukkit;
 
-import me.elgamer.earthserver.Main;
 import me.elgamer.earthserver.utils.Time;
 import me.elgamer.earthserver.utils.User;
 
 public class PlayerData {
 
+	DataSource dataSource;
+
+	public PlayerData(DataSource dataSource) {
+
+		this.dataSource = dataSource;
+
+	}
+
+	private Connection conn() throws SQLException {
+		return dataSource.getConnection();
+	}
+
 	//Create player instance
-	public static boolean addPlayer(User u) {
+	public boolean addPlayer(User u) {
 
-		Main instance = Main.getInstance();
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"INSERT INTO players(uuid, name, role, last_join) VALUES(?, ?, ?, ?);"
+				)){
 
-		try {
-			PreparedStatement statement = instance.getConnection().prepareStatement
-					("INSERT INTO " + instance.playerData + " (UUID,NAME,BUILDER_ROLE,LAST_ONLINE,BUILDING_TIME) VALUE (?,?,?,?,?)");
 			statement.setString(1, u.uuid);
 			statement.setString(2, u.name);
 			statement.setString(3, u.builder_role);
 			statement.setLong(4, Time.currentTime());
-			statement.setInt(5, 0);
 
 			statement.executeUpdate();
 
@@ -38,13 +50,12 @@ public class PlayerData {
 	}
 
 	//Check is player has instance in table
-	public static boolean hasPlayer(User u) {
+	public boolean hasPlayer(User u) {
 
-		Main instance = Main.getInstance();
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"SELECT uuid FROM players WHERE uuid = ?;"
+				)){
 
-		try {
-			PreparedStatement statement = instance.getConnection().prepareStatement
-					("SELECT * FROM " + instance.playerData + " WHERE UUID=?");
 			statement.setString(1, u.uuid);
 
 			ResultSet results = statement.executeQuery();
@@ -63,21 +74,20 @@ public class PlayerData {
 	}
 
 	//Update player data
-	public static void updatePlayer(User u) {
+	public void updatePlayer(User u) {
 
-		Main instance = Main.getInstance();
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"UPDATE players SET name = ?, role = ?, last_join = ? WHERE uuid = ?;"
+				)){
 
-		try {
-			PreparedStatement statement = instance.getConnection().prepareStatement
-					("UPDATE " + instance.playerData + " SET NAME=?,BUILDER_ROLE=?,LAST_ONLINE=? WHERE UUID=?");
 			statement.setString(1, u.name);
 			statement.setString(2, u.builder_role);
 			statement.setLong(3, Time.currentTime());
-			
+
 			//Rather than use buildingTime from here, use the point plugin instead.
 			//statement.setInt(4, u.buildingTime);
 			me.elgamer.btepoints.utils.PlayerData.setBuildTime(u.uuid, u.buildingTime);
-			
+
 
 			statement.setString(4, u.uuid);
 			statement.executeUpdate();
@@ -88,44 +98,18 @@ public class PlayerData {
 
 	}
 
-	//Get building time
-	public static int getBuildingTime(String uuid) {
+	public String getName(String uuid) {
 
-		Main instance = Main.getInstance();
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"SELECT name FROM players WHERE uuid = ?;"
+				)){
 
-		try {
-			PreparedStatement statement = instance.getConnection().prepareStatement
-					("SELECT * FROM " + instance.playerData + " WHERE UUID=?");
 			statement.setString(1, uuid);
 
 			ResultSet results = statement.executeQuery();
 
 			if (results.next()) {
-				return (results.getInt("BUILDING_TIME"));
-			} else {
-				return 0;
-			}
-
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return 0;
-		}		
-
-	}
-
-	public static String getName(String uuid) {
-
-		Main instance = Main.getInstance();
-
-		try {
-			PreparedStatement statement = instance.getConnection().prepareStatement
-					("SELECT * FROM " + instance.playerData + " WHERE UUID=?");
-			statement.setString(1, uuid);
-
-			ResultSet results = statement.executeQuery();
-
-			if (results.next()) {
-				return (results.getString("NAME"));
+				return (results.getString("name"));
 			} else {
 				if (Bukkit.getPlayer(uuid) != null) {
 					return (Bukkit.getPlayer(UUID.fromString(uuid)).getName());
@@ -141,19 +125,18 @@ public class PlayerData {
 
 	}
 
-	public static String getUUID(String uuid) {
+	public String getUUID(String uuid) {
 
-		Main instance = Main.getInstance();
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"SELECT uuid FROM players WHERE name = ?;"
+				)){
 
-		try {
-			PreparedStatement statement = instance.getConnection().prepareStatement
-					("SELECT * FROM " + instance.playerData + " WHERE NAME=?");
 			statement.setString(1, uuid);
 
 			ResultSet results = statement.executeQuery();
 
 			if (results.next()) {
-				return (results.getString("UUID"));
+				return (results.getString("uuid"));
 			} else {
 				return null;
 			}
@@ -164,29 +147,27 @@ public class PlayerData {
 		}		
 
 	}
-	
+
 	//Create player instance if not connected to server
-		public static boolean addPlayer(String uuid, String name) {
+	public boolean addPlayer(String uuid, String name) {
 
-			Main instance = Main.getInstance();
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"INSERT INTO players(uuid, name, role, last_join) VALUES(?, ?, ?, ?);"
+				)){
 
-			try {
-				PreparedStatement statement = instance.getConnection().prepareStatement
-						("INSERT INTO " + instance.playerData + " (UUID,NAME,BUILDER_ROLE,LAST_ONLINE,BUILDING_TIME) VALUE (?,?,?,?,?)");
-				statement.setString(1, uuid);
-				statement.setString(2, name);
-				statement.setString(3, "builder");
-				statement.setLong(4, Time.currentTime());
-				statement.setInt(5, 0);
+			statement.setString(1, uuid);
+			statement.setString(2, name);
+			statement.setString(3, "builder");
+			statement.setLong(4, Time.currentTime());
 
-				statement.executeUpdate();
+			statement.executeUpdate();
 
-				return true;
+			return true;
 
-			} catch (SQLException e) {
-				e.printStackTrace();
-				return false;
-			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
 		}
+	}
 
 }

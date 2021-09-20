@@ -21,13 +21,17 @@ public class TeleportEvent implements Listener {
 	private double ypos;
 	private double yneg;
 	
-	public TeleportEvent(Main plugin) {
+	RegionData regionData;
+	
+	public TeleportEvent(Main plugin, RegionData regionData) {
 
 		Bukkit.getServer().getPluginManager().registerEvents(this, plugin);
 		
 		FileConfiguration config = plugin.getConfig();
 		ypos = config.getDouble("positive_y");
 		yneg = config.getDouble("negative_y");
+		
+		this.regionData = regionData;
 			
 	}
 
@@ -78,7 +82,7 @@ public class TeleportEvent implements Listener {
 			}
 
 			if (u.builder_role.equals("apprentice") || u.builder_role.equals("guest")) {
-				if (!(RegionData.regionExists(User.getRegion(l)))) {
+				if (!(regionData.regionExists(User.getRegion(l)))) {
 					u.p.sendMessage(ChatColor.RED + "You may not teleport to this area!");
 					e.setCancelled(true);
 					return;

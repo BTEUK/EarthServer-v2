@@ -10,6 +10,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import me.elgamer.earthserver.Main;
 import me.elgamer.earthserver.sql.LocationSQL;
 
 public class Requests implements CommandExecutor {
@@ -29,14 +30,16 @@ public class Requests implements CommandExecutor {
 			return true;
 		}
 
-		if (!(LocationSQL.requestExists())) {
+		LocationSQL locationSQL = Main.getInstance().locationData;
+		
+		if (!(locationSQL.requestExists())) {
 			p.sendMessage(ChatColor.RED + "There are no location requests");
 			return true;
 		}
 
 		int i = 0;
 
-		HashMap<String, Location> requests = LocationSQL.getRequests();
+		HashMap<String, Location> requests = locationSQL.getRequests();
 		p.sendMessage(ChatColor.GREEN + "Requests:");
 		if (requests.size() > 9) {
 

@@ -6,6 +6,7 @@ import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import me.elgamer.earthserver.Main;
 import me.elgamer.earthserver.sql.MemberData;
 import me.elgamer.earthserver.sql.OwnerData;
 import me.elgamer.earthserver.sql.RegionData;
@@ -33,10 +34,14 @@ public class RegionOptions {
 		Inventory toReturn = Bukkit.createInventory(null, inv_rows, inventory_name);
 
 		inv.clear();
+		
+		MemberData memberData = Main.getInstance().memberData;
+		OwnerData ownerData = Main.getInstance().ownerData;
+		RegionData regionData = Main.getInstance().regionData;
 
-		if (OwnerData.isOwner(u.uuid, u.region_name)) {
+		if (ownerData.isOwner(u.uuid, u.region_name)) {
 
-			if (MemberData.hasMember(u.region_name)) {
+			if (memberData.hasMember(u.region_name)) {
 				Utils.createItem(inv, Material.MAGENTA_GLAZED_TERRACOTTA, 1, 12, ChatColor.AQUA + "" + ChatColor.BOLD + "Members",
 						Utils.chat("&fClick to open the region members menu."),
 						Utils.chat("&fFrom here you can see information about the members"),
@@ -49,7 +54,7 @@ public class RegionOptions {
 					Utils.chat("&fIf there are no members then it can be claimed by anyone."));
 
 
-			if (RegionData.isPublic(u.region_name)) {
+			if (regionData.isPublic(u.region_name)) {
 				Utils.createItem(inv, Material.IRON_DOOR, 1, 14, ChatColor.AQUA + "" + ChatColor.BOLD + "Private Region",
 						Utils.chat("&fClick to make the region private."),
 						Utils.chat("&fA private region is the default region."),
@@ -80,6 +85,11 @@ public class RegionOptions {
 
 	public static void clicked(User u, int slot, ItemStack clicked, Inventory inv) {
 
+		MemberData memberData = Main.getInstance().memberData;
+		OwnerData ownerData = Main.getInstance().ownerData;
+		RegionData regionData = Main.getInstance().regionData;
+		RegionLogs regionLogs = Main.getInstance().regionLogs;
+		
 		if (clicked.getType().equals(Material.SPRUCE_DOOR_ITEM)) {
 
 			u.p.closeInventory();
@@ -98,26 +108,26 @@ public class RegionOptions {
 			
 			u.p.closeInventory();
 
-			if (OwnerData.isOwner(u.uuid, u.region_name)) {
+			if (ownerData.isOwner(u.uuid, u.region_name)) {
 
-				if ((!MemberData.hasMember(u.region_name)) && RegionData.isPublic(u.region_name)) {
+				if ((!memberData.hasMember(u.region_name)) && regionData.isPublic(u.region_name)) {
 					
-					RegionData.setPrivate(u.region_name);
+					regionData.setPrivate(u.region_name);
 					
 				}
 				
-				RegionLogs.closeLog(u.region_name,u.uuid);
-				OwnerData.addNewOwner(u.region_name);
-				OwnerData.removeOwner(u.uuid, u.region_name);
+				regionLogs.closeLog(u.region_name,u.uuid);
+				ownerData.addNewOwner(u.region_name);
+				ownerData.removeOwner(u.uuid, u.region_name);
 				WorldGuardFunctions.removeMember(u.region_name, u.uuid);
 				
 				User.updatePerms(u, u.current_region);
 				u.p.sendMessage(ChatColor.GREEN + "You have left the region " + u.region_name);
 
-			} else if (MemberData.isMember(u.uuid, u.region_name)) {
+			} else if (memberData.isMember(u.uuid, u.region_name)) {
 				
-				RegionLogs.closeLog(u.region_name,u.uuid);
-				MemberData.removeMember(u.region_name, u.uuid);
+				regionLogs.closeLog(u.region_name,u.uuid);
+				memberData.removeMember(u.region_name, u.uuid);
 				WorldGuardFunctions.removeMember(u.region_name, u.uuid);
 				
 				User.updatePerms(u, u.current_region);
@@ -131,7 +141,7 @@ public class RegionOptions {
 			
 			if (u.previous_gui.equals("main")) {
 				u.p.openInventory(ClaimGui.GUI(u));
-			} else if (OwnerData.count(u.uuid) + MemberData.count(u.uuid) > 0)  {
+			} else if (ownerData.count(u.uuid) + memberData.count(u.uuid) > 0)  {
 				u.gui_page = 1;
 				u.p.openInventory(RegionList.GUI(u));
 			} else {
@@ -146,7 +156,7 @@ public class RegionOptions {
 
 		} else if (clicked.getItemMeta().getDisplayName().equals(ChatColor.AQUA + "" + ChatColor.BOLD + "Private Region")) {
 
-			RegionData.setPrivate(u.region_name);
+			regionData.setPrivate(u.region_name);
 
 			u.p.closeInventory();
 			u.p.openInventory(RegionOptions.GUI(u));
@@ -155,7 +165,7 @@ public class RegionOptions {
 
 		} else if (clicked.getItemMeta().getDisplayName().equals(ChatColor.AQUA + "" + ChatColor.BOLD + "Public Region")) {
 
-			RegionData.setPublic(u.region_name);
+			regionData.setPublic(u.region_name);
 
 			u.p.closeInventory();
 			u.p.openInventory(RegionOptions.GUI(u));

@@ -1,114 +1,100 @@
 package me.elgamer.earthserver.sql;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
-import me.elgamer.earthserver.Main;
+import javax.sql.DataSource;
+
+import org.bukkit.ChatColor;
 
 public class MessageData {
 
-	private static int getNewID() {
+	DataSource dataSource;
 
-		Main instance = Main.getInstance();
+	public MessageData(DataSource dataSource) {
 
-		PreparedStatement statement;
-		try {
-			statement = instance.getConnection().prepareStatement
-					("SELECT * FROM " + instance.messageData);
-
-			ResultSet results = statement.executeQuery();
-
-			if (results.last()) {
-
-				return (results.getInt("ID") + 1);
-
-			} else {
-				return 1;
-			}
-
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return 1;
-		}		
+		this.dataSource = dataSource;
 
 	}
-	
-	public static void newMessage(String uuid, String message, String colour) {
-		
-		Main instance = Main.getInstance();
 
-		PreparedStatement statement;
-		try {
-			statement = instance.getConnection().prepareStatement
-					("INSERT INTO " + instance.messageData + " (ID,UUID,MESSAGE,COLOUR) VALUE (?,?,?,?)");
-			
-			statement.setInt(1, getNewID());
-			
-			statement.setString(2, uuid);
-			statement.setString(3, message);			
-			statement.setString(4, colour);
+	private Connection conn() throws SQLException {
+		return dataSource.getConnection();
+	}
+
+	public void newMessage(String uuid, String message, String colour) {
+
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"INSERT INTO messages(uuid, message, colour) VALUES(?, ?, ?);"
+				)){
+
+			statement.setString(1, uuid);
+			statement.setString(2, message);			
+			statement.setString(3, colour);
 
 			statement.executeUpdate();
 
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-	
-	}
-	
-	public static boolean hasMessage(String uuid) {
-		
-		Main instance = Main.getInstance();
 
-		PreparedStatement statement;
-		try {
-			statement = instance.getConnection().prepareStatement
-					("SELECT * FROM " + instance.messageData + " WHERE UUID=?");
+	}
+
+	public boolean hasMessage(String uuid) {
+
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"SELECT uuid FROM messages WHERE uuid = ?;"
+				)){
+
 			statement.setString(1, uuid);
-			
+
 			ResultSet results = statement.executeQuery();
-			
+
 			return (results.next());
-					
+
 		} catch (SQLException e) {
 			e.printStackTrace();
 			return false;
 		}
-		
-	}
-	
-	public static ResultSet getMessages(String uuid) {
-		
-		Main instance = Main.getInstance();
 
-		PreparedStatement statement;
-		try {
-			statement = instance.getConnection().prepareStatement
-					("SELECT * FROM " + instance.messageData + " WHERE UUID=?");
+	}
+
+	public ArrayList<String> getMessages(String uuid) {
+
+		ArrayList<String> messages = new ArrayList<String>();
+
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"SELECT message, colour FROM messages WHERE uuid = ?;"
+				)){
+
 			statement.setString(1, uuid);
-			
-			return statement.executeQuery();
-					
+			ResultSet results = statement.executeQuery();
+
+			while (results.next()) {
+				messages.add(ChatColor.valueOf(results.getString("colour")) + results.getString("message"));
+			}
+
+			return messages;
+
 		} catch (SQLException e) {
 			e.printStackTrace();
-			return null;
+			return messages;
 		}
-		
-	}
-	
-	public static void removeMessages(String uuid) {
-		
-		Main instance = Main.getInstance();
 
-		PreparedStatement statement;
-		try {
-			statement = instance.getConnection().prepareStatement
-					("DELETE FROM " + instance.messageData + " WHERE UUID=?");
+	}
+
+	public void removeMessages(String uuid) {
+
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"DELETE FROM messages WHERE uuid = ?;"
+				)){
+
 			statement.setString(1, uuid);
-			
+
 			statement.executeUpdate();
-			
+
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

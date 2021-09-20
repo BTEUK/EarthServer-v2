@@ -1,8 +1,12 @@
 package me.elgamer.earthserver.sql;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+
+import javax.sql.DataSource;
 
 import org.bukkit.Location;
 
@@ -10,14 +14,43 @@ import me.elgamer.earthserver.Main;
 
 public class RequestData {
 
+	DataSource dataSource;
+
+	public RequestData(DataSource dataSource) {
+
+		this.dataSource = dataSource;
+
+	}
+
+	private Connection conn() throws SQLException {
+		return dataSource.getConnection();
+	}
+
+	public boolean insert(int plot, String uuid, String reviewer, int feedback, int size, int accuracy, int quality, int points) {
+
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"INSERT INTO accept_data(plot, uuid, reviewer, feedback, size, accuracy, quality, points, time) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?);"
+				)){
+			statement.setInt(1, plot);
+
+			statement.executeUpdate();
+
+			return true;
+
+		} catch (SQLException sql) {
+			sql.printStackTrace();
+			return false;
+		}
+
+	}
+
 	//Counts all the requests with a specific owner
-	public static int count(String uuid) {
+	public int count(String uuid) {
 
-		Main instance = Main.getInstance();
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"SELECT count(id) FROM requests WHERE owner = ? AND owner_ac = ?;"
+				)){
 
-		try {
-			PreparedStatement statement = instance.getConnection().prepareStatement
-					("SELECT COUNT(*) FROM " + instance.requestData + " WHERE OWNER=? AND OWNER_ACCEPT=?");
 			statement.setString(1, uuid);
 			statement.setBoolean(2, false);
 
@@ -37,13 +70,12 @@ public class RequestData {
 	}
 
 	//Counts all the requests that need to be accepted by staff
-	public static int count() {
+	public int count() {
 
-		Main instance = Main.getInstance();
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"SELECT count(id) FROM requests WHERE staff_ac = ?;"
+				)){
 
-		try {
-			PreparedStatement statement = instance.getConnection().prepareStatement
-					("SELECT COUNT(*) FROM " + instance.requestData + " WHERE STAFF_ACCEPT=?");
 			statement.setBoolean(1, false);
 
 			ResultSet results = statement.executeQuery();
@@ -61,27 +93,25 @@ public class RequestData {
 
 	}
 
-	public static void newRequest(String region, String uuid, boolean staff_accept, boolean owner_accept, Location l) {
+	public void newRequest(String region, String uuid, boolean staff_accept, boolean owner_accept, Location l) {
 
-		Main instance = Main.getInstance();
+		OwnerData ownerData = Main.getInstance().ownerData;
 
-		try {
-			PreparedStatement statement = instance.getConnection().prepareStatement
-					("INSERT INTO " + instance.requestData + " (ID,REGION_ID,OWNER,UUID,STAFF_ACCEPT,OWNER_ACCEPT,X,Y,Z) VALUE (?,?,?,?,?,?,?,?,?)");
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"INSERT INTO requests(region, owner, uuid, staff_ac, owner_ac, x, y, z) VALUES(?, ?, ?, ?, ?, ?, ?, ?);"
+				)){
 
-			statement.setInt(1, getNewID());
+			statement.setString(1, region);
+			statement.setString(3, uuid);
 
-			statement.setString(2, region);
-			statement.setString(4, uuid);
+			statement.setString(2, ownerData.getOwner(region));
 
-			statement.setString(3, OwnerData.getOwner(region));
+			statement.setBoolean(4, staff_accept);
+			statement.setBoolean(5, owner_accept);
 
-			statement.setBoolean(5, staff_accept);
-			statement.setBoolean(6, owner_accept);
-
-			statement.setDouble(7, l.getX());
-			statement.setDouble(8, l.getY());
-			statement.setDouble(9, l.getZ());
+			statement.setDouble(6, l.getX());
+			statement.setDouble(7, l.getY());
+			statement.setDouble(8, l.getZ());
 
 			statement.executeUpdate();
 
@@ -91,87 +121,74 @@ public class RequestData {
 
 	}
 
-	public static int getNewID() {
-
-		Main instance = Main.getInstance();
-
-		PreparedStatement statement;
-		try {
-			statement = instance.getConnection().prepareStatement
-					("SELECT * FROM " + instance.requestData);
-
-			ResultSet results = statement.executeQuery();
-
-			if (results.last()) {
-
-				return (results.getInt("ID") + 1);
-
-			} else {
-				return 1;
-			}
-
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return 1;
-		}		
-	}
-
 	//Get all request for a specific owner
-	public static ResultSet getRequests(String uuid) {
+	public ArrayList<String> getRequests(String uuid) {
 
-		Main instance = Main.getInstance();
+		PlayerData playerData = Main.getInstance().playerData;
+		ArrayList<String> requests = new ArrayList<String>();
 
-		PreparedStatement statement;
-		try {
-			statement = instance.getConnection().prepareStatement
-					("SELECT * FROM " + instance.requestData + " WHERE OWNER=? AND OWNER_ACCEPT=?");
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"SELECT region, uuid FROM requests WHERE owner = ? AND owner_ac = ?;"
+				)){
+
 			statement.setString(1, uuid);
 			statement.setBoolean(2, false);
 
-			return (statement.executeQuery());
+			ResultSet results = statement.executeQuery();
+
+			while (results.next()) {
+				requests.add(playerData.getName(results.getString("uuid")) + ", " + results.getString("region"));
+			}
+
+			return requests;
 
 		} catch (SQLException e) {
 			e.printStackTrace();
-			return null;
+			return requests;
 		}
 
 	}
 
 	//Get all staff requests by jr builders
-	public static ResultSet getRequests() {
+	public ArrayList<String> getRequests() {
 
-		Main instance = Main.getInstance();
+		PlayerData playerData = Main.getInstance().playerData;
+		ArrayList<String> requests = new ArrayList<String>();
 
-		PreparedStatement statement;
-		try {
-			statement = instance.getConnection().prepareStatement
-					("SELECT * FROM " + instance.requestData + " WHERE STAFF_ACCEPT=?");
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"SELECT region, uuid FROM requests WHERE staff_ac = ?;"
+				)){
+
 			statement.setBoolean(1, false);
 
-			return (statement.executeQuery());
+			ResultSet results = statement.executeQuery();
+
+			while (results.next()) {
+				requests.add(playerData.getName(results.getString("uuid")) + ", " + results.getString("region"));
+			}
+
+			return requests;
 
 		} catch (SQLException e) {
 			e.printStackTrace();
-			return null;
+			return requests;
 		}
 
 	}
 
-	public static Location getRequestLocation(String region, String requester) {
+	public Location getRequestLocation(String region, String requester) {
 
-		Main instance = Main.getInstance();
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"SELECT x, y, z FROM requests WHERE region = ? AND uuid = ?;"
+				)){
 
-		PreparedStatement statement;
-		try {
-			statement = instance.getConnection().prepareStatement
-					("SELECT * FROM " + instance.requestData + " WHERE REGION_ID=? AND UUID=?");
 			statement.setString(1, region);
 			statement.setString(2, requester);
 
 			ResultSet results = statement.executeQuery();
 
 			if (results.next()) {
-				return new Location(Main.buildWorld, results.getDouble("X"), results.getDouble("Y"), results.getDouble("Z"));
+				return new Location(Main.buildWorld, results.getDouble("x"), results.getDouble("y"), results.getDouble("z"));
 			} else {
 				return null;
 			}
@@ -184,14 +201,12 @@ public class RequestData {
 
 	}
 
-	public static void setOwnerAccept(String region, String requester, boolean value) {
+	public void setOwnerAccept(String region, String requester, boolean value) {
 
-		Main instance = Main.getInstance();
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"UPDATE requests SET owner_ac = ? WHERE region = ? AND uuid = ?;"
+				)){
 
-		PreparedStatement statement;
-		try {
-			statement = instance.getConnection().prepareStatement
-					("UPDATE " + instance.requestData + " SET OWNER_ACCEPT=? WHERE REGION_ID=? AND UUID=?");
 			statement.setBoolean(1, value);
 			statement.setString(2, region);
 			statement.setString(3, requester);
@@ -204,14 +219,12 @@ public class RequestData {
 
 	}
 
-	public static void setStaffAccept(String region, String requester, boolean value) {
+	public void setStaffAccept(String region, String requester, boolean value) {
 
-		Main instance = Main.getInstance();
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"UPDATE requests SET staff_ac = ? WHERE region = ? AND uuid = ?;"
+				)){
 
-		PreparedStatement statement;
-		try {
-			statement = instance.getConnection().prepareStatement
-					("UPDATE " + instance.requestData + " SET STAFF_ACCEPT=? WHERE REGION_ID=? AND UUID=?");
 			statement.setBoolean(1, value);
 			statement.setString(2, region);
 			statement.setString(3, requester);
@@ -225,21 +238,19 @@ public class RequestData {
 	}
 
 	//Checks whether the region is already accepted by staff
-	public static boolean staffAccept(String region, String requester) {
+	public boolean staffAccept(String region, String requester) {
 
-		Main instance = Main.getInstance();
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"SELECT staff_ac FROM requests WHERE region = ? AND uuid = ?;"
+				)){
 
-		PreparedStatement statement;
-		try {
-			statement = instance.getConnection().prepareStatement
-					("SELECT * FROM " + instance.requestData + " WHERE REGION_ID=? AND UUID=?");
 			statement.setString(1, region);
 			statement.setString(2, requester);
 
 			ResultSet results = statement.executeQuery();
 
 			if (results.next()) {
-				return results.getBoolean("STAFF_ACCEPT");
+				return results.getBoolean("staff_ac");
 			} else {
 				return false;
 			}
@@ -252,21 +263,19 @@ public class RequestData {
 	}
 
 	//Checks whether the region is already accepted by the owner
-	public static boolean ownerAccept(String region, String requester) {
+	public boolean ownerAccept(String region, String requester) {
 
-		Main instance = Main.getInstance();
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"SELECT owner_ac FROM requests WHERE region = ? AND uuid = ?;"
+				)){
 
-		PreparedStatement statement;
-		try {
-			statement = instance.getConnection().prepareStatement
-					("SELECT * FROM " + instance.requestData + " WHERE REGION_ID=? AND UUID=?");
 			statement.setString(1, region);
 			statement.setString(2, requester);
 
 			ResultSet results = statement.executeQuery();
 
 			if (results.next()) {
-				return results.getBoolean("OWNER_ACCEPT");
+				return results.getBoolean("owner_ac");
 			} else {
 				return false;
 			}
@@ -278,14 +287,12 @@ public class RequestData {
 
 	}
 
-	public static void closeRequest(String region, String requester) {
+	public void closeRequest(String region, String requester) {
 
-		Main instance = Main.getInstance();
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"DELETE FROM requests WHERE region = ? AND uuid = ?;"
+				)){
 
-		PreparedStatement statement;
-		try {
-			statement = instance.getConnection().prepareStatement
-					("DELETE FROM " + instance.requestData + " WHERE REGION_ID=? AND UUID=?");
 			statement.setString(1, region);
 			statement.setString(2, requester);
 
@@ -298,14 +305,12 @@ public class RequestData {
 	}
 
 	//Checks whether the request still exists for the owner
-	public static boolean requestExists(String region, String requester) {
+	public boolean requestExists(String region, String requester) {
 
-		Main instance = Main.getInstance();
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"SELECT id FROM requests WHERE region = ? AND uuid = ? AND owner_ac = ?;"
+				)){
 
-		PreparedStatement statement;
-		try {
-			statement = instance.getConnection().prepareStatement
-					("SELECT * FROM " + instance.requestData + " WHERE REGION_ID=? AND UUID=? AND OWNER_ACCEPT=?");
 			statement.setString(1, region);
 			statement.setString(2, requester);
 			statement.setBoolean(3, false);
@@ -322,14 +327,12 @@ public class RequestData {
 	}
 
 	//Checks whether the request still exists for staff
-	public static boolean requestExists(String region, String requester, boolean staff) {
+	public boolean requestExists(String region, String requester, boolean staff) {
 
-		Main instance = Main.getInstance();
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"SELECT id FROM requests WHERE region = ? AND uuid = ? AND staff_ac = ?;"
+				)){
 
-		PreparedStatement statement;
-		try {
-			statement = instance.getConnection().prepareStatement
-					("SELECT * FROM " + instance.requestData + " WHERE REGION_ID=? AND UUID=? AND STAFF_ACCEPT=?");
 			statement.setString(1, region);
 			statement.setString(2, requester);
 			statement.setBoolean(3, false);
@@ -345,14 +348,12 @@ public class RequestData {
 
 	}
 
-	public static void updateRegionOwner(String region, String newOwner) {
+	public void updateRegionOwner(String region, String newOwner) {
 
-		Main instance = Main.getInstance();
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"UPDATE requests SET owner = ? WHERE region = ?;"
+				)){
 
-		PreparedStatement statement;
-		try {
-			statement = instance.getConnection().prepareStatement
-					("UPDATE " + instance.requestData + " SET OWNER=? WHERE REGION_ID=?");
 			statement.setString(1, newOwner);
 			statement.setString(2, region);
 
@@ -365,13 +366,12 @@ public class RequestData {
 	}
 
 	//Counts all requests by a specific player.
-	public static int countRequests(String uuid) {
+	public int countRequests(String uuid) {
 
-		Main instance = Main.getInstance();
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"SELECT count(id) FROM requests WHERE uuid = ?;"
+				)){
 
-		try {
-			PreparedStatement statement = instance.getConnection().prepareStatement
-					("SELECT COUNT(*) FROM " + instance.requestData + " WHERE UUID=?");
 			statement.setString(1, uuid);
 
 			ResultSet results = statement.executeQuery();
@@ -389,13 +389,12 @@ public class RequestData {
 
 	}
 
-	public static boolean hasRequest(String uuid) {
+	public boolean hasRequest(String uuid) {
 
-		Main instance = Main.getInstance();
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"SELECT id FROM requests WHERE uuid = ?;"
+				)){
 
-		try {
-			PreparedStatement statement = instance.getConnection().prepareStatement
-					("SELECT * FROM " + instance.requestData + " WHERE UUID=?");
 			statement.setString(1, uuid);
 
 			ResultSet results = statement.executeQuery();
@@ -409,34 +408,38 @@ public class RequestData {
 	}
 
 	//Get all request for a specific owner
-	public static ResultSet getYourRequests(String uuid) {
+	public ArrayList<String> getYourRequests(String uuid) {
 
-		Main instance = Main.getInstance();
+		ArrayList<String> requests = new ArrayList<String>();
+		
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"SELECT region FROM requests WHERE uuid = ?;"
+				)){
 
-		PreparedStatement statement;
-		try {
-			statement = instance.getConnection().prepareStatement
-					("SELECT * FROM " + instance.requestData + " WHERE UUID=?");
 			statement.setString(1, uuid);
 
-			return (statement.executeQuery());
+			ResultSet results = statement.executeQuery();
+			
+			while (results.next()) {
+				requests.add(results.getString("region"));
+			}
+			
+			return requests;
 
 		} catch (SQLException e) {
 			e.printStackTrace();
-			return null;
+			return requests;
 		}
 
 	}
 
 	//Checks whether the request still exists
-	public static boolean hasRequested(String region, String requester) {
+	public boolean hasRequested(String region, String requester) {
 
-		Main instance = Main.getInstance();
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"SELECT id FROM requests WHERE region = ? AND uuid = ?;"
+				)){
 
-		PreparedStatement statement;
-		try {
-			statement = instance.getConnection().prepareStatement
-					("SELECT * FROM " + instance.requestData + " WHERE REGION_ID=? AND UUID=?");
 			statement.setString(1, region);
 			statement.setString(2, requester);
 
@@ -451,14 +454,12 @@ public class RequestData {
 
 	}
 
-	public static void closeRequests(String region) {
+	public void closeRequests(String region) {
 
-		Main instance = Main.getInstance();
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"DELETE FROM requests WHERE region = ?;"
+				)){
 
-		PreparedStatement statement;
-		try {
-			statement = instance.getConnection().prepareStatement
-					("DELETE FROM " + instance.requestData + " WHERE REGION_ID=?");
 			statement.setString(1, region);
 
 			statement.executeUpdate();
@@ -470,14 +471,12 @@ public class RequestData {
 	}
 
 	//Check whether you have any requests for claims you own
-	public static boolean hasRequestOwner(String uuid) {
+	public boolean hasRequestOwner(String uuid) {
 
-		Main instance = Main.getInstance();
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"SELECT id FROM requests WHERE owner = ?;"
+				)){
 
-		PreparedStatement statement;
-		try {
-			statement = instance.getConnection().prepareStatement
-					("SELECT * FROM " + instance.requestData + " WHERE OWNER=?");
 			statement.setString(1, uuid);
 
 			ResultSet results = statement.executeQuery();
@@ -492,14 +491,12 @@ public class RequestData {
 	}
 
 	//Check whether you have any requests for claims you own
-	public static boolean hasRequestStaff() {
+	public boolean hasRequestStaff() {
 
-		Main instance = Main.getInstance();
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"SELECT id FROM requests WHERE staff_ac = ?;"
+				)){
 
-		PreparedStatement statement;
-		try {
-			statement = instance.getConnection().prepareStatement
-					("SELECT * FROM " + instance.requestData + " WHERE STAFF_ACCEPT=?");
 			statement.setBoolean(1, false);
 
 			ResultSet results = statement.executeQuery();

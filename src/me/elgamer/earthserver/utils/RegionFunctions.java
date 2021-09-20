@@ -13,34 +13,40 @@ public class RegionFunctions {
 
 	public static String joinRegion(User u) {
 
+		RegionData regionData = Main.getInstance().regionData;
+		OwnerData ownerData = Main.getInstance().ownerData;
+		MemberData memberData = Main.getInstance().memberData;
+		RegionLogs regionLogs = Main.getInstance().regionLogs;
+		RequestData requestData = Main.getInstance().requestData;
+		
 		if (u.p.hasPermission("group.builder")) {
 
-			if (RegionData.isPublic(u.current_region)) {
+			if (regionData.isPublic(u.current_region)) {
 
-				if (OwnerData.hasOwner(u.current_region)) {
+				if (ownerData.hasOwner(u.current_region)) {
 					WorldGuardFunctions.addMember(u.current_region, u.uuid);
-					MemberData.addMember(u.current_region, u.uuid);
-					RegionLogs.newLog(u.current_region, u.uuid, "member");
+					memberData.addMember(u.current_region, u.uuid);
+					regionLogs.newLog(u.current_region, u.uuid, "member");
 					User.updatePerms(u, u.current_region);
 
 					return (ChatColor.GREEN + "Joined region " + u.current_region + " as a member.");					
 				} else {
 					WorldGuardFunctions.addMember(u.current_region, u.uuid);
-					OwnerData.addOwner(u.current_region, u.uuid);
-					RegionLogs.newLog(u.current_region, u.uuid, "owner");
+					ownerData.addOwner(u.current_region, u.uuid);
+					regionLogs.newLog(u.current_region, u.uuid, "owner");
 					User.updatePerms(u, u.current_region);
 
 					return (ChatColor.GREEN + "Joined region " + u.current_region + " as an owner.");
 				}
 
 
-			} else if (OwnerData.hasOwner(u.current_region)) {
+			} else if (ownerData.hasOwner(u.current_region)) {
 
-				RequestData.newRequest(u.current_region, u.uuid, true, false, u.p.getLocation());
+				requestData.newRequest(u.current_region, u.uuid, true, false, u.p.getLocation());
 
 				for (User us : Main.users) {
 
-					if (OwnerData.isOwner(us.uuid, u.current_region)) {
+					if (ownerData.isOwner(us.uuid, u.current_region)) {
 						us.p.sendMessage(ChatColor.GREEN + "You have a new region join request, /claim to open the gui.");
 					}
 
@@ -52,8 +58,8 @@ public class RegionFunctions {
 			} else {
 
 				WorldGuardFunctions.addMember(u.current_region, u.uuid);
-				OwnerData.addOwner(u.current_region, u.uuid);
-				RegionLogs.newLog(u.current_region, u.uuid, "owner");
+				ownerData.addOwner(u.current_region, u.uuid);
+				regionLogs.newLog(u.current_region, u.uuid, "owner");
 				User.updatePerms(u, u.current_region);
 
 				return (ChatColor.GREEN + "Joined region " + u.current_region + " as an owner.");
@@ -63,9 +69,9 @@ public class RegionFunctions {
 
 		} else if (u.p.hasPermission("group.jrbuilder")) {
 
-			if (RegionData.isPublic(u.current_region)) {
+			if (regionData.isPublic(u.current_region)) {
 
-				RequestData.newRequest(u.current_region, u.uuid, false, true, u.p.getLocation());
+				requestData.newRequest(u.current_region, u.uuid, false, true, u.p.getLocation());
 
 				for (User us : Main.users) {
 
@@ -77,13 +83,13 @@ public class RegionFunctions {
 
 				return (ChatColor.GREEN + "You have requested to join the region " + u.current_region + ", a staff member will need to accept thed request.");
 
-			} else if (OwnerData.hasOwner(u.current_region)) {
+			} else if (ownerData.hasOwner(u.current_region)) {
 
-				RequestData.newRequest(u.current_region, u.uuid, false, false, u.p.getLocation());
+				requestData.newRequest(u.current_region, u.uuid, false, false, u.p.getLocation());
 
 				for (User us : Main.users) {
 
-					if (OwnerData.isOwner(us.uuid, u.current_region)) {
+					if (ownerData.isOwner(us.uuid, u.current_region)) {
 						us.p.sendMessage(ChatColor.GREEN + "You have a new region join request, /claim to open the gui.");
 					}
 
@@ -97,7 +103,7 @@ public class RegionFunctions {
 
 			} else {
 
-				RequestData.newRequest(u.current_region, u.uuid, false, true, u.p.getLocation());
+				requestData.newRequest(u.current_region, u.uuid, false, true, u.p.getLocation());
 
 				for (User us : Main.users) {
 

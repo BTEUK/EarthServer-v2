@@ -1,5 +1,5 @@
 name: EarthServer
-version: 2.1.0
+version: 2.5.0
 main: me.elgamer.earthserver.Main
 description: Claiming System and Navigation for the Earth server.
 depend: [WorldEdit, WorldGuard, LuckPerms, Vault, BTEPoints]
@@ -9,11 +9,6 @@ commands:
         aliases: [claims, claimgui, regiongui, regions]
         usage: /<command>
         description: Opens the claim gui.
-    convertclaims:
-        usage: /<command>
-        description: Converts all old claims to the new system, only works if there are no existing regions.
-    fixregions:
-        usage: /<command>
     tpblock:
         usage: /tpblock <x> <y> <z>
         description: Simple command to place teleport command blocks.

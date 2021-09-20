@@ -1,34 +1,42 @@
 package me.elgamer.earthserver.sql;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
-import me.elgamer.earthserver.Main;
+import javax.sql.DataSource;
+
 import me.elgamer.earthserver.utils.Time;
 
 public class RegionLogs {
 
-	public static void newLog(String region, String uuid, String role) {
+	DataSource dataSource;
 
-		Main instance = Main.getInstance();
+	public RegionLogs(DataSource dataSource) {
 
-		PreparedStatement statement;
-		try {
-			statement = instance.getConnection().prepareStatement
-					("INSERT INTO " + instance.regionLogs + " (ID,REGION_ID,UUID,ROLE,START_TIME,END_TIME) VALUE (?,?,?,?,?,?)");
+		this.dataSource = dataSource;
 
-			statement.setInt(1, getNewID());
+	}
 
-			statement.setString(2, region);
-			statement.setString(3, uuid);
+	private Connection conn() throws SQLException {
+		return dataSource.getConnection();
+	}
+	
+	public void newLog(String region, String uuid, String role) {
 
-			statement.setString(4, role);
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"INSERT INTO logs(region, uuid, role, start_time, end_time) VALUES(?, ?, ?, ?, ?);"
+				)){
 
-			statement.setLong(5, Time.currentTime());
-			statement.setLong(6, 0);
+			statement.setString(1, region);
+			statement.setString(2, uuid);
+
+			statement.setString(3, role);
+
+			statement.setLong(4, Time.currentTime());
+			statement.setLong(5, 0);
 
 			statement.executeUpdate();
 
@@ -38,15 +46,11 @@ public class RegionLogs {
 
 	}
 
-	public static void closeLog(String region, String uuid) {
+	public void closeLog(String region, String uuid) {
 
-		Main instance = Main.getInstance();
-
-		PreparedStatement statement;
-
-		try {
-			statement = instance.getConnection().prepareStatement
-					("UPDATE " + instance.regionLogs + " SET END_TIME=? WHERE REGION_ID=? AND UUID=? AND END_TIME=?");
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"UPDATE logs SET end_time = ? WHERE region = ? AND uuid = ? AND end_time = ?;"
+				)){
 
 			statement.setString(2, region);
 			statement.setString(3, uuid);
@@ -63,33 +67,7 @@ public class RegionLogs {
 
 	}
 
-	private static int getNewID() {
-
-		Main instance = Main.getInstance();
-
-		PreparedStatement statement;
-		try {
-			statement = instance.getConnection().prepareStatement
-					("SELECT * FROM " + instance.regionLogs);
-
-			ResultSet results = statement.executeQuery();
-
-			if (results.last()) {
-
-				return (results.getInt("ID") + 1);
-
-			} else {
-				return 1;
-			}
-
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return 1;
-		}		
-
-	}
-
-	public static void closeLogs(HashMap<String, String> data) {
+	public void closeLogs(HashMap<String, String> data) {
 
 		for (Entry<String, String> entry : data.entrySet()) {
 
@@ -99,7 +77,7 @@ public class RegionLogs {
 
 	}
 
-	public static void newLogs(HashMap<String, String> data, String role) {
+	public void newLogs(HashMap<String, String> data, String role) {
 
 		for (Entry<String, String> entry : data.entrySet()) {
 
@@ -108,77 +86,4 @@ public class RegionLogs {
 		}
 
 	}
-
-	public static void startLogs() {
-
-		ResultSet owners = OwnerData.getOwners();
-		ResultSet members = MemberData.getMembers();
-
-		Main instance = Main.getInstance();
-
-		PreparedStatement statement;
-
-		try {
-			while (owners.next()) {
-
-				statement = instance.getConnection().prepareStatement
-						("INSERT INTO " + instance.regionLogs + " (ID,REGION_ID,UUID,ROLE,START_TIME,END_TIME) VALUE (?,?,?,?,?,?)");
-
-				statement.setInt(1, getNewID());
-
-				statement.setString(2, owners.getString("REGION_ID"));
-				statement.setString(3, owners.getString("UUID"));
-
-				statement.setString(4, "owner");
-
-				statement.setLong(5, Time.currentTime());
-				statement.setLong(6, 0);
-
-				statement.executeUpdate();
-
-			}
-
-			while (members.next()) {
-
-				statement = instance.getConnection().prepareStatement
-						("INSERT INTO " + instance.regionLogs + " (ID,REGION_ID,UUID,ROLE,START_TIME,END_TIME) VALUE (?,?,?,?,?,?)");
-
-				statement.setInt(1, getNewID());
-
-				statement.setString(2, members.getString("REGION_ID"));
-				statement.setString(3, members.getString("UUID"));
-
-				statement.setString(4, "member");
-
-				statement.setLong(5, Time.currentTime());
-				statement.setLong(6, 0);
-
-				statement.executeUpdate();
-
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-
-	}
-	
-	public static ResultSet getLogsAfter(long time) {
-		
-		Main instance = Main.getInstance();
-
-		PreparedStatement statement;
-		try {
-			statement = instance.getConnection().prepareStatement
-					("SELECT * FROM " + instance.regionLogs + " WHERE END_TIME>=? ORDER BY END_TIME ASC");
-			statement.setLong(1, time);
-			
-			return statement.executeQuery();
-
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return null;
-		}	
-		
-	}
-
 }

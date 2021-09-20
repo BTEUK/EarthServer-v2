@@ -1,7 +1,5 @@
 package me.elgamer.earthserver.utils;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
@@ -196,6 +194,10 @@ public class WorldGuardFunctions {
 	public static void setUnlocked(String region) {
 		
 		World world = Main.buildWorld;
+		
+		RegionData regionData = Main.getInstance().regionData;
+		OwnerData ownerData = Main.getInstance().ownerData;
+		MemberData memberData = Main.getInstance().memberData;
 
 		WorldGuardPlugin wg = getWorldGuard();
 
@@ -205,24 +207,19 @@ public class WorldGuardFunctions {
 		ProtectedRegion WGregion = regions.getRegion(region);
 		DefaultDomain regionMembers = WGregion.getMembers();
 		
-		if (OwnerData.hasOwner(region)) {
-			regionMembers.addPlayer(UUID.fromString(OwnerData.getOwner(region)));
+		if (ownerData.hasOwner(region)) {
+			regionMembers.addPlayer(UUID.fromString(ownerData.getOwner(region)));
 		}
 		
-		if (MemberData.hasMember(region)) {
-			ResultSet members = MemberData.getMembers(region);
+		if (memberData.hasMember(region)) {
+			ArrayList<String> members = memberData.getMembers(region);
 			
-			try {
-				while (members.next()) {
-					regionMembers.addPlayer(UUID.fromString(members.getString("UUID")));
-				}
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			for (String member : members) {
+				regionMembers.addPlayer(UUID.fromString(member));
 			}
 		}
 		
-		if (RegionData.isOpen(region)) {
+		if (regionData.isOpen(region)) {
 			regionMembers.addGroup("jrbuilder");
 		}
 		

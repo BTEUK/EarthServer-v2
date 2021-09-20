@@ -36,10 +36,12 @@ public class RequestReview {
 		Inventory toReturn = Bukkit.createInventory(null, inv_rows, inventory_name);
 
 		inv.clear();
+		
+		PlayerData playerData = Main.getInstance().playerData;
 
 		Utils.createItem(inv, Material.BOOK, 1, 5, ChatColor.AQUA + "" + ChatColor.BOLD + "Request Info",
 				Utils.chat("&fRegion: " + u.region_name),
-				Utils.chat("&fRequested by: " + PlayerData.getName(u.region_requester)));		
+				Utils.chat("&fRequested by: " + playerData.getName(u.region_requester)));		
 
 		Utils.createItem(inv, Material.SPRUCE_DOOR_ITEM, 1, 27, ChatColor.AQUA + "" + ChatColor.BOLD + "Return",
 				Utils.chat("&fClick to go back to the review menu."));
@@ -62,6 +64,13 @@ public class RequestReview {
 
 	public static void clicked(User u, int slot, ItemStack clicked, Inventory inv) {
 
+		MemberData memberData = Main.getInstance().memberData;
+		MessageData messageData = Main.getInstance().messageData;
+		OwnerData ownerData = Main.getInstance().ownerData;
+		PlayerData playerData = Main.getInstance().playerData;
+		RegionLogs regionLogs = Main.getInstance().regionLogs;
+		RequestData requestData = Main.getInstance().requestData;
+		
 		if (clicked.getType().equals(Material.SPRUCE_DOOR_ITEM)) {
 
 			u.gui_page = 1;
@@ -76,7 +85,7 @@ public class RequestReview {
 
 		} else if (clicked.getType().equals(Material.EYE_OF_ENDER)) {
 
-			Location l = RequestData.getRequestLocation(u.region_name, u.region_requester);
+			Location l = requestData.getRequestLocation(u.region_name, u.region_requester);
 
 			if (l == null) {
 				u.p.sendMessage(ChatColor.RED + "An error occured, please try again!");
@@ -88,14 +97,14 @@ public class RequestReview {
 
 			if (u.staff_request) {
 
-				if (RequestData.ownerAccept(u.region_name, u.region_requester)) {
+				if (requestData.ownerAccept(u.region_name, u.region_requester)) {
 
-					if (OwnerData.hasOwner(u.region_name)) {
+					if (ownerData.hasOwner(u.region_name)) {
 
-						MemberData.addMember(u.region_name, u.region_requester);
+						memberData.addMember(u.region_name, u.region_requester);
 						WorldGuardFunctions.addMember(u.region_name, u.region_requester);
-						RegionLogs.newLog(u.region_name, u.region_requester, "member");
-						RequestData.closeRequest(u.region_name, u.region_requester);
+						regionLogs.newLog(u.region_name, u.region_requester, "member");
+						requestData.closeRequest(u.region_name, u.region_requester);
 
 						if (Main.isOnline(u.region_requester)) {
 
@@ -105,10 +114,10 @@ public class RequestReview {
 
 					} else {
 
-						OwnerData.addOwner(u.region_name, u.region_requester);
+						ownerData.addOwner(u.region_name, u.region_requester);
 						WorldGuardFunctions.addMember(u.region_name, u.region_requester);
-						RegionLogs.newLog(u.region_name, u.region_requester, "owner");
-						RequestData.closeRequest(u.region_name, u.region_requester);
+						regionLogs.newLog(u.region_name, u.region_requester, "owner");
+						requestData.closeRequest(u.region_name, u.region_requester);
 
 						if (Main.isOnline(u.region_requester)) {
 
@@ -118,7 +127,7 @@ public class RequestReview {
 
 					}
 
-					MessageData.newMessage(u.region_requester, "Your region join request for " + u.region_name + " has been accepted!", "GREEN");
+					messageData.newMessage(u.region_requester, "Your region join request for " + u.region_name + " has been accepted!", "GREEN");
 					
 					u.gui_page = 1;
 
@@ -130,11 +139,11 @@ public class RequestReview {
 						u.p.openInventory(StaffRequests.GUI(u));
 					}
 					
-					u.p.sendMessage(ChatColor.GREEN + "You have accepted the request, " + PlayerData.getName(u.region_requester) + " is now a member of " + u.region_name + ".") ;
+					u.p.sendMessage(ChatColor.GREEN + "You have accepted the request, " + playerData.getName(u.region_requester) + " is now a member of " + u.region_name + ".") ;
 
 				} else {
 
-					RequestData.setStaffAccept(u.region_name, u.region_requester, true);
+					requestData.setStaffAccept(u.region_name, u.region_requester, true);
 					u.p.closeInventory();
 					u.p.sendMessage(ChatColor.GREEN + "You have accepted the request, now the owner has to review it.");
 
@@ -142,12 +151,12 @@ public class RequestReview {
 
 
 			} else {
-				if (RequestData.staffAccept(u.region_name, u.region_requester)) {
+				if (requestData.staffAccept(u.region_name, u.region_requester)) {
 
-					MemberData.addMember(u.region_name, u.region_requester);
+					memberData.addMember(u.region_name, u.region_requester);
 					WorldGuardFunctions.addMember(u.region_name, u.region_requester);
-					RegionLogs.newLog(u.region_name, u.region_requester, "member");
-					RequestData.closeRequest(u.region_name, u.region_requester);
+					regionLogs.newLog(u.region_name, u.region_requester, "member");
+					requestData.closeRequest(u.region_name, u.region_requester);
 					
 					if (Main.isOnline(u.region_requester)) {
 						
@@ -155,7 +164,7 @@ public class RequestReview {
 						
 					}
 
-					MessageData.newMessage(u.region_requester, "Your region join request for " + u.region_name + " has been accepted!", "GREEN");
+					messageData.newMessage(u.region_requester, "Your region join request for " + u.region_name + " has been accepted!", "GREEN");
 					
 					u.gui_page = 1;
 
@@ -167,12 +176,12 @@ public class RequestReview {
 						u.p.openInventory(StaffRequests.GUI(u));
 					}
 					
-					u.p.sendMessage(ChatColor.GREEN + "You have accepted the request, " + PlayerData.getName(u.region_requester) + " is now a member of " + u.region_name + ".") ;
+					u.p.sendMessage(ChatColor.GREEN + "You have accepted the request, " + playerData.getName(u.region_requester) + " is now a member of " + u.region_name + ".") ;
 					
 
 				} else {
 
-					RequestData.setOwnerAccept(u.region_name, u.region_requester, true);
+					requestData.setOwnerAccept(u.region_name, u.region_requester, true);
 					u.p.closeInventory();
 					u.p.sendMessage(ChatColor.GREEN + "You have accepted the request, now staff has to review it.");
 
@@ -183,12 +192,12 @@ public class RequestReview {
 
 			if (u.staff_request) {
 
-				RequestData.closeRequest(u.region_name, u.region_requester);
-				MessageData.newMessage(u.region_requester, "Your region join request for " + u.region_name + " has been denied by staff.", "RED");
+				requestData.closeRequest(u.region_name, u.region_requester);
+				messageData.newMessage(u.region_requester, "Your region join request for " + u.region_name + " has been denied by staff.", "RED");
 
 			} else {
-				RequestData.closeRequest(u.region_name, u.region_requester);
-				MessageData.newMessage(u.region_requester, "Your region join request for " + u.region_name + " has been denied by the owner.", "RED");
+				requestData.closeRequest(u.region_name, u.region_requester);
+				messageData.newMessage(u.region_requester, "Your region join request for " + u.region_name + " has been denied by the owner.", "RED");
 			}
 
 		} else {

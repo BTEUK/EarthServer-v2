@@ -6,6 +6,7 @@ import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import me.elgamer.earthserver.Main;
 import me.elgamer.earthserver.sql.MemberData;
 import me.elgamer.earthserver.sql.OwnerData;
 import me.elgamer.earthserver.sql.PlayerData;
@@ -32,12 +33,17 @@ public class StaffGui {
 
 		inv.clear();
 
+		MemberData memberData = Main.getInstance().memberData;
+		OwnerData ownerData = Main.getInstance().ownerData;
+		PlayerData playerData = Main.getInstance().playerData;
+		RequestData requestData = Main.getInstance().requestData;
+		
 		if (u.p.hasPermission("earthserver.admin.review")) {
 
-			if (RequestData.count() > 0) {
+			if (requestData.count() > 0) {
 				Utils.createItem(inv, Material.CHEST, 1, 14, ChatColor.AQUA + "" + ChatColor.BOLD + "Jr.Builder Requests", 
 						Utils.chat("&fClick to view all the join requests by Jr.Builders."),
-						Utils.chat("&fThere are currently " + RequestData.count() + " requests"));
+						Utils.chat("&fThere are currently " + requestData.count() + " requests"));
 			}
 		}
 
@@ -48,13 +54,13 @@ public class StaffGui {
 		}
 		
 		String owner;
-		if (OwnerData.hasOwner(u.current_region)) {
-			owner = PlayerData.getName(OwnerData.getOwner(u.current_region));
+		if (ownerData.hasOwner(u.current_region)) {
+			owner = playerData.getName(ownerData.getOwner(u.current_region));
 		} else {
 			owner = "No Owner";
 		}
 
-		int members = MemberData.countMembers(u.current_region);
+		int members = memberData.countMembers(u.current_region);
 
 		Utils.createItem(inv, Material.BOOK, 1, 5, ChatColor.AQUA + "" + ChatColor.BOLD + "Region Info",
 				Utils.chat("&fRegion: " + u.current_region),

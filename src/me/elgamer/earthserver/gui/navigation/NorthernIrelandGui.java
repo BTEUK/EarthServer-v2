@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import me.elgamer.earthserver.Main;
 import me.elgamer.earthserver.sql.LocationSQL;
 import me.elgamer.earthserver.utils.Utils;
 
@@ -31,8 +32,9 @@ public class NorthernIrelandGui {
 
 		inv.clear();
 
+		LocationSQL locationSQL = Main.getInstance().locationData;
 
-		ArrayList<String[]> locations = LocationSQL.getLocations("northern-ireland");
+		ArrayList<String[]> locations = locationSQL.getLocations("northern-ireland");
 
 		int i = 11;
 
@@ -64,8 +66,10 @@ public class NorthernIrelandGui {
 
 		} else {
 
+			LocationSQL locationSQL = Main.getInstance().locationData;
+			
 			String[] location = clicked.getItemMeta().getDisplayName().replace(" ", "").split(",");
-			p.teleport(LocationSQL.getLocation(ChatColor.stripColor(location[0])));
+			p.teleport(locationSQL.getLocation(ChatColor.stripColor(location[0])));
 
 		}
 	}

@@ -1,7 +1,6 @@
 package me.elgamer.earthserver.gui.claim;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.util.ArrayList;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -9,6 +8,7 @@ import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import me.elgamer.earthserver.Main;
 import me.elgamer.earthserver.sql.MemberData;
 import me.elgamer.earthserver.sql.OwnerData;
 import me.elgamer.earthserver.sql.RequestData;
@@ -34,73 +34,44 @@ public class RegionList {
 
 		inv.clear();
 
-		ResultSet owners = OwnerData.getRegions(u.uuid);
-		ResultSet members = MemberData.getRegions(u.uuid);
-		
-		boolean cont = true;
+		MemberData memberData = Main.getInstance().memberData;
+		OwnerData ownerData = Main.getInstance().ownerData;
+		RequestData requestData = Main.getInstance().requestData;
+
+		ArrayList<String> owners = ownerData.getRegions(u.uuid);
+		ArrayList<String> members = memberData.getRegions(u.uuid);
 
 		u.gui_slot = (u.gui_page-1)*45 + 11;
 
-		try {
+		for (int i = (u.gui_page-1)*21; i < (owners.size() + members.size()); i++) {
 
-			if (u.gui_page > 1) {
+			if (i < owners.size()) {
 
-				for (int i = 0; i < (u.gui_page-1)*21; i++) {
-					if (owners.next()) {
-
-					} else {
-						members.next();
-					}
-				}
-
-			}
-
-			while (owners.next()) {
-
-				//u.p.sendMessage(u.gui_slot + ", " + u.gui_page);
-				Utils.createItemByte(inv, Material.CONCRETE, 5, 1, (u.gui_slot % 45), ChatColor.AQUA + "" + ChatColor.BOLD + owners.getString("REGION_ID"), 
+				Utils.createItemByte(inv, Material.CONCRETE, 5, 1, (u.gui_slot % 45), ChatColor.AQUA + "" + ChatColor.BOLD + owners.get(i), 
 						Utils.chat("&fYou are the owner of this region."),
 						Utils.chat("&fClick to edit this region."));
 
-				if ((u.gui_slot % 45) == 17 ) {
-					u.gui_slot += 3;
-				} else if ((u.gui_slot % 45) == 26) {
-					u.gui_slot += 3;
-				} else if ((u.gui_slot % 45) == 35) {
+			} else if ((i - owners.size()) < members.size()) {
 
-					Utils.createItem(inv, Material.ARROW, 1, 27, ChatColor.AQUA + "" + ChatColor.BOLD + "Next Page",
-							Utils.chat("&fClick to go to the next page of regions."));
-
-					cont = false;
-					break;
-				} else {
-					u.gui_slot += 1;
-				}
-
-			}
-	
-			while (members.next() && cont) {
-				
-				Utils.createItemByte(inv, Material.CONCRETE, 4, 1, (u.gui_slot % 45), ChatColor.AQUA + "" + ChatColor.BOLD + members.getString("REGION_ID"), 
+				Utils.createItemByte(inv, Material.CONCRETE, 4, 1, (u.gui_slot % 45), ChatColor.AQUA + "" + ChatColor.BOLD + members.get(i-owners.size()), 
 						Utils.chat("&fYou are a member of this region."));
+			}
 
-				if ((u.gui_slot % 45) == 17 ) {
-					u.gui_slot += 3;
-				} else if ((u.gui_slot % 45) == 26) {
-					u.gui_slot += 3;
-				} else if ((u.gui_slot % 45) == 35) {
+			if ((u.gui_slot % 45) == 17 ) {
+				u.gui_slot += 3;
+			} else if ((u.gui_slot % 45) == 26) {
+				u.gui_slot += 3;
+			} else if ((u.gui_slot % 45) == 35) {
 
+				if ((owners.size() + members.size() - 1) > i) {
 					Utils.createItem(inv, Material.ARROW, 1, 27, ChatColor.AQUA + "" + ChatColor.BOLD + "Next Page",
 							Utils.chat("&fClick to go to the next page of regions."));
-
-					break;
-				} else {
-					u.gui_slot += 1;
 				}
 
+				break;
+			} else {
+				u.gui_slot += 1;
 			}
-		} catch (SQLException e) {
-			e.printStackTrace();
 		}
 
 		if (u.gui_page > 1) {
@@ -113,11 +84,11 @@ public class RegionList {
 		Utils.createItem(inv, Material.SPRUCE_DOOR_ITEM, 1, 45, ChatColor.AQUA + "" + ChatColor.BOLD + "Return",
 				Utils.chat("&fClick to go back to the claim menu."));
 
-		if (RequestData.hasRequest(u.uuid)) {
+		if (requestData.hasRequest(u.uuid)) {
 
 			Utils.createItem(inv, Material.CHEST, 1, 41, ChatColor.AQUA + "" + ChatColor.BOLD + "Edit Requests",
 					Utils.chat("&fClick to edit any region join requests that have not yet been reviewed."));
-			
+
 		}
 
 
@@ -129,6 +100,8 @@ public class RegionList {
 
 	public static void clicked(User u, int slot, ItemStack clicked, Inventory inv) {
 
+		RequestData requestData = Main.getInstance().requestData;
+		
 		if (clicked.getType().equals(Material.SPRUCE_DOOR_ITEM)) {
 
 			u.p.closeInventory();
@@ -147,30 +120,33 @@ public class RegionList {
 			u.p.openInventory(RegionList.GUI(u));
 
 		} else if (clicked.getItemMeta().getDisplayName().equals(ChatColor.AQUA + "" + ChatColor.BOLD + "Edit Requests")) {
-			
-			if (RequestData.hasRequest(u.uuid)) {
-				
+
+			if (requestData.hasRequest(u.uuid)) {
+
 				u.gui_page = 1;
 				u.p.closeInventory();
 				u.p.openInventory(EditRequests.GUI(u));
-				
+
 			} else {
 				u.p.sendMessage(ChatColor.RED + "You have no outstanding region requests.");
 				u.p.openInventory(RegionList.GUI(u));
 			}
-			
-		} else {
 
+		} else {
+			
+			MemberData memberData = Main.getInstance().memberData;
+			OwnerData ownerData = Main.getInstance().ownerData;
+			
 			u.region_name = ChatColor.stripColor(clicked.getItemMeta().getDisplayName());
 
 			u.p.closeInventory();
 
-			if (OwnerData.isOwner(u.uuid, u.region_name)) {
+			if (ownerData.isOwner(u.uuid, u.region_name)) {
 
 				u.previous_gui = "region";
 				u.p.openInventory(RegionOptions.GUI(u));
 
-			} else if (MemberData.isMember(u.uuid, u.region_name)) {
+			} else if (memberData.isMember(u.uuid, u.region_name)) {
 
 				u.previous_gui = "region";
 				u.p.openInventory(RegionOptions.GUI(u));

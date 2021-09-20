@@ -1,7 +1,6 @@
 package me.elgamer.earthserver.listeners;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.util.ArrayList;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -19,9 +18,17 @@ import me.elgamer.earthserver.utils.User;
 
 public class JoinEvent implements Listener {
 
-	public JoinEvent(Main plugin) {
+	MessageData messageData;
+	PlayerData playerData;
+	RequestData requestData;
 
+	public JoinEvent(Main plugin, MessageData messageData, PlayerData playerData, RequestData requestData) {
+
+		this.messageData = messageData;
+		this.playerData = playerData;
+		this.requestData = requestData;
 		Bukkit.getServer().getPluginManager().registerEvents(this, plugin);
+
 	}
 
 	@EventHandler
@@ -29,52 +36,44 @@ public class JoinEvent implements Listener {
 
 		Player p = e.getPlayer();
 		User u = Main.addUser(p);
-		
+
 		Bukkit.broadcastMessage(ChatColor.GREEN + "Added user " + u.name + " to the List");
 
-		if (PlayerData.hasPlayer(u)) {
-			PlayerData.updatePlayer(u);
+		if (playerData.hasPlayer(u)) {
+			playerData.updatePlayer(u);
 		} else {
-			PlayerData.addPlayer(u);
+			playerData.addPlayer(u);
 		}
-		
+
 		if (p.hasPermission("earthserver.location.add")) {
-			
-			if (LocationSQL.requestExists()) {
+
+			LocationSQL locationSQL = Main.getInstance().locationData;
+
+			if (locationSQL.requestExists()) {
 				Bukkit.getScheduler().runTaskLater (Main.getInstance(), () -> p.sendMessage(ChatColor.GREEN + "There is a new location request, check with /requests"), 20); //20 ticks equal 1 second
 			}
-			
+
 		}
-		
-		if (RequestData.hasRequestOwner(u.uuid)) {
+
+		if (requestData.hasRequestOwner(u.uuid)) {
 			Bukkit.getScheduler().runTaskLater (Main.getInstance(), () -> p.sendMessage(ChatColor.GREEN + "You have join requests for your regions, check the gui with /claim."), 20); //20 ticks equal 1 second
 		}
-		
-		if (RequestData.hasRequestStaff() && u.p.hasPermission("earthserver.admin.review")) {
+
+		if (requestData.hasRequestStaff() && u.p.hasPermission("earthserver.admin.review")) {
 			Bukkit.getScheduler().runTaskLater (Main.getInstance(), () -> p.sendMessage(ChatColor.GREEN + "There are region join requests by Jr.Builders, check the gui with /claim"), 20); //20 ticks equal 1 second		
 		}
-		
-		if (MessageData.hasMessage(u.uuid)) {
-			
+
+		if (messageData.hasMessage(u.uuid)) {
+
 			Bukkit.getScheduler().runTaskLater (Main.getInstance(), () -> {
-			ResultSet results = MessageData.getMessages(u.uuid);
-			MessageData.removeMessages(u.uuid);
-			
-			try {
-				while (results.next()) {
-						try {
-							u.p.sendMessage(ChatColor.valueOf(results.getString("COLOUR"))  + results.getString("MESSAGE"));
-						} catch (SQLException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-						}
+				ArrayList<String> messages = messageData.getMessages(u.uuid);
+				messageData.removeMessages(u.uuid);
+
+				for (String message : messages) {
+					u.p.sendMessage(message);
 				}
-			} catch (IllegalArgumentException | SQLException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
 			}, 20);
-			
+
 		}
 
 	}

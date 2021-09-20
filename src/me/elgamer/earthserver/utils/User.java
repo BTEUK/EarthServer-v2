@@ -90,38 +90,44 @@ public class User {
 
 	public static boolean updatePerms(User u, String region) {
 
-		if (RegionData.isLocked(region)) {
+		RegionData regionData = Main.getInstance().regionData;
+		OwnerData ownerData = Main.getInstance().ownerData;
+		MemberData memberData = Main.getInstance().memberData;
+		RegionLogs regionLogs = Main.getInstance().regionLogs;
+		RequestData requestData = Main.getInstance().requestData;
+		
+		if (regionData.isLocked(region)) {
 			if (u.hasWorldEdit) {
 				Permissions.removeWorldedit(u.uuid);
 			}
 			return false;
 		}
 
-		if (RegionData.isOpen(region)) {
+		if (regionData.isOpen(region)) {
 			
 			if (!u.hasWorldEdit) {
 				Permissions.giveWorldedit(u.uuid);
 			}
 			return true;
-		} else if (OwnerData.isOwner(u.uuid, region)) {
+		} else if (ownerData.isOwner(u.uuid, region)) {
 			if (!u.hasWorldEdit) {
 				Permissions.giveWorldedit(u.uuid);
 			}
-			OwnerData.updateTime(u.uuid, region);
+			ownerData.updateTime(u.uuid, region);
 			return true;
-		} else if (MemberData.isMember(u.uuid, region)) {
+		} else if (memberData.isMember(u.uuid, region)) {
 
 			if (!u.hasWorldEdit) {
 				Permissions.giveWorldedit(u.uuid);
-				MemberData.updateTime(u.uuid, region);
+				memberData.updateTime(u.uuid, region);
 			}
 
-			if (!(OwnerData.hasOwner(region))) {
-				OwnerData.addOwner(region, u.uuid);
-				MemberData.removeMember(region, u.uuid);
-				RegionLogs.closeLog(region, u.uuid);
-				RegionLogs.newLog(region, u.uuid, "owner");
-				RequestData.updateRegionOwner(region, u.uuid);
+			if (!(ownerData.hasOwner(region))) {
+				ownerData.addOwner(region, u.uuid);
+				memberData.removeMember(region, u.uuid);
+				regionLogs.closeLog(region, u.uuid);
+				regionLogs.newLog(region, u.uuid, "owner");
+				requestData.updateRegionOwner(region, u.uuid);
 			}
 
 			return true;

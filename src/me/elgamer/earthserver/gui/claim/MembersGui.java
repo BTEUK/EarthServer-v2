@@ -1,7 +1,6 @@
 package me.elgamer.earthserver.gui.claim;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -11,6 +10,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import me.elgamer.earthserver.Main;
 import me.elgamer.earthserver.sql.MemberData;
 import me.elgamer.earthserver.sql.PlayerData;
 import me.elgamer.earthserver.utils.Time;
@@ -37,27 +37,21 @@ public class MembersGui {
 
 		inv.clear();
 
-		ResultSet members = MemberData.getMembers(u.region_name);
+		MemberData memberData = Main.getInstance().memberData;
+		PlayerData playerData = Main.getInstance().playerData;
+		
+		ArrayList<String> members = memberData.getMembers(u.region_name);
 
 		u.gui_slot = (u.gui_page-1)*45 + 11;
 
 		String uuid;
 		String member;
-		
-		try {
-	
-			if (u.gui_page > 1) {
+
+		for (int i = (u.gui_page-1)*21; i < members.size(); i++) {
+
 				
-				for (int i = 0; i < (u.gui_page-1)*21; i++) {
-					members.next();
-				}
-				
-			}
-			
-			while (members.next()) {
-				
-				uuid = members.getString("UUID");
-				member =  PlayerData.getName(uuid);
+				uuid = members.get(i);
+				member =  playerData.getName(uuid);
 				Player p;
 				
 				if (member == null) {
@@ -70,11 +64,11 @@ public class MembersGui {
 							member = p.getName();
 						}
 					
-					PlayerData.addPlayer(uuid, member);
+					playerData.addPlayer(uuid, member);
 				}
 
 				Utils.createItemByte(inv, Material.CONCRETE, 4, 1, u.gui_slot, ChatColor.AQUA + "" + ChatColor.BOLD + member, 
-						Utils.chat("&fLast Entered Region: " + Time.getDate(members.getLong("LAST_ENTER"))),
+						Utils.chat("&fLast Entered Region: " + Time.getDate(memberData.lastEnter(u.region_name, uuid))),
 						Utils.chat("&fClick to edit member, you can remove member or transfer ownership."));
 
 				if ((u.gui_slot & 45) == 17 ) {
@@ -91,9 +85,6 @@ public class MembersGui {
 					u.gui_slot += 1;
 				}
 
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
 		}
 		
 		if (u.gui_page > 1) {

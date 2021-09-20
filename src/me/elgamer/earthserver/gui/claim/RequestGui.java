@@ -1,7 +1,6 @@
 package me.elgamer.earthserver.gui.claim;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.util.ArrayList;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -9,6 +8,7 @@ import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import me.elgamer.earthserver.Main;
 import me.elgamer.earthserver.sql.PlayerData;
 import me.elgamer.earthserver.sql.RequestData;
 import me.elgamer.earthserver.utils.User;
@@ -33,49 +33,39 @@ public class RequestGui {
 
 		inv.clear();
 
-		ResultSet results = RequestData.getRequests(u.uuid);
+		RequestData requestData = Main.getInstance().requestData;
+
+		ArrayList<String> requests = requestData.getRequests(u.uuid);
 
 		u.gui_slot = (u.gui_page-1)*45 + 11;
 
-		try {
-	
-			if (u.gui_page > 1) {
-				
-				for (int i = 0; i < (u.gui_page-1)*21; i++) {
-					results.next();
-				}
-				
-			}
-			
-			while (results.next()) {
+		for (int i = (u.gui_page-1)*21; i < requests.size(); i++) {
 
-				Utils.createItemByte(inv, Material.CONCRETE, 5, 1, (u.gui_slot % 45), ChatColor.AQUA + "" + ChatColor.BOLD + PlayerData.getName(results.getString("UUID")) + ", " + results.getString("REGION_ID"), 
-						Utils.chat("&fClick to review the request."));
+			Utils.createItemByte(inv, Material.CONCRETE, 5, 1, (u.gui_slot % 45), ChatColor.AQUA + "" + ChatColor.BOLD + requests.get(i), 
+					Utils.chat("&fClick to review the request."));
 
-				if ((u.gui_slot % 45) == 17 ) {
-					u.gui_slot += 3;
-				} else if ((u.gui_slot % 45) == 26) {
-					u.gui_slot += 3;
-				} else if ((u.gui_slot % 45) == 35) {
-					
+			if ((u.gui_slot % 45) == 17 ) {
+				u.gui_slot += 3;
+			} else if ((u.gui_slot % 45) == 26) {
+				u.gui_slot += 3;
+			} else if ((u.gui_slot % 45) == 35) {
+
+				if ((requests.size()-1) > i) {
 					Utils.createItem(inv, Material.ARROW, 1, 27, ChatColor.AQUA + "" + ChatColor.BOLD + "Next Page",
 							Utils.chat("&fClick to go to the next page of requests."));
-					
-					break;
-				} else {
-					u.gui_slot += 1;
 				}
 
+				break;
+			} else {
+				u.gui_slot += 1;
 			}
-		} catch (SQLException e) {
-			e.printStackTrace();
 		}
-		
+
 		if (u.gui_page > 1) {
-			
+
 			Utils.createItem(inv, Material.ARROW, 1, 19, ChatColor.AQUA + "" + ChatColor.BOLD + "Previous Page",
 					Utils.chat("&fClick to return to the previous page of requests."));
-			
+
 		}
 
 		Utils.createItem(inv, Material.SPRUCE_DOOR_ITEM, 1, 45, ChatColor.AQUA + "" + ChatColor.BOLD + "Return",
@@ -91,6 +81,9 @@ public class RequestGui {
 
 	public static void clicked(User u, int slot, ItemStack clicked, Inventory inv) {
 
+		PlayerData playerData = Main.getInstance().playerData;
+		RequestData requestData = Main.getInstance().requestData;
+		
 		if (clicked.getType().equals(Material.SPRUCE_DOOR_ITEM)) {
 
 			u.p.closeInventory();
@@ -100,26 +93,26 @@ public class RequestGui {
 			u.p.closeInventory();
 
 		} else if (clicked.getItemMeta().getDisplayName().equals(ChatColor.AQUA + "" + ChatColor.BOLD + "Next Page")) {
-		
+
 			u.gui_page += 1;
 			u.p.closeInventory();
 			u.p.openInventory(RequestGui.GUI(u));
-			
+
 		} else if (clicked.getItemMeta().getDisplayName().equals(ChatColor.AQUA + "" + ChatColor.BOLD + "Previous Page")) {
-			
+
 			u.gui_page -= 1;
 			u.p.closeInventory();
 			u.p.openInventory(RequestGui.GUI(u));
-			
+
 		} else {
 
 			String[] info = ChatColor.stripColor(clicked.getItemMeta().getDisplayName()).replace(" ","").split(",");
-			u.region_requester = PlayerData.getUUID(info[0]);
+			u.region_requester = playerData.getUUID(info[0]);
 			u.region_name = info[1] + "," + info[2];
 
 			u.p.closeInventory();
-			
-			if (RequestData.requestExists(u.region_name, u.region_requester)) {
+
+			if (requestData.requestExists(u.region_name, u.region_requester)) {
 				u.previous_gui = "request";
 				u.p.openInventory(RequestReview.GUI(u));
 			} else {

@@ -16,6 +16,10 @@ public class Inactive {
 
 		Main instance = Main.getInstance();
 		FileConfiguration config = instance.getConfig();
+		
+		OwnerData ownerData = Main.getInstance().ownerData;
+		MemberData memberData = Main.getInstance().memberData;
+		RegionLogs regionLogs = Main.getInstance().regionLogs;
 
 		//Find minimum inactive time for demotion
 		long currentTime = Time.currentTime();
@@ -28,7 +32,7 @@ public class Inactive {
 		long timeSpan = days * 24 * 60 * 60 * 1000;
 		long inactivity = currentTime - timeSpan;
 
-		HashMap<String, String> inactiveOwners = OwnerData.getInactiveOwners(inactivity);
+		HashMap<String, String> inactiveOwners = ownerData.getInactiveOwners(inactivity);
 
 		if (inactiveOwners == null || inactiveOwners.isEmpty()) {
 			//Bukkit.broadcastMessage("Return");
@@ -36,14 +40,14 @@ public class Inactive {
 		} else {
 			
 			//Bukkit.broadcastMessage("Step 1 " + inactiveOwners.size());
-			RegionLogs.closeLogs(inactiveOwners);
+			regionLogs.closeLogs(inactiveOwners);
 			//Bukkit.broadcastMessage("Step 2");
-			RegionLogs.newLogs(inactiveOwners, "member");
+			regionLogs.newLogs(inactiveOwners, "member");
 			//Bukkit.broadcastMessage("Step 3");
-			OwnerData.removeInactiveOwners(inactivity);
+			ownerData.removeInactiveOwners(inactivity);
 			//Bukkit.broadcastMessage("Step 4");
-			OwnerData.addNewOwners(inactiveOwners);
-			MemberData.addMembers(inactiveOwners);
+			ownerData.addNewOwners(inactiveOwners);
+			memberData.addMembers(inactiveOwners);
 			Bukkit.broadcastMessage("Inactive Owners demoted to Member");
 
 		}
@@ -54,6 +58,9 @@ public class Inactive {
 
 		Main instance = Main.getInstance();
 		FileConfiguration config = instance.getConfig();
+		
+		MemberData memberData = Main.getInstance().memberData;
+		RegionLogs regionLogs = Main.getInstance().regionLogs;
 
 		//Find minimum inactive time for demotion
 		long currentTime = Time.currentTime();
@@ -66,14 +73,14 @@ public class Inactive {
 		long timeSpan = days * 24 * 60 * 60 * 1000;
 		long inactivity = currentTime - timeSpan;
 
-		HashMap<String, String> inactiveMembers = MemberData.getInactiveMembers(inactivity);
+		HashMap<String, String> inactiveMembers = memberData.getInactiveMembers(inactivity);
 
 		if (inactiveMembers == null || inactiveMembers.isEmpty()) {
 			return;
 		} else {
-			RegionLogs.closeLogs(inactiveMembers);
+			regionLogs.closeLogs(inactiveMembers);
 			//WorldGuardFunctions.removeMembers(inactiveMembers);
-			MemberData.removeInactiveMembers(inactivity);
+			memberData.removeInactiveMembers(inactivity);
 			Bukkit.broadcastMessage("Inactive Members removed from regions");
 		}
 

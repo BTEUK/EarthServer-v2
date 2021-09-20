@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import me.elgamer.earthserver.Main;
 import me.elgamer.earthserver.sql.LocationSQL;
 import me.elgamer.earthserver.utils.Utils;
 
@@ -30,10 +31,12 @@ public class EnglandGui {
 		Inventory toReturn = Bukkit.createInventory(null, inv_rows, inventory_name);
 
 		inv.clear();
+		
+		LocationSQL locationSQL = Main.getInstance().locationData;
 
-		if (LocationSQL.CategoryCount("london") + LocationSQL.CategoryCount("england") > 21) {
+		if (locationSQL.CategoryCount("london") + locationSQL.CategoryCount("england") > 21) {
 
-			ArrayList<String[]> locations = LocationSQL.getLocations("england");
+			ArrayList<String[]> locations = locationSQL.getLocations("england");
 
 			int i = 11;
 
@@ -52,7 +55,7 @@ public class EnglandGui {
 
 		} else {
 
-			ArrayList<String[]> locations = LocationSQL.getLocations("england");
+			ArrayList<String[]> locations = locationSQL.getLocations("england");
 
 			int i = 11;
 
@@ -74,7 +77,7 @@ public class EnglandGui {
 
 			}
 
-			locations = LocationSQL.getLocations("london");
+			locations = locationSQL.getLocations("london");
 
 			if (locations == null) {
 
@@ -104,6 +107,8 @@ public class EnglandGui {
 
 	public static void clicked(Player p, int slot, ItemStack clicked, Inventory inv) {
 
+		LocationSQL locationSQL = Main.getInstance().locationData;
+		
 		if (clicked.getItemMeta().getDisplayName().equalsIgnoreCase(ChatColor.AQUA + "" + ChatColor.BOLD + "Return")) {
 
 			p.closeInventory();
@@ -112,7 +117,7 @@ public class EnglandGui {
 		} else {
 
 			String[] location = clicked.getItemMeta().getDisplayName().replace(" ", "").split(",");
-			p.teleport(LocationSQL.getLocation(ChatColor.stripColor(location[0])));
+			p.teleport(locationSQL.getLocation(ChatColor.stripColor(location[0])));
 			
 		}
 	}

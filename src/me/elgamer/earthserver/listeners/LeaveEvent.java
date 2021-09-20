@@ -15,8 +15,15 @@ import net.md_5.bungee.api.ChatColor;
 
 public class LeaveEvent implements Listener {
 	
-	public LeaveEvent(Main plugin) {
+	MemberData memberData;
+	OwnerData ownerData;
+	PlayerData playerData;
+	
+	public LeaveEvent(Main plugin, MemberData memberData, OwnerData ownerData, PlayerData playerData) {
 
+		this.memberData = memberData;
+		this.ownerData = ownerData;
+		this.playerData = playerData;
 		Bukkit.getServer().getPluginManager().registerEvents(this, plugin);
 	}
 	
@@ -29,12 +36,12 @@ public class LeaveEvent implements Listener {
 			Permissions.removeWorldedit(u.uuid);
 		}
 		
-		PlayerData.updatePlayer(u);		
+		playerData.updatePlayer(u);		
 		
-		if (OwnerData.isOwner(u.uuid, u.current_region)) {
-			OwnerData.updateTime(u.uuid, u.current_region);
-		} else if (MemberData.isMember(u.uuid, u.current_region)) {
-			MemberData.updateTime(u.uuid, u.current_region);
+		if (ownerData.isOwner(u.uuid, u.current_region)) {
+			ownerData.updateTime(u.uuid, u.current_region);
+		} else if (memberData.isMember(u.uuid, u.current_region)) {
+			memberData.updateTime(u.uuid, u.current_region);
 		}
 		
 		Bukkit.broadcastMessage(ChatColor.RED + "Removed user " + u.name + " from the List");

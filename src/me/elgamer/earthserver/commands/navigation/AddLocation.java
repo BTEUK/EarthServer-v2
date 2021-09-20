@@ -7,6 +7,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import me.elgamer.earthserver.Main;
 import me.elgamer.earthserver.sql.LocationSQL;
 
 public class AddLocation implements CommandExecutor {
@@ -44,19 +45,21 @@ public class AddLocation implements CommandExecutor {
 
 		}	
 
+		LocationSQL locationSQL = Main.getInstance().locationData;
+		
 		if (args.length == 4) {
-			if (!(LocationSQL.requestExists(args[3]))) {
+			if (!(locationSQL.requestExists(args[3]))) {
 				p.sendMessage("This location has not been requested");
 				return true;
 			} else {
-				if (LocationSQL.locationExists(args[0])) {
+				if (locationSQL.locationExists(args[0])) {
 					p.sendMessage("This location has already been added");
 					return true;
 				}
 
-				Location l = LocationSQL.getRequestLocation(args[3]);
+				Location l = locationSQL.getRequestLocation(args[3]);
 
-				if (LocationSQL.addLocation(args[0], args[1], args[2], l)) {
+				if (locationSQL.addLocation(args[0], args[1], args[2], l)) {
 					p.sendMessage(ChatColor.GREEN + "The location " + args[0] + " has been added to the navigation menu in category " + args[1] + " and subcategory " + args[2]);
 				}
 				return true;
@@ -68,12 +71,12 @@ public class AddLocation implements CommandExecutor {
 			return true;
 		}
 
-		if (LocationSQL.locationExists(args[0])) {
+		if (locationSQL.locationExists(args[0])) {
 			p.sendMessage("This location has already been added");
 			return true;
 		}
 
-		if (LocationSQL.addLocation(args[0], args[1], args[2], p.getLocation())) {
+		if (locationSQL.addLocation(args[0], args[1], args[2], p.getLocation())) {
 			p.sendMessage(ChatColor.GREEN + "The location " + args[0] + " has been added to the navigation menu in category " + args[1] + " and subcategory " + args[2]);
 		} else {
 			p.sendMessage(ChatColor.RED + "An error has occured, please try again.");

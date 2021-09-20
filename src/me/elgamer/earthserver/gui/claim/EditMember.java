@@ -6,6 +6,7 @@ import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import me.elgamer.earthserver.Main;
 import me.elgamer.earthserver.sql.MemberData;
 import me.elgamer.earthserver.sql.OwnerData;
 import me.elgamer.earthserver.sql.PlayerData;
@@ -52,6 +53,11 @@ public class EditMember {
 
 	public static void clicked(User u, int slot, ItemStack clicked, Inventory inv) {
 
+		MemberData memberData = Main.getInstance().memberData;
+		OwnerData ownerData = Main.getInstance().ownerData;
+		PlayerData playerData = Main.getInstance().playerData;
+		RegionLogs regionLogs = Main.getInstance().regionLogs;
+		
 		if (clicked.getType().equals(Material.SPRUCE_DOOR_ITEM)) {
 
 			u.p.closeInventory();
@@ -59,29 +65,29 @@ public class EditMember {
 
 		} else if (clicked.getItemMeta().getDisplayName().equals(ChatColor.AQUA + "" + ChatColor.BOLD + "Remove Member")) {
 			
-			String uuid = PlayerData.getUUID(u.member_name);
-			RegionLogs.closeLog(u.region_name, uuid);
+			String uuid = playerData.getUUID(u.member_name);
+			regionLogs.closeLog(u.region_name, uuid);
 			WorldGuardFunctions.removeMember(u.region_name, uuid);
-			MemberData.removeMember(u.region_name, uuid);
+			memberData.removeMember(u.region_name, uuid);
 			
 			u.p.closeInventory();
 			u.p.sendMessage(ChatColor.RED + "Removed " + u.member_name + " from the region " + u.region_name);
 
 		} else if (clicked.getItemMeta().getDisplayName().equals(ChatColor.AQUA + "" + ChatColor.BOLD + "Transfer Ownership")) {
 
-			String uuid = PlayerData.getUUID(u.member_name);
+			String uuid = playerData.getUUID(u.member_name);
 			
 			//Change owner to member
-			RegionLogs.closeLog(u.region_name, u.uuid);
-			RegionLogs.newLog(u.region_name, u.uuid, "member");
-			OwnerData.removeOwner(u.uuid, u.region_name);
-			MemberData.addMember(u.region_name, u.uuid);
+			regionLogs.closeLog(u.region_name, u.uuid);
+			regionLogs.newLog(u.region_name, u.uuid, "member");
+			ownerData.removeOwner(u.uuid, u.region_name);
+			memberData.addMember(u.region_name, u.uuid);
 			
 			//Change member to owner
-			RegionLogs.closeLog(u.region_name, uuid);
-			RegionLogs.newLog(u.region_name, uuid, "owner");
-			MemberData.removeMember(u.region_name, uuid);
-			OwnerData.addOwner(u.region_name, uuid);
+			regionLogs.closeLog(u.region_name, uuid);
+			regionLogs.newLog(u.region_name, uuid, "owner");
+			memberData.removeMember(u.region_name, uuid);
+			ownerData.addOwner(u.region_name, uuid);
 
 			u.p.closeInventory();
 			u.p.sendMessage(ChatColor.GREEN + "Transferred ownership of the region " + u.region_name + " to " + u.member_name);

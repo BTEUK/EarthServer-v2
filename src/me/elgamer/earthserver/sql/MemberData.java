@@ -1,5 +1,6 @@
 package me.elgamer.earthserver.sql;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -7,30 +8,45 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
-import me.elgamer.earthserver.Main;
-import me.elgamer.earthserver.utils.OldClaim;
+import javax.sql.DataSource;
+
 import me.elgamer.earthserver.utils.Time;
 
 public class MemberData {
 
-	public static boolean addMembers(HashMap<String, String> members) {
+	DataSource dataSource;
 
-		Main instance = Main.getInstance();
+	public MemberData(DataSource dataSource) {
+
+		this.dataSource = dataSource;
+
+	}
+
+	private Connection conn() throws SQLException {
+		return dataSource.getConnection();
+	}
+	
+	public boolean addMembers(HashMap<String, String> members) {
+
 		long currentTime = Time.currentTime();
+		int i = 0;
+		
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"INSERT INTO region_members(region, uuid, last_enter) VALUES(?, ?, ?);"
+				)){
 
-		PreparedStatement statement;
-
-		try {
 			for (Entry<String, String> e : members.entrySet()) {
 
-				statement = instance.getConnection().prepareStatement
-						("INSERT INTO " + instance.memberData + " (REGION_ID,UUID,LAST_ENTER) VALUE (?,?,?)");
 				statement.setString(1, e.getKey());
 				statement.setString(2, e.getValue());
 				statement.setLong(3, currentTime);
 
-				statement.executeUpdate();
-
+				statement.addBatch();
+				i++;
+				
+				if (i % 1000 == 0 || i == members.size()) {
+					statement.executeBatch();
+				}				
 			}
 
 			return true;
@@ -43,20 +59,19 @@ public class MemberData {
 	}
 
 	//Check is player has instance in table
-	public static HashMap<String, String> getInactiveMembers(long inactive) {
+	public HashMap<String, String> getInactiveMembers(long inactive) {
 
-		Main instance = Main.getInstance();
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"SELECT region, uuid FROM region_members WHERE last_enter <= ?;"
+				)){
 
-		try {
-			PreparedStatement statement = instance.getConnection().prepareStatement
-					("SELECT * FROM " + instance.memberData + " WHERE LAST_ENTER<=?");
 			statement.setLong(1, inactive);
 
 			ResultSet results = statement.executeQuery();
 			HashMap<String, String> inactives = new HashMap<String, String>();
 
 			while (results.next()) {
-				inactives.put(results.getString("REGION_ID"), results.getString("UUID"));
+				inactives.put(results.getString("region"), results.getString("uuid"));
 			}
 
 			return inactives;
@@ -68,15 +83,12 @@ public class MemberData {
 
 	}
 
-	public static void removeInactiveMembers(long inactive) {
+	public void removeInactiveMembers(long inactive) {
 
-		Main instance = Main.getInstance();
-		PreparedStatement statement;
-		try {
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"DELETE FROM region_members WHERE last_enter <= ?;"
+				)){
 
-			//Delete all inactive members from member table
-			statement = instance.getConnection().prepareStatement
-					("DELETE FROM " + instance.memberData + " WHERE LAST_ENTER<=?");
 			statement.setLong(1, inactive);
 			statement.executeUpdate();
 
@@ -87,54 +99,12 @@ public class MemberData {
 
 	}
 
-	public static void convertMembers(ArrayList<OldClaim> claims) {
+	public boolean isMember(String uuid, String region) {
 
-		Main instance = Main.getInstance();
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"SELECT uuid FROM region_members WHERE region = ? AND uuid = ?;"
+				)){
 
-		PreparedStatement statement;
-
-		try {
-
-			for (OldClaim claim : claims) {
-
-				if (claim.members == null) {
-					continue;
-				}
-
-				if (claim.public_private) {
-					continue;
-				}
-
-				for (String member : claim.members) {
-
-					if (OwnerData.isOwner(member, claim.region)) {
-						continue;
-					}
-					
-					statement = instance.getConnection().prepareStatement
-							("INSERT INTO " + instance.memberData + " (REGION_ID,UUID,LAST_ENTER) VALUE (?,?,?)");
-					statement.setString(1, claim.region);
-					statement.setString(2, member);
-					statement.setLong(3, Time.currentTime());
-
-					statement.executeUpdate();
-
-				}
-			}
-
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-
-	}
-
-	public static boolean isMember(String uuid, String region) {
-
-		Main instance = Main.getInstance();
-
-		try {
-			PreparedStatement statement = instance.getConnection().prepareStatement
-					("SELECT * FROM " + instance.memberData + " WHERE REGION_ID=? AND UUID=?");
 			statement.setString(1, region);
 			statement.setString(2, uuid);
 
@@ -148,13 +118,12 @@ public class MemberData {
 		}
 	}
 
-	public static int count(String uuid) {
+	public int count(String uuid) {
 
-		Main instance = Main.getInstance();
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"SELECT COUNT(uuid) FROM region_members WHERE uuid = ?;"
+				)){
 
-		try {
-			PreparedStatement statement = instance.getConnection().prepareStatement
-					("SELECT COUNT(*) FROM " + instance.memberData + " WHERE UUID=?");
 			statement.setString(1, uuid);
 
 			ResultSet results = statement.executeQuery();
@@ -172,14 +141,12 @@ public class MemberData {
 
 	}
 
-	public static void addMember(String region, String uuid) {
+	public void addMember(String region, String uuid) {
 
-		Main instance = Main.getInstance();
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"INSERT INTO region_members(region, uuid, last_enter) VALUES (?, ?, ?);"
+				)){
 
-		PreparedStatement statement;
-		try {
-			statement = instance.getConnection().prepareStatement
-					("INSERT INTO " + instance.memberData + " (REGION_ID,UUID,LAST_ENTER) VALUE (?,?,?)");
 			statement.setString(1, region);
 			statement.setString(2, uuid);
 			statement.setLong(3, Time.currentTime());
@@ -192,13 +159,12 @@ public class MemberData {
 
 	}
 
-	public static void updateTime(String uuid, String region) {
+	public void updateTime(String uuid, String region) {
 
-		Main instance = Main.getInstance();
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"UPDATE region_members SET last_enter = ? WHERE region = ? AND uuid = ?;"
+				)){
 
-		try {
-			PreparedStatement statement = instance.getConnection().prepareStatement
-					("UPDATE " + instance.memberData + " SET LAST_ENTER=? WHERE REGION_ID=? AND UUID=?");
 			statement.setLong(1, Time.currentTime());
 			statement.setString(2, region);
 			statement.setString(3, uuid);
@@ -211,13 +177,12 @@ public class MemberData {
 
 	}
 
-	public static boolean hasMember(String region) {
+	public boolean hasMember(String region) {
 
-		Main instance = Main.getInstance();
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"SELECT uuid FROM region_members WHERE region = ?;"
+				)){
 
-		try {
-			PreparedStatement statement = instance.getConnection().prepareStatement
-					("SELECT * FROM " + instance.memberData + " WHERE REGION_ID=?");
 			statement.setString(1, region);
 
 			ResultSet results = statement.executeQuery();
@@ -229,20 +194,39 @@ public class MemberData {
 			return false;
 		}
 	}
+	
+	public long lastEnter(String region, String uuid) {
 
-	public static String latestMember(String region) {
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"SELECT last_enter FROM region_members WHERE region = ? AND uuid = ?;"
+				)){
 
-		Main instance = Main.getInstance();
+			statement.setString(1, region);
+			statement.setString(2, uuid);
 
-		try {
-			PreparedStatement statement = instance.getConnection().prepareStatement
-					("SELECT * FROM " + instance.memberData + " WHERE REGION_ID=? ORDER BY LAST_ENTER DESC");
+			ResultSet results = statement.executeQuery();
+			results.next();
+			
+			return (results.getLong("last_enter"));
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return 1;
+		}
+	}
+
+	public String latestMember(String region) {
+
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"SELECT uuid FROM region_members WHERE region = ? ORDER BY last_enter DESC;"
+				)){
+
 			statement.setString(1, region);
 
 			ResultSet results = statement.executeQuery();
 			results.next();
 
-			return (results.getString("UUID"));
+			return (results.getString("uuid"));
 
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -251,15 +235,12 @@ public class MemberData {
 
 	}
 
-	public static void removeMember(String region, String uuid) {
+	public void removeMember(String region, String uuid) {
 
-		Main instance = Main.getInstance();
-		PreparedStatement statement;
-		try {
-
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"DELETE FROM region_members WHERE region = ? AND uuid = ?;"
+				)){
 			//Delete all inactive members from member table
-			statement = instance.getConnection().prepareStatement
-					("DELETE FROM " + instance.memberData + " WHERE REGION_ID=? AND UUID=?");
 			statement.setString(1, region);
 			statement.setString(2, uuid);
 			statement.executeUpdate();
@@ -270,13 +251,12 @@ public class MemberData {
 
 	}
 
-	public static int countMembers(String region) {
+	public int countMembers(String region) {
 
-		Main instance = Main.getInstance();
-
-		try {
-			PreparedStatement statement = instance.getConnection().prepareStatement
-					("SELECT COUNT(*) FROM " + instance.memberData + " WHERE REGION_ID=?");
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"SELECT COUNT(uuid) region_members WHERE region = ?;"
+				)){
+			
 			statement.setString(1, region);
 
 			ResultSet results = statement.executeQuery();
@@ -294,62 +274,53 @@ public class MemberData {
 
 	}
 
-	public static ResultSet getMembers(String region) {
+	public ArrayList<String> getMembers(String region) {
 
-		Main instance = Main.getInstance();
+		ArrayList<String> members = new ArrayList<String>();
+		
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"SELECT uuid FROM region_members WHERE region = ?;"
+				)){
 
-		try {
-			PreparedStatement statement = instance.getConnection().prepareStatement
-					("SELECT * FROM " + instance.memberData + " WHERE REGION_ID=?");
 			statement.setString(1, region);
 
 			ResultSet results = statement.executeQuery();
+			
+			while (results.next()) {
+				members.add(results.getString("uuid"));
+			}
 
-			return results;
+			return members;
 
 		} catch (SQLException e) {
 			e.printStackTrace();
-			return null;
+			return members;
 		}	
 
 	}
 
-	public static ResultSet getRegions(String uuid) {
+	public ArrayList<String> getRegions(String uuid) {
 
-		Main instance = Main.getInstance();
+		ArrayList<String> regions = new ArrayList<String>();
+		
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"SELECT region FROM region_members WHERE uuid = ?;"
+				)){
 
-		try {
-			PreparedStatement statement = instance.getConnection().prepareStatement
-					("SELECT * FROM " + instance.memberData + " WHERE UUID=?");
 			statement.setString(1, uuid);
 
 			ResultSet results = statement.executeQuery();
+			
+			while (results.next()) {
+				regions.add(results.getString("region"));
+			}
 
-			return results;
-
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return null;
-		}
-
-	}
-	
-	public static ResultSet getMembers() {
-
-		Main instance = Main.getInstance();
-
-		try {
-			PreparedStatement statement = instance.getConnection().prepareStatement
-					("SELECT * FROM " + instance.memberData);
-
-			ResultSet results = statement.executeQuery();
-
-			return results;
+			return regions;
 
 		} catch (SQLException e) {
 			e.printStackTrace();
-			return null;
+			return regions;
 		}
-	}
 
+	}
 }

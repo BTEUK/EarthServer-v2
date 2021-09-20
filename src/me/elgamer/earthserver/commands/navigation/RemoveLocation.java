@@ -6,6 +6,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import me.elgamer.earthserver.Main;
 import me.elgamer.earthserver.sql.LocationSQL;
 
 public class RemoveLocation implements CommandExecutor {
@@ -30,12 +31,14 @@ public class RemoveLocation implements CommandExecutor {
 			return true;
 		}
 		
-		if (!(LocationSQL.locationExists(args[0]))) {
+		LocationSQL locationSQL = Main.getInstance().locationData;
+		
+		if (!(locationSQL.locationExists(args[0]))) {
 			p.sendMessage(ChatColor.RED + "This location does not exist");
 			return true;
 		}
 		
-		if (LocationSQL.removeLocation(args[0])) {
+		if (locationSQL.removeLocation(args[0])) {
 			p.sendMessage(ChatColor.GREEN + "The location " + args[0] + " has been removed");
 			return true;
 		} else {

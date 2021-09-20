@@ -6,6 +6,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import me.elgamer.earthserver.Main;
 import me.elgamer.earthserver.sql.LocationSQL;
 
 public class RequestLocation implements CommandExecutor {
@@ -30,12 +31,14 @@ public class RequestLocation implements CommandExecutor {
 			return true;
 		}
 		
-		if (LocationSQL.requestExists(args[0])) {
+		LocationSQL locationSQL = Main.getInstance().locationData;
+		
+		if (locationSQL.requestExists(args[0])) {
 			p.sendMessage(ChatColor.RED + "This location has already been requested.");
 			return true;
 		}
 		
-		if (LocationSQL.addRequest(args[0], p.getLocation())) {
+		if (locationSQL.addRequest(args[0], p.getLocation())) {
 			p.sendMessage(ChatColor.GREEN + "You have requested the location " + args[0]);
 		} else {
 			p.sendMessage(ChatColor.RED + "An error has occured, please try again.");
