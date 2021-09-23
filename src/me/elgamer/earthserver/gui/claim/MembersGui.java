@@ -90,7 +90,7 @@ public class MembersGui {
 		if (u.gui_page > 1) {
 			
 			Utils.createItem(inv, Material.ARROW, 1, 19, ChatColor.AQUA + "" + ChatColor.BOLD + "Previous Page",
-					Utils.chat("&fClick to return to the previous page of regions."));
+					Utils.chat("&fClick to return to the previous page of members."));
 			
 		}
 

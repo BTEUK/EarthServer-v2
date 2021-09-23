@@ -16,6 +16,7 @@ import me.elgamer.earthserver.gui.claim.RegionOptions;
 import me.elgamer.earthserver.gui.claim.RequestGui;
 import me.elgamer.earthserver.gui.claim.RequestReview;
 import me.elgamer.earthserver.gui.claim.StaffGui;
+import me.elgamer.earthserver.gui.claim.StaffMembers;
 import me.elgamer.earthserver.gui.claim.StaffOptions;
 import me.elgamer.earthserver.gui.claim.StaffRequests;
 import me.elgamer.earthserver.gui.navigation.EnglandGui;
@@ -143,6 +144,14 @@ public class InventoryClicked implements Listener {
 			}
 			if (title.equals(EditRequests.inventory_name)) {
 				EditRequests.clicked(u, e.getSlot(), e.getCurrentItem(), e.getInventory());
+			}
+		} else if (title.equals(StaffMembers.inventory_name)) {
+			e.setCancelled(true);
+			if (e.getCurrentItem() == null){
+				return;
+			}
+			if (title.equals(StaffMembers.inventory_name)) {
+					StaffMembers.clicked(u, e.getSlot(), e.getCurrentItem(), e.getInventory(), e.getClick());
 			}
 		}
 		

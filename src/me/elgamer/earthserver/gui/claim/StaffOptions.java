@@ -106,7 +106,7 @@ public class StaffOptions {
 		
 		int members = memberData.countMembers(u.current_region);
 		
-		Utils.createItem(inv, Material.BOOK, 1, 5, ChatColor.AQUA + "" + ChatColor.BOLD + "Region Info",
+		Utils.createItem(inv, Material.BOOK, 1, 4, ChatColor.AQUA + "" + ChatColor.BOLD + "Region Info",
 				Utils.chat("&fRegion: " + u.current_region),
 				Utils.chat("&fOwner: " + owner),
 				Utils.chat("&fNumber of Members: " + members));
@@ -114,6 +114,13 @@ public class StaffOptions {
 		Utils.createItem(inv, Material.SPRUCE_DOOR_ITEM, 1, 27, ChatColor.AQUA + "" + ChatColor.BOLD + "Return",
 				Utils.chat("&fClick to go back to the staff menu."));
 
+		if (ownerData.hasOwner(u.current_region) || memberData.hasMember(u.current_region)) {
+			
+			Utils.createItem(inv, Material.MAGENTA_GLAZED_TERRACOTTA, 1, 6, ChatColor.AQUA + "" + ChatColor.BOLD + "Edit Region Members",
+					Utils.chat("&fClick to open the edit member menu,"),
+					Utils.chat("&fyou can edit both members and the region owner."));
+			
+		}
 
 		toReturn.setContents(inv.getContents());
 		return toReturn;
@@ -200,6 +207,15 @@ public class StaffOptions {
 			
 			u.p.getOpenInventory().getTopInventory().setContents(StaffOptions.GUI(u).getContents());
 			u.p.updateInventory();
+			u.p.sendMessage(ChatColor.GREEN + "The region " + u.current_region + " is now unlocked!");
+			
+			
+		} else if (clicked.getItemMeta().getDisplayName().equals(ChatColor.AQUA + "" + ChatColor.BOLD + "Edit Region Members")) {
+			
+			regionData.setPublic(u.current_region);
+			
+			u.p.closeInventory();
+			u.p.openInventory(StaffMembers.Gui(u));
 			u.p.sendMessage(ChatColor.GREEN + "The region " + u.current_region + " is now unlocked!");
 			
 			
