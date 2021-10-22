@@ -254,7 +254,7 @@ public class MemberData {
 	public int countMembers(String region) {
 
 		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
-				"SELECT COUNT(uuid) region_members WHERE region = ?;"
+				"SELECT COUNT(uuid) FROM region_members WHERE region = ?;"
 				)){
 			
 			statement.setString(1, region);

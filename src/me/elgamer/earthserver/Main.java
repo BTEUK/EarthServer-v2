@@ -47,6 +47,7 @@ import me.elgamer.earthserver.gui.claim.RegionOptions;
 import me.elgamer.earthserver.gui.claim.RequestGui;
 import me.elgamer.earthserver.gui.claim.RequestReview;
 import me.elgamer.earthserver.gui.claim.StaffGui;
+import me.elgamer.earthserver.gui.claim.StaffMembers;
 import me.elgamer.earthserver.gui.claim.StaffOptions;
 import me.elgamer.earthserver.gui.claim.StaffRequests;
 import me.elgamer.earthserver.gui.navigation.EnglandGui;
@@ -80,7 +81,6 @@ import net.milkbowl.vault.permission.Permission;
 public class Main extends JavaPlugin {
 
 	//MySQL
-	private Connection connection;
 	public DataSource dataSource;
 	public String host, database, username, password;
 	
@@ -197,6 +197,7 @@ public class Main extends JavaPlugin {
 		StaffGui.initialize();
 		StaffOptions.initialize();
 		StaffRequests.initialize();
+		StaffMembers.initialize();
 		EditRequests.initialize();
 
 		//GUI's for the navigation menu
@@ -304,16 +305,9 @@ public class Main extends JavaPlugin {
 				memberData.updateTime(u.uuid, u.current_region);
 			}
 		}
-
-		//MySQL
-		try {
-			if (connection != null && !connection.isClosed()) {
-				Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "MySQL disconnected from " + config.getString("MySQL_database"));
-				connection.close();
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		
+		Bukkit.getConsoleSender().sendMessage("Disabled EarthServer");
+		
 	}
 
 	//Creates the mysql connection.

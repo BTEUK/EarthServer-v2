@@ -9,8 +9,6 @@ import java.util.HashMap;
 
 import javax.sql.DataSource;
 
-//import org.bukkit.Bukkit;
-
 import me.elgamer.earthserver.Main;
 import me.elgamer.earthserver.utils.Time;
 
@@ -273,5 +271,25 @@ public class OwnerData {
 		}
 
 
+	}
+	
+	public long lastEnter(String region, String uuid) {
+
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"SELECT last_enter FROM region_owners WHERE region = ? AND uuid = ?;"
+				)){
+			
+			statement.setString(1, region);
+			statement.setString(2, uuid);
+
+			ResultSet results = statement.executeQuery();
+			results.next();
+			
+			return (results.getLong("last_enter"));
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return 1;
+		}
 	}
 }

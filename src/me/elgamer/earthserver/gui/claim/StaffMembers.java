@@ -15,6 +15,7 @@ import me.elgamer.earthserver.Main;
 import me.elgamer.earthserver.sql.MemberData;
 import me.elgamer.earthserver.sql.OwnerData;
 import me.elgamer.earthserver.sql.PlayerData;
+import me.elgamer.earthserver.sql.RegionData;
 import me.elgamer.earthserver.sql.RegionLogs;
 import me.elgamer.earthserver.utils.Time;
 import me.elgamer.earthserver.utils.User;
@@ -56,7 +57,7 @@ public class StaffMembers {
 		String member;
 		Player p;
 
-		for (int i = (u.gui_page-1)*21; i < members.size(); i++) {
+		for (int i = 0; i < members.size(); i++) {
 
 
 			uuid = members.get(i);
@@ -77,20 +78,20 @@ public class StaffMembers {
 
 			if (ownerData.isOwner(uuid, u.current_region)) {
 				Utils.createItemByte(inv, Material.CONCRETE, 5, 1, u.gui_slot, ChatColor.AQUA + "" + ChatColor.BOLD + member, 
-						Utils.chat("&fLast Entered Region: " + Time.getDate(memberData.lastEnter(u.region_name, uuid))),
+						Utils.chat("&fLast Entered Region: " + Time.getDate(ownerData.lastEnter(u.current_region, uuid))),
 						Utils.chat("&fRight click to kick them from the region."));
 
 			} else {
 				Utils.createItemByte(inv, Material.CONCRETE, 4, 1, u.gui_slot, ChatColor.AQUA + "" + ChatColor.BOLD + member, 
-						Utils.chat("&fLast Entered Region: " + Time.getDate(memberData.lastEnter(u.region_name, uuid))),
+						Utils.chat("&fLast Entered Region: " + Time.getDate(memberData.lastEnter(u.current_region, uuid))),
 						Utils.chat("&fLeft click to transfer ownership to this member, right click to kick them from the region."));
 			}
 
-			if ((u.gui_slot & 45) == 17 ) {
+			if ((u.gui_slot % 45) == 17 ) {
 				u.gui_slot += 3;
-			} else if ((u.gui_slot & 45) == 26) {
+			} else if ((u.gui_slot % 45) == 26) {
 				u.gui_slot += 3;
-			} else if ((u.gui_slot & 45) == 35) {
+			} else if ((u.gui_slot % 45) == 35) {
 
 				Utils.createItem(inv, Material.ARROW, 1, 27, ChatColor.AQUA + "" + ChatColor.BOLD + "Next Page",
 						Utils.chat("&fClick to go to the next page of members."));
@@ -123,6 +124,7 @@ public class StaffMembers {
 		OwnerData ownerData = Main.getInstance().ownerData;
 		PlayerData playerData = Main.getInstance().playerData;
 		RegionLogs regionLogs = Main.getInstance().regionLogs;
+		RegionData regionData = Main.getInstance().regionData;
 		
 		if (clicked.getType().equals(Material.SPRUCE_DOOR_ITEM)) {
 
@@ -146,6 +148,10 @@ public class StaffMembers {
 			
 			String uuid = playerData.getUUID(ChatColor.stripColor(clicked.getItemMeta().getDisplayName()));
 
+			if (ownerData.isOwner(uuid, u.current_region)) {
+				return;
+			}
+			
 			//Change owner to member
 			if (ownerData.hasOwner(u.current_region)) {
 				String owner = ownerData.getOwner(u.current_region);
@@ -166,12 +172,42 @@ public class StaffMembers {
 
 
 		} else if (clickType.equals(ClickType.RIGHT)) {
-
+			
 			String uuid = playerData.getUUID(ChatColor.stripColor(clicked.getItemMeta().getDisplayName()));
 			
-			regionLogs.closeLog(u.current_region, uuid);
-			WorldGuardFunctions.removeMember(u.current_region, uuid);
-			memberData.removeMember(u.current_region, uuid);
+			if (ownerData.isOwner(uuid, u.current_region)) {
+
+				if ((!memberData.hasMember(u.current_region)) && regionData.isPublic(u.current_region)) {
+					
+					regionData.setPrivate(u.current_region);
+					
+				}
+				
+				regionLogs.closeLog(u.current_region, uuid);
+				ownerData.addNewOwner(u.current_region);
+				ownerData.removeOwner(uuid, u.current_region);
+				WorldGuardFunctions.removeMember(u.current_region, uuid);
+				
+				Player p = Bukkit.getPlayer(UUID.fromString(uuid));
+				
+				//If the player is online, update perms.
+				if (p != null) {
+					User.updatePerms(Main.getUser(p), u.current_region);
+				}
+
+			} else {
+				
+				regionLogs.closeLog(u.current_region,uuid);
+				memberData.removeMember(u.current_region, uuid);
+				WorldGuardFunctions.removeMember(u.current_region, uuid);
+				
+				Player p = Bukkit.getPlayer(UUID.fromString(uuid));
+				
+				//If the player is online, update perms.
+				if (p != null) {
+					User.updatePerms(Main.getUser(p), u.current_region);
+				}
+			}
 			
 			u.p.closeInventory();
 			u.p.sendMessage(ChatColor.RED + "Removed " + ChatColor.stripColor(clicked.getItemMeta().getDisplayName()) + " from the region " + u.current_region);

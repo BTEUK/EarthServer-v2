@@ -7,16 +7,6 @@ MySQL_username: root
 MySQL_password: password
 MySQL_claimData: claim_data
 MySQL_permissionData: permission_data
-MySQL_locationData: location_data
-MySQL_locationRequestData: location_request_data
-
-region_data: regions
-owner_data: region_owners
-member_data: region_members
-player_data: players
-request_data: requests
-region_logs: logs
-message_data: messages
 
 #Other
 
@@ -35,7 +25,7 @@ member_inactive: 42
 
 #Region limits per role
 Limit:
-    Builder: 30
+    Builder: 50
     JrBuilder: 15
     
 #Height limits

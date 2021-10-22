@@ -211,13 +211,10 @@ public class StaffOptions {
 			
 			
 		} else if (clicked.getItemMeta().getDisplayName().equals(ChatColor.AQUA + "" + ChatColor.BOLD + "Edit Region Members")) {
-			
-			regionData.setPublic(u.current_region);
-			
+					
+			u.gui_page = 1;
 			u.p.closeInventory();
-			u.p.openInventory(StaffMembers.Gui(u));
-			u.p.sendMessage(ChatColor.GREEN + "The region " + u.current_region + " is now unlocked!");
-			
+			u.p.openInventory(StaffMembers.Gui(u));			
 			
 		} else {
 

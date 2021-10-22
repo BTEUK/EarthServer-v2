@@ -71,11 +71,11 @@ public class MembersGui {
 						Utils.chat("&fLast Entered Region: " + Time.getDate(memberData.lastEnter(u.region_name, uuid))),
 						Utils.chat("&fClick to edit member, you can remove member or transfer ownership."));
 
-				if ((u.gui_slot & 45) == 17 ) {
+				if ((u.gui_slot % 45) == 17 ) {
 					u.gui_slot += 3;
-				} else if ((u.gui_slot & 45) == 26) {
+				} else if ((u.gui_slot % 45) == 26) {
 					u.gui_slot += 3;
-				} else if ((u.gui_slot & 45) == 35) {
+				} else if ((u.gui_slot % 45) == 35) {
 					
 					Utils.createItem(inv, Material.ARROW, 1, 27, ChatColor.AQUA + "" + ChatColor.BOLD + "Next Page",
 							Utils.chat("&fClick to go to the next page of members."));
