@@ -10,6 +10,8 @@ import java.util.Map.Entry;
 
 import javax.sql.DataSource;
 
+import com.google.common.collect.ListMultimap;
+
 import me.elgamer.earthserver.utils.Time;
 
 public class MemberData {
@@ -25,12 +27,12 @@ public class MemberData {
 	private Connection conn() throws SQLException {
 		return dataSource.getConnection();
 	}
-	
+
 	public boolean addMembers(HashMap<String, String> members) {
 
 		long currentTime = Time.currentTime();
 		int i = 0;
-		
+
 		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
 				"INSERT INTO region_members(region, uuid, last_enter) VALUES(?, ?, ?);"
 				)){
@@ -43,7 +45,7 @@ public class MemberData {
 
 				statement.addBatch();
 				i++;
-				
+
 				if (i % 1000 == 0 || i == members.size()) {
 					statement.executeBatch();
 				}				
@@ -194,7 +196,7 @@ public class MemberData {
 			return false;
 		}
 	}
-	
+
 	public long lastEnter(String region, String uuid) {
 
 		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
@@ -206,7 +208,7 @@ public class MemberData {
 
 			ResultSet results = statement.executeQuery();
 			results.next();
-			
+
 			return (results.getLong("last_enter"));
 
 		} catch (SQLException e) {
@@ -256,7 +258,7 @@ public class MemberData {
 		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
 				"SELECT COUNT(uuid) FROM region_members WHERE region = ?;"
 				)){
-			
+
 			statement.setString(1, region);
 
 			ResultSet results = statement.executeQuery();
@@ -277,7 +279,7 @@ public class MemberData {
 	public ArrayList<String> getMembers(String region) {
 
 		ArrayList<String> members = new ArrayList<String>();
-		
+
 		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
 				"SELECT uuid FROM region_members WHERE region = ?;"
 				)){
@@ -285,7 +287,7 @@ public class MemberData {
 			statement.setString(1, region);
 
 			ResultSet results = statement.executeQuery();
-			
+
 			while (results.next()) {
 				members.add(results.getString("uuid"));
 			}
@@ -302,7 +304,7 @@ public class MemberData {
 	public ArrayList<String> getRegions(String uuid) {
 
 		ArrayList<String> regions = new ArrayList<String>();
-		
+
 		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
 				"SELECT region FROM region_members WHERE uuid = ?;"
 				)){
@@ -310,7 +312,7 @@ public class MemberData {
 			statement.setString(1, uuid);
 
 			ResultSet results = statement.executeQuery();
-			
+
 			while (results.next()) {
 				regions.add(results.getString("region"));
 			}
@@ -322,5 +324,26 @@ public class MemberData {
 			return regions;
 		}
 
+	}
+
+	public void getAll(ListMultimap<String,String> members) {
+
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"SELECT last_enter FROM region_members;"
+				)){
+
+			ResultSet results = statement.executeQuery();
+
+			while (results.next()) {
+
+				members.put(results.getString("region"), results.getString("uuid"));
+
+			}
+
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return;
+		}			
 	}
 }

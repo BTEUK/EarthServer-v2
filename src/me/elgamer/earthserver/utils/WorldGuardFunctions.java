@@ -2,6 +2,7 @@ package me.elgamer.earthserver.utils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
@@ -10,6 +11,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.plugin.Plugin;
 
+import com.google.common.collect.ListMultimap;
 import com.sk89q.worldedit.BlockVector;
 import com.sk89q.worldguard.bukkit.RegionContainer;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
@@ -142,7 +144,7 @@ public class WorldGuardFunctions {
 		} catch (StorageException e1) {
 			e1.printStackTrace();
 		}
-		
+
 	}
 
 	public static void setClosed(String region) {
@@ -165,11 +167,11 @@ public class WorldGuardFunctions {
 		} catch (StorageException e1) {
 			e1.printStackTrace();
 		}
-		
+
 	}
-	
+
 	public static void setLocked(String region) {
-		
+
 		World world = Main.buildWorld;
 
 		WorldGuardPlugin wg = getWorldGuard();
@@ -179,7 +181,7 @@ public class WorldGuardFunctions {
 
 		ProtectedRegion WGregion = regions.getRegion(region);
 		DefaultDomain regionMembers = WGregion.getMembers();
-		
+
 		regionMembers.clear();
 		WGregion.setMembers(regionMembers);
 
@@ -188,13 +190,13 @@ public class WorldGuardFunctions {
 		} catch (StorageException e1) {
 			e1.printStackTrace();
 		}
-		
+
 	}
-	
+
 	public static void setUnlocked(String region) {
-		
+
 		World world = Main.buildWorld;
-		
+
 		RegionData regionData = Main.getInstance().regionData;
 		OwnerData ownerData = Main.getInstance().ownerData;
 		MemberData memberData = Main.getInstance().memberData;
@@ -206,23 +208,23 @@ public class WorldGuardFunctions {
 
 		ProtectedRegion WGregion = regions.getRegion(region);
 		DefaultDomain regionMembers = WGregion.getMembers();
-		
+
 		if (ownerData.hasOwner(region)) {
 			regionMembers.addPlayer(UUID.fromString(ownerData.getOwner(region)));
 		}
-		
+
 		if (memberData.hasMember(region)) {
 			ArrayList<String> members = memberData.getMembers(region);
-			
+
 			for (String member : members) {
 				regionMembers.addPlayer(UUID.fromString(member));
 			}
 		}
-		
+
 		if (regionData.isOpen(region)) {
 			regionMembers.addGroup("jrbuilder");
 		}
-		
+
 		WGregion.setMembers(regionMembers);
 
 		try {
@@ -230,9 +232,9 @@ public class WorldGuardFunctions {
 		} catch (StorageException e1) {
 			e1.printStackTrace();
 		}
-		
+
 	}
-	
+
 	public static void removeMember(String region, String uuid) {
 
 		World world = Main.buildWorld;
@@ -255,20 +257,20 @@ public class WorldGuardFunctions {
 		}
 
 	}
-	
+
 	public static void createRegion(String region, int x, int z) {
-		
+
 		World world = Main.buildWorld;
 
 		WorldGuardPlugin wg = getWorldGuard();
 
 		RegionContainer container = wg.getRegionContainer();
 		RegionManager regions = container.get(world);
-		
+
 		BlockVector min = new BlockVector(x*512, -512, z*512);
 		BlockVector max = new BlockVector(x*512 +511, 1536, z*512 +511);
 		ProtectedRegion WGregion = new ProtectedCuboidRegion(region, min, max);
-		
+
 		regions.addRegion(WGregion);
 
 		try {
@@ -276,9 +278,9 @@ public class WorldGuardFunctions {
 		} catch (StorageException e1) {
 			e1.printStackTrace();
 		}
-		
+
 	}
-	
+
 	public static void convertOwners(ArrayList<OldClaim> claims) {
 
 		World world = Main.buildWorld;
@@ -293,7 +295,7 @@ public class WorldGuardFunctions {
 		DefaultDomain regionOwners;
 		UUID ownerID = null;
 		Set<UUID> owners;
-		
+
 		for (OldClaim e : claims) {
 
 			region = regions.getRegion(e.region);
@@ -305,7 +307,7 @@ public class WorldGuardFunctions {
 				ownerID = uuid;
 			}
 			regionOwners.clear();
-			
+
 			regionMembers.addPlayer(ownerID);
 			region.setMembers(regionMembers);
 			region.setOwners(regionOwners);
@@ -319,5 +321,66 @@ public class WorldGuardFunctions {
 		}
 	}
 
+	public static void clearAll() {
+
+		World world = Main.buildWorld;
+
+		WorldGuardPlugin wg = getWorldGuard();
+
+		RegionContainer container = wg.getRegionContainer();
+		RegionManager regions = container.get(world);
+
+		DefaultDomain regionMembers;
+
+		for (ProtectedRegion region : regions.getRegions().values()) {
+
+			regionMembers = region.getMembers();
+			regionMembers.clear();
+			region.setMembers(regionMembers);
+
+			try {
+				regions.save();
+			} catch (StorageException e1) {
+				e1.printStackTrace();
+			}			
+		}		
+	}
+
+	public static void add(ListMultimap<String,String> members) {
+
+		World world = Main.buildWorld;
+
+		WorldGuardPlugin wg = getWorldGuard();
+
+		RegionContainer container = wg.getRegionContainer();
+		RegionManager regions = container.get(world);
+
+		ProtectedRegion region;
+		DefaultDomain regionMembers;
+		
+		List<String> mb;
+
+		for (String rg : members.keySet()) {
+
+			region = regions.getRegion(rg);
+			
+			regionMembers = region.getMembers();
+			regionMembers.clear();
+			
+			mb = members.get(rg);
+			
+			for (String member : mb) {
+				regionMembers.addPlayer(UUID.fromString(member));
+			}
+			
+			region.setMembers(regionMembers);
+
+			try {
+				regions.save();
+			} catch (StorageException e1) {
+				e1.printStackTrace();
+			}			
+		}		
+	}
 
 }

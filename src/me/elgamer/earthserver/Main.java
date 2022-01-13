@@ -29,6 +29,8 @@ import com.earth2me.essentials.Essentials;
 import com.mysql.jdbc.jdbc2.optional.MysqlConnectionPoolDataSource;
 import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 
+import me.elgamer.earthserver.commands.CleanWorldGuard;
+import me.elgamer.earthserver.commands.Spawn;
 import me.elgamer.earthserver.commands.TPBlock;
 import me.elgamer.earthserver.commands.claim.Claim;
 import me.elgamer.earthserver.commands.navigation.AddLocation;
@@ -176,6 +178,8 @@ public class Main extends JavaPlugin {
 
 		//Utility command
 		getCommand("tpblock").setExecutor(new TPBlock());
+		getCommand("spawn").setExecutor(new Spawn());
+		getCommand("cleanworldguard").setExecutor(new CleanWorldGuard(ownerData, memberData));
 
 		//Commands for the navigation menu
 		getCommand("locationrequest").setExecutor(new RequestLocation());

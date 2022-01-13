@@ -79,7 +79,7 @@ public class Inactive {
 			return;
 		} else {
 			regionLogs.closeLogs(inactiveMembers);
-			//WorldGuardFunctions.removeMembers(inactiveMembers);
+			WorldGuardFunctions.removeMembers(inactiveMembers);
 			memberData.removeInactiveMembers(inactivity);
 			Bukkit.broadcastMessage("Inactive Members removed from regions");
 		}

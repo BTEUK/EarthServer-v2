@@ -12,6 +12,12 @@ commands:
     tpblock:
         usage: /tpblock <x> <y> <z>
         description: Simple command to place teleport command blocks.
+    spawn:
+        usage: /<command>
+        description: teleports the player to spawn
+    cleanworldguard:
+        usage: /<command>
+        description: removes people from worldguard regions where they shouldn't be
     locationrequest:
         usage: /locationRequest <name>
         description: Creates a location request for the teleport gui.

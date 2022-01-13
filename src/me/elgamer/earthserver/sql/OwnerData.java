@@ -9,6 +9,8 @@ import java.util.HashMap;
 
 import javax.sql.DataSource;
 
+import com.google.common.collect.ListMultimap;
+
 import me.elgamer.earthserver.Main;
 import me.elgamer.earthserver.utils.Time;
 
@@ -291,5 +293,26 @@ public class OwnerData {
 			e.printStackTrace();
 			return 1;
 		}
+	}
+	
+	public void getAll(ListMultimap<String,String> members) {
+		
+		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
+				"SELECT last_enter FROM region_owners;"
+				)){
+			
+			ResultSet results = statement.executeQuery();
+			
+			while (results.next()) {
+				
+				members.put(results.getString("region"), results.getString("uuid"));
+				
+			}
+			
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return;
+		}			
 	}
 }
