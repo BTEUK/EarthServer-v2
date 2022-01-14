@@ -298,7 +298,7 @@ public class OwnerData {
 	public void getAll(ListMultimap<String,String> members) {
 		
 		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
-				"SELECT last_enter FROM region_owners;"
+				"SELECT region,uuid FROM region_owners;"
 				)){
 			
 			ResultSet results = statement.executeQuery();

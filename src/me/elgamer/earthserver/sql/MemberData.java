@@ -329,7 +329,7 @@ public class MemberData {
 	public void getAll(ListMultimap<String,String> members) {
 
 		try (Connection conn = conn(); PreparedStatement statement = conn.prepareStatement(
-				"SELECT last_enter FROM region_members;"
+				"SELECT region,uuid FROM region_members;"
 				)){
 
 			ResultSet results = statement.executeQuery();
